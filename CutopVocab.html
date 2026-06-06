@@ -191,7 +191,7 @@ function load(){try{words=JSON.parse(localStorage.getItem('cut_vocab_v3')||'[]')
 function getApiKey(){return localStorage.getItem('cut_api_key')||''}
 function saveApiKey(){
   const k=document.getElementById('api-key-input').value.trim();
-  if(!k||!k.startsWith('sk-ant')){toast('올바른 API 키를 입력해주세요');return}
+  if(!k||k.length<20){toast('API 키를 입력해주세요');return}
   localStorage.setItem('cut_api_key',k);
   closeApiModal();
   toast('✅ API 키 저장됐어요!');
@@ -218,7 +218,7 @@ async function fetchMeaning(word){
   if(!apiKey)return null;
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
-    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},
     body:JSON.stringify({
       model:'claude-haiku-4-5-20251001',
       max_tokens:150,
