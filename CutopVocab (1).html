@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 단어장">
+<title>씨유에탑 단어장</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0f0e1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#f0eeff}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:100px}
+.header{padding:14px 16px 10px;background:#0f0e1a;border-bottom:1px solid #2a2545;position:sticky;top:0;z-index:20}
+.header-top{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:10px;font-weight:700;background:#534AB7;color:#fff;padding:3px 9px;border-radius:20px}
+.header h1{font-size:17px;font-weight:700;color:#f0eeff;margin-left:8px}
+.total-count{font-size:11px;color:#8b7fc7;background:#1e1b36;padding:3px 10px;border-radius:20px}
+.tabs{display:flex;border-bottom:1px solid #2a2545;background:#0f0e1a;position:sticky;top:51px;z-index:19}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#3a3060;border-bottom:2px solid transparent;font-weight:600;transition:all .2s}
+.tab.active{color:#a594f9;border-bottom-color:#534AB7}
+.tab-icon{display:block;font-size:16px;margin-bottom:1px}
+.section{padding:12px;display:none}
+.section.active{display:block}
+.input-card{background:#1a1730;border:1px solid #2a2545;border-radius:16px;padding:14px;margin-bottom:12px}
+.input-row{display:flex;gap:8px}
+.word-input{flex:1;background:#0f0e1a;border:1.5px solid #3a3060;border-radius:10px;padding:10px 12px;color:#f0eeff;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s;letter-spacing:0.3px}
+.word-input::placeholder{color:#3a3060}
+.word-input:focus{border-color:#534AB7}
+.add-btn{background:#534AB7;border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+.add-btn:active{background:#3c3489;transform:scale(0.96)}
+.add-btn.loading{background:#2a2545;color:#6b5fa8;pointer-events:none}
+.result-box{background:#0f0e1a;border:1px solid #2a2545;border-radius:10px;padding:10px 12px;margin-top:8px;display:none}
+.result-box.show{display:block}
+.result-word{font-size:14px;font-weight:700;color:#f0eeff}
+.result-meaning{font-size:13px;color:#a594f9;margin-top:3px}
+.result-actions{display:flex;gap:6px;margin-top:8px}
+.r-btn{flex:1;padding:7px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;border:none;transition:all .2s}
+.r-tts{background:#1e1b36;color:#a594f9}
+.r-tts:active{background:#534AB7;color:#fff}
+.r-save{background:#534AB7;color:#fff}
+.r-save:active{background:#3c3489}
+.r-cancel{background:#1e1b36;color:#6b5fa8}
+.folder{background:#1a1730;border:1px solid #2a2545;border-radius:14px;margin-bottom:10px;overflow:hidden}
+.folder-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.folder-hd:active{background:#1e1b36}
+.folder-left{display:flex;align-items:center;gap:8px}
+.folder-name{font-size:13px;font-weight:700;color:#f0eeff}
+.folder-range{font-size:10px;color:#8b7fc7;margin-top:1px}
+.folder-meta{display:flex;align-items:center;gap:6px}
+.folder-cnt{font-size:11px;color:#8b7fc7;background:#0f0e1a;padding:2px 8px;border-radius:10px}
+.folder-arr{font-size:16px;color:#534AB7;transition:transform .2s}
+.folder-arr.open{transform:rotate(90deg)}
+.folder-body{display:none;border-top:1px solid #2a2545}
+.folder-body.open{display:block}
+.zone{border-bottom:1px solid #0f0e1a}
+.zone:last-child{border-bottom:none}
+.zone-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:pointer;background:#161328}
+.zone-hd:active{background:#1a1730}
+.zone-title{font-size:11px;font-weight:600;color:#a594f9}
+.zone-meta{display:flex;align-items:center;gap:5px}
+.zone-cnt{font-size:10px;color:#6b5fa8}
+.zone-body{display:none}
+.zone-body.open{display:block}
+.player{background:#0f0e1a;border-bottom:1px solid #1e1b36;padding:10px 14px;display:none}
+.player.show{display:block}
+.player-label{font-size:10px;color:#a594f9;font-weight:600;margin-bottom:4px}
+.player-word{font-size:14px;font-weight:700;color:#f0eeff;min-height:18px}
+.player-meaning{font-size:11px;color:#8b7fc7;margin-bottom:7px;min-height:14px}
+.player-btns{display:flex;gap:6px}
+.pl-btn{flex:1;background:#1e1b36;border:1px solid #2a2545;border-radius:8px;padding:7px;color:#a594f9;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+.pl-btn.active{background:#534AB7;border-color:#534AB7;color:#fff}
+.pl-btn:active{opacity:0.7}
+.pl-prog{font-size:10px;color:#4a3f7a;text-align:center;margin-top:4px}
+.word-card{display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #1a1730}
+.word-card:last-child{border-bottom:none}
+.word-main{flex:1;min-width:0}
+.word-eng{font-size:14px;font-weight:700;color:#f0eeff}
+.word-meaning{font-size:12px;color:#8b7fc7;margin-top:2px}
+.word-num{font-size:10px;color:#3a3060;margin-top:2px}
+.word-actions{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.tts-btn{background:#1e1b36;border:1px solid #3a3060;border-radius:8px;padding:5px 9px;color:#a594f9;font-size:11px;font-weight:600;cursor:pointer}
+.tts-btn:active{background:#534AB7;color:#fff}
+.rep-btn{background:none;border:1px solid #3a3060;border-radius:8px;padding:5px 7px;color:#6b5fa8;font-size:11px;cursor:pointer}
+.rep-btn.on{background:rgba(83,74,183,0.2);border-color:#534AB7;color:#a594f9}
+.unk-btn{background:none;border:1px solid #3a3060;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0}
+.unk-btn.marked{background:rgba(255,107,107,0.15);border-color:#ff6b6b}
+.del-btn{background:none;border:none;color:#2a2040;font-size:15px;cursor:pointer;padding:3px}
+.del-btn:active{color:#ff6b6b}
+.unk-card{background:#1a1730;border:1px solid rgba(255,107,107,0.2);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #ff6b6b}
+.unk-word{font-size:15px;font-weight:700;color:#f0eeff}
+.unk-meaning{font-size:12px;color:#8b7fc7;margin-top:3px;margin-bottom:8px}
+.unk-row{display:flex;gap:6px}
+.unk-tts{flex:1;background:#1e1b36;border:1px solid #2a2545;border-radius:8px;padding:8px;color:#a594f9;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.unk-tts:active{background:#534AB7;color:#fff}
+.unk-ok{flex:1;background:rgba(83,74,183,0.15);border:1px solid #534AB7;border-radius:8px;padding:8px;color:#a594f9;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.unk-ok:active{background:#534AB7;color:#fff}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-box{background:#1a1730;border:1px solid #2a2545;border-radius:12px;padding:12px}
+.stat-lbl{font-size:10px;color:#4a3f7a;font-weight:600}
+.stat-val{font-size:24px;font-weight:700;color:#f0eeff;margin-top:3px}
+.stat-sub{font-size:10px;color:#8b7fc7;margin-top:1px}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:#6b5fa8;margin-bottom:4px}
+.prog-bar{height:7px;background:#1e1b36;border-radius:4px;margin-bottom:12px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:#534AB7;transition:width .5s}
+.sec-lbl{font-size:11px;font-weight:600;color:#6b5fa8;margin-bottom:8px}
+.empty{text-align:center;padding:36px 0;color:#3a3060;font-size:12px}
+.empty-icon{font-size:36px;display:block;margin-bottom:8px}
+/* API 키 설정 모달 */
+.api-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center;pointer-events:none}
+.api-modal.show{display:flex;pointer-events:all}
+.api-box{background:#1a1730;border-radius:20px 20px 0 0;padding:24px 16px 40px;width:100%;max-width:430px}
+.api-handle{width:36px;height:4px;background:#2a2545;border-radius:2px;margin:0 auto 16px}
+.api-title{font-size:16px;font-weight:700;color:#f0eeff;margin-bottom:6px}
+.api-desc{font-size:12px;color:#8b7fc7;margin-bottom:16px;line-height:1.6}
+.api-input{width:100%;background:#0f0e1a;border:1.5px solid #3a3060;border-radius:10px;padding:11px 14px;color:#f0eeff;font-size:13px;font-family:inherit;outline:none;margin-bottom:10px}
+.api-input:focus{border-color:#534AB7}
+.api-save{width:100%;background:#534AB7;border:none;border-radius:10px;padding:13px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.api-save:active{background:#3c3489}
+.api-skip{width:100%;background:none;border:none;color:#6b5fa8;font-size:13px;cursor:pointer;padding:10px;margin-top:4px}
+.settings-btn{background:none;border:1px solid #2a2545;border-radius:8px;padding:3px 8px;color:#6b5fa8;font-size:11px;cursor:pointer}
+.toast{position:fixed;bottom:108px;left:50%;transform:translateX(-50%) translateY(16px);background:#534AB7;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div style="display:flex;align-items:center">
+        <span class="badge">씨유에탑</span>
+        <h1>단어장</h1>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <button class="settings-btn" onclick="openApiModal()">⚙️ API키</button>
+        <span class="total-count" id="total-count">0개</span>
+      </div>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('words')"><span class="tab-icon">📚</span>단어장</div>
+    <div class="tab" onclick="switchTab('unknown')"><span class="tab-icon">❌</span>모르는단어</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-icon">📊</span>통계</div>
+  </div>
+  <div class="section active" id="sec-words">
+    <div class="input-card">
+      <div class="input-row">
+        <input class="word-input" type="text" id="word-input" placeholder="영단어 입력 (예: persevere)" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" onkeydown="if(event.key==='Enter')addWord()"/>
+        <button class="add-btn" id="add-btn" onclick="addWord()">추가</button>
+      </div>
+      <div class="result-box" id="result-box">
+        <div class="result-word" id="r-word"></div>
+        <div class="result-meaning" id="r-meaning"></div>
+        <div class="result-actions">
+          <button class="r-btn r-tts" onclick="speak(currentWord)">🔊 듣기</button>
+          <button class="r-btn r-save" onclick="saveWord()">✅ 저장</button>
+          <button class="r-btn r-cancel" onclick="cancelWord()">✕</button>
+        </div>
+      </div>
+    </div>
+    <div id="folders-wrap"></div>
+  </div>
+  <div class="section" id="sec-unknown"><div id="unknown-wrap"></div></div>
+  <div class="section" id="sec-stats"><div id="stats-wrap"></div></div>
+</div>
+
+<!-- API 키 모달 -->
+<div class="api-modal" id="api-modal">
+  <div class="api-box">
+    <div class="api-handle"></div>
+    <div class="api-title">🔑 Claude API 키 설정</div>
+    <div class="api-desc">API 키를 입력하면 단어의 한국어 뜻을 자동으로 가져와요.<br>키는 이 기기에만 저장되며 외부로 전송되지 않아요.<br><br>발급: console.anthropic.com → API Keys</div>
+    <input class="api-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..." />
+    <button class="api-save" onclick="saveApiKey()">저장하기</button>
+    <button class="api-skip" onclick="closeApiModal()">나중에 설정하기</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+let words=[];
+let openF={};
+let openZ={};
+let repeatTimers={};
+let zonePlayer={};
+let currentWord='';
+let currentMeaning='';
+
+function save(){try{localStorage.setItem('cut_vocab_v3',JSON.stringify(words))}catch(e){}}
+function load(){try{words=JSON.parse(localStorage.getItem('cut_vocab_v3')||'[]')}catch(e){words=[]}}
+function getApiKey(){return localStorage.getItem('cut_api_key')||''}
+function saveApiKey(){
+  const k=document.getElementById('api-key-input').value.trim();
+  if(!k||k.length<20){toast('API 키를 입력해주세요');return}
+  localStorage.setItem('cut_api_key',k);
+  closeApiModal();
+  toast('✅ API 키 저장됐어요!');
+}
+function openApiModal(){
+  const k=getApiKey();
+  if(k)document.getElementById('api-key-input').value=k;
+  document.getElementById('api-modal').classList.add('show');
+}
+function closeApiModal(){document.getElementById('api-modal').classList.remove('show')}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+function speak(text,rate=0.85){
+  if(!('speechSynthesis' in window)){toast('TTS를 지원하지 않아요');return}
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=rate;u.pitch=1;
+  window.speechSynthesis.speak(u);
+}
+
+async function fetchMeaning(word){
+  const apiKey=getApiKey();
+  if(!apiKey)return null;
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({
+      model:'claude-haiku-4-5-20251001',
+      max_tokens:150,
+      system:`영어 단어의 한국어 뜻을 알려주세요. 반드시 JSON만 응답하세요 (마크다운 없이):
+{"meaning":"(품사) 한국어뜻1, 뜻2"}
+예시: {"meaning":"(동) 인내하다, 꿋꿋이 버티다"}`,
+      messages:[{role:'user',content:word}]
+    })
+  });
+  const data=await res.json();
+  const result=JSON.parse(data.content[0].text.trim());
+  return result.meaning;
+}
+
+async function addWord(){
+  const input=document.getElementById('word-input');
+  const word=input.value.trim().toLowerCase();
+  if(!word){toast('단어를 입력해주세요');return}
+  if(words.find(w=>w.word===word)){toast('이미 있는 단어예요!');input.value='';return}
+
+  const btn=document.getElementById('add-btn');
+  const apiKey=getApiKey();
+
+  if(apiKey){
+    btn.textContent='분석중...';btn.classList.add('loading');
+    await new Promise(r=>setTimeout(r,500));
+    try{
+      const meaning=await fetchMeaning(word);
+      currentWord=word;
+      currentMeaning=meaning||'';
+      document.getElementById('r-word').textContent=word;
+      document.getElementById('r-meaning').textContent=meaning||'(뜻을 가져오지 못했어요)';
+      document.getElementById('result-box').classList.add('show');
+      speak(word);
+      input.value='';
+    }catch(e){
+      toast('❌ API 오류. API 키를 확인해주세요.');
+    }
+    btn.textContent='추가';btn.classList.remove('loading');
+  } else {
+    // API 키 없으면 바로 저장
+    words.push({id:Date.now(),word,meaning:'',unknown:false,addedAt:new Date().toISOString()});
+    save();
+    const fi=Math.floor((words.length-1)/100);
+    const zi=Math.floor((words.length-1)/10);
+    openF[fi]=true;openZ[zi]=true;
+    renderAll();speak(word);
+    toast(`✅ "${word}" 저장! (⚙️ API키 설정하면 뜻 자동생성)`);
+    input.value='';
+  }
+}
+
+function saveWord(){
+  if(!currentWord)return;
+  words.push({id:Date.now(),word:currentWord,meaning:currentMeaning,unknown:false,addedAt:new Date().toISOString()});
+  save();
+  const fi=Math.floor((words.length-1)/100);
+  const zi=Math.floor((words.length-1)/10);
+  openF[fi]=true;openZ[zi]=true;
+  document.getElementById('result-box').classList.remove('show');
+  currentWord='';currentMeaning='';
+  renderAll();
+  toast('✅ 저장됐어요!');
+}
+
+function cancelWord(){
+  document.getElementById('result-box').classList.remove('show');
+  currentWord='';currentMeaning='';
+  document.getElementById('word-input').focus();
+}
+
+function toggleUnknown(id){const w=words.find(w=>w.id===id);if(w){w.unknown=!w.unknown;save();renderAll()}}
+function deleteWord(id){if(confirm('삭제할까요?')){words=words.filter(w=>w.id!==id);save();renderAll()}}
+function markKnown(id){const w=words.find(w=>w.id===id);if(w){w.unknown=false;save();renderAll();toast('✅ 외운 단어로!')}}
+
+function toggleRepeat(id){
+  if(repeatTimers[id]){clearInterval(repeatTimers[id]);delete repeatTimers[id];renderFolders();return}
+  const w=words.find(w=>w.id===id);if(!w)return;
+  speak(w.word);
+  repeatTimers[id]=setInterval(()=>speak(w.word),3500);
+  renderFolders();toast('🔁 반복 재생 중');
+}
+
+function playZone(zi,rate=0.85){
+  if(zonePlayer[zi]&&zonePlayer[zi].active){zonePlayer[zi].active=false;window.speechSynthesis.cancel();renderFolders();toast('⏹ 중지');return}
+  const zWords=words.filter((_,i)=>Math.floor(i/10)===zi);
+  if(!zWords.length)return;
+  let idx=0;zonePlayer[zi]={active:true,idx:0};
+  const next=()=>{
+    if(!zonePlayer[zi]||!zonePlayer[zi].active)return;
+    if(idx>=zWords.length){zonePlayer[zi].active=false;renderFolders();toast('✅ 구간 완료!');return}
+    zonePlayer[zi].idx=idx;
+    updatePlayer(zi,zWords[idx],idx,zWords.length);
+    const u=new SpeechSynthesisUtterance(zWords[idx].word);
+    u.lang='en-US';u.rate=rate;
+    u.onend=()=>{if(!zonePlayer[zi]||!zonePlayer[zi].active)return;setTimeout(()=>{idx++;next()},1200)};
+    window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
+  };
+  next();renderFolders();toast(rate<0.8?'🐢 천천히 재생':'▶ 자동재생 시작');
+}
+
+function updatePlayer(zi,w,idx,total){
+  const el=document.getElementById(`player-${zi}`);if(!el)return;
+  el.querySelector('.player-word').textContent=w.word;
+  el.querySelector('.player-meaning').textContent=w.meaning||'';
+  el.querySelector('.pl-prog').textContent=`${idx+1} / ${total}`;
+}
+
+function renderFolders(){
+  const wrap=document.getElementById('folders-wrap');
+  if(!words.length){wrap.innerHTML=`<div class="empty"><span class="empty-icon">📖</span>단어를 입력해보세요!<br><small style="color:#2a2040">⚙️ API키 설정 시 뜻 자동생성</small></div>`;document.getElementById('total-count').textContent='0개';return}
+  const folders={};
+  words.forEach((w,i)=>{const fi=Math.floor(i/100);if(!folders[fi])folders[fi]=[];folders[fi].push({...w,gi:i})});
+  let html='';
+  Object.keys(folders).sort((a,b)=>+a-+b).forEach(fi=>{
+    const fw=folders[fi];
+    const fs=+fi*100+1,fe=Math.min(+fi*100+100,words.length);
+    const unkCnt=fw.filter(w=>w.unknown).length;
+    const isOpen=openF[fi]!==false;
+    html+=`<div class="folder"><div class="folder-hd" onclick="toggleF(${fi})">
+      <div class="folder-left"><span style="font-size:18px">📁</span>
+        <div><div class="folder-name">${+fi+1}번 폴더</div><div class="folder-range">${fs}~${fe}번 단어</div></div>
+      </div>
+      <div class="folder-meta">
+        ${unkCnt?`<span style="font-size:10px;color:#ff6b6b;background:rgba(255,107,107,0.12);padding:2px 6px;border-radius:8px">❌${unkCnt}</span>`:''}
+        <span class="folder-cnt">${fw.length}개</span>
+        <span class="folder-arr ${isOpen?'open':''}">›</span>
+      </div>
+    </div>
+    <div class="folder-body ${isOpen?'open':''}">`;
+    const zones={};
+    fw.forEach(w=>{const zi=Math.floor(w.gi/10);if(!zones[zi])zones[zi]=[];zones[zi].push(w)});
+    Object.keys(zones).sort((a,b)=>+a-+b).forEach(zi=>{
+      const zw=zones[zi];
+      const zs=+zi*10+1,ze=Math.min(+zi*10+10,words.length);
+      const zUnk=zw.filter(w=>w.unknown).length;
+      const zOpen=openZ[zi]!==false;
+      const zPlay=zonePlayer[zi]&&zonePlayer[zi].active;
+      html+=`<div class="zone"><div class="zone-hd" onclick="toggleZ(${zi})">
+        <span class="zone-title">📌 ${zs}~${ze}번 구간</span>
+        <div class="zone-meta">
+          ${zUnk?`<span style="font-size:9px;color:#ff6b6b;background:rgba(255,107,107,0.1);padding:1px 5px;border-radius:6px">❌${zUnk}</span>`:''}
+          <span class="zone-cnt">${zw.length}개</span>
+        </div>
+      </div>
+      <div class="zone-body ${zOpen?'open':''}">
+        <div class="player ${zOpen?'show':''}" id="player-${zi}">
+          <div class="player-label">🔊 구간 자동재생</div>
+          <div class="player-word">${zPlay?zw[zonePlayer[zi].idx]?.word||'':''}</div>
+          <div class="player-meaning">${zPlay?zw[zonePlayer[zi].idx]?.meaning||'':''}</div>
+          <div class="player-btns">
+            <button class="pl-btn ${zPlay?'active':''}" onclick="playZone(${zi})">${zPlay?'⏹ 중지':'▶ 자동재생'}</button>
+            <button class="pl-btn" onclick="playZone(${zi},0.65)">🐢 천천히</button>
+          </div>
+          <div class="pl-prog">${zPlay?(zonePlayer[zi].idx+1)+'/'+zw.length:''}</div>
+        </div>`;
+      zw.forEach(w=>{
+        const isRep=!!repeatTimers[w.id];
+        html+=`<div class="word-card">
+          <div class="word-main">
+            <div class="word-eng">${w.word}</div>
+            ${w.meaning?`<div class="word-meaning">${w.meaning}</div>`:'<div class="word-meaning" style="color:#3a3060">뜻 없음</div>'}
+            <div class="word-num">#${words.indexOf(words.find(x=>x.id===w.id))+1}</div>
+          </div>
+          <div class="word-actions">
+            <button class="tts-btn" onclick="speak('${w.word.replace(/'/g,"\\'")}')">🔊</button>
+            <button class="rep-btn ${isRep?'on':''}" onclick="toggleRepeat(${w.id})">${isRep?'⏹':'🔁'}</button>
+            <button class="unk-btn ${w.unknown?'marked':''}" onclick="toggleUnknown(${w.id})">${w.unknown?'❌':'☑️'}</button>
+            <button class="del-btn" onclick="deleteWord(${w.id})">🗑</button>
+          </div>
+        </div>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+=`</div></div>`;
+  });
+  wrap.innerHTML=html;
+  document.getElementById('total-count').textContent=`총 ${words.length}개`;
+}
+
+function renderUnknown(){
+  const wrap=document.getElementById('unknown-wrap');
+  const unk=words.filter(w=>w.unknown);
+  if(!unk.length){wrap.innerHTML=`<div class="empty"><span class="empty-icon">🎉</span>모르는 단어가 없어요!</div>`;return}
+  let html=`<div style="font-size:12px;font-weight:600;color:#ff6b6b;margin-bottom:10px">❌ 모르는 단어 ${unk.length}개</div>`;
+  unk.forEach(w=>{html+=`<div class="unk-card">
+    <div class="unk-word">${w.word} <span style="font-size:10px;color:#3a3060">#${words.indexOf(w)+1}</span></div>
+    ${w.meaning?`<div class="unk-meaning">${w.meaning}</div>`:''}
+    <div class="unk-row">
+      <button class="unk-tts" onclick="speak('${w.word.replace(/'/g,"\\'")}')">🔊 듣기</button>
+      <button class="unk-ok" onclick="markKnown(${w.id})">✅ 외웠어요</button>
+    </div>
+  </div>`;});
+  wrap.innerHTML=html;
+}
+
+function renderStats(){
+  const wrap=document.getElementById('stats-wrap');
+  const total=words.length,unk=words.filter(w=>w.unknown).length,known=total-unk;
+  const folders=Math.ceil(total/100)||0,zones=Math.ceil(total/10)||0;
+  const pct=total?Math.round(known/total*100):0;
+  let fHtml='';
+  for(let fi=0;fi<folders;fi++){
+    const fw=words.slice(fi*100,fi*100+100);
+    const fk=fw.filter(w=>!w.unknown).length,fp=Math.round(fk/fw.length*100);
+    fHtml+=`<div class="prog-row"><span>📁 ${fi+1}번 폴더</span><span>${fk}/${fw.length} (${fp}%)</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${fp}%"></div></div>`;
+  }
+  wrap.innerHTML=`<div class="stat-grid">
+    <div class="stat-box"><div class="stat-lbl">총 단어</div><div class="stat-val">${total}</div><div class="stat-sub">개</div></div>
+    <div class="stat-box"><div class="stat-lbl">외운 단어</div><div class="stat-val">${known}</div><div class="stat-sub">${pct}%</div></div>
+    <div class="stat-box"><div class="stat-lbl">모르는 단어</div><div class="stat-val" style="color:#ff6b6b">${unk}</div><div class="stat-sub">복습 필요</div></div>
+    <div class="stat-box"><div class="stat-lbl">폴더/구간</div><div class="stat-val">${folders}</div><div class="stat-sub">${zones}구간</div></div>
+  </div>
+  <div class="prog-row"><span style="color:#a594f9;font-weight:600">전체 진도</span><span>${pct}%</span></div>
+  <div class="prog-bar" style="height:10px;margin-bottom:18px"><div class="prog-fill" style="width:${pct}%"></div></div>
+  ${folders?`<div class="sec-lbl">📁 폴더별 현황</div>${fHtml}`:''}`;
+}
+
+function toggleF(fi){openF[fi]=openF[fi]===false?true:false;renderFolders()}
+function toggleZ(zi){openZ[zi]=openZ[zi]===false?true:false;renderFolders()}
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['words','unknown','stats'][i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`sec-${tab}`).classList.add('active');
+  if(tab==='unknown')renderUnknown();if(tab==='stats')renderStats();
+}
+function renderAll(){
+  renderFolders();
+  const idx=[...document.querySelectorAll('.tab')].findIndex(t=>t.classList.contains('active'));
+  if(idx===1)renderUnknown();if(idx===2)renderStats();
+}
+
+load();
+if(!getApiKey()){
+  const banner=document.createElement('div');
+  banner.style.cssText='background:#534AB7;color:#fff;text-align:center;padding:10px;font-size:13px;font-weight:600;cursor:pointer';
+  banner.textContent='⚙️ API 키를 설정해주세요 (탭하기)';
+  banner.onclick=openApiModal;
+  document.querySelector('.app').insertBefore(banner, document.querySelector('.tabs'));
+}
+if(words.length>0){openF[0]=true;openZ[0]=true;}
+renderAll();
+</script>
+</body>
+</html>
