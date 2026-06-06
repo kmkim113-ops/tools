@@ -244,6 +244,7 @@ async function addWord(){
 
   if(apiKey){
     btn.textContent='분석중...';btn.classList.add('loading');
+    await new Promise(r=>setTimeout(r,500));
     try{
       const meaning=await fetchMeaning(word);
       currentWord=word;
