@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 생활영어">
+<title>씨유에탑 생활영어</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0a0f1e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#e8f0ff}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:100px}
+
+.header{padding:14px 16px 10px;background:#0a0f1e;border-bottom:1px solid #1e2d4a;position:sticky;top:0;z-index:20}
+.header-top{display:flex;align-items:center;justify-content:space-between}
+.header-left{display:flex;align-items:center;gap:8px}
+.badge{font-size:10px;font-weight:700;background:#1a6fff;color:#fff;padding:3px 9px;border-radius:20px}
+.header h1{font-size:17px;font-weight:700;color:#e8f0ff}
+.total-count{font-size:11px;color:#5a7aaa;background:#0f1a2e;padding:3px 10px;border-radius:20px}
+
+.tabs{display:flex;border-bottom:1px solid #1e2d4a;background:#0a0f1e;position:sticky;top:51px;z-index:19}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#3a5070;border-bottom:2px solid transparent;font-weight:600;transition:all .2s}
+.tab.active{color:#5b9fff;border-bottom-color:#1a6fff}
+.tab-icon{display:block;font-size:16px;margin-bottom:1px}
+
+.section{padding:12px;display:none}
+.section.active{display:block}
+
+/* 입력 */
+.input-card{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:16px;padding:14px;margin-bottom:12px}
+.input-label{font-size:11px;color:#5a7aaa;margin-bottom:8px;font-weight:600}
+.input-row{display:flex;gap:8px;margin-bottom:8px}
+.ko-input{flex:1;background:#060d1a;border:1.5px solid #1e2d4a;border-radius:12px;padding:11px 13px;color:#e8f0ff;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s;resize:none;min-height:52px}
+.ko-input::placeholder{color:#2a3f5a}
+.ko-input:focus{border-color:#1a6fff}
+.add-btn{background:#1a6fff;border:none;border-radius:12px;padding:11px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;align-self:flex-end;transition:all .2s;min-height:52px}
+.add-btn:active{background:#0d52cc;transform:scale(0.96)}
+.add-btn.loading{background:#1e2d4a;color:#5a7aaa}
+
+/* 결과 프리뷰 */
+.result-preview{background:#060d1a;border:1px solid #1e2d4a;border-radius:12px;padding:12px;margin-top:8px;display:none}
+.result-preview.show{display:block}
+.result-en{font-size:15px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:4px}
+.result-ko{font-size:12px;color:#5a7aaa;margin-bottom:8px}
+.result-tip{font-size:11px;color:#3a7fff;background:rgba(26,111,255,0.1);padding:4px 10px;border-radius:8px;margin-bottom:8px;line-height:1.5}
+.result-actions{display:flex;gap:6px}
+.preview-tts{flex:1;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:10px;padding:8px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.preview-tts:active{background:#1a6fff;color:#fff}
+.preview-save{flex:2;background:#1a6fff;border:none;border-radius:10px;padding:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;text-align:center}
+.preview-save:active{background:#0d52cc}
+
+/* 폴더 */
+.folder{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:14px;margin-bottom:10px;overflow:hidden}
+.folder-header{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.folder-header:active{background:#131f33}
+.folder-left{display:flex;align-items:center;gap:8px}
+.folder-name{font-size:13px;font-weight:700;color:#e8f0ff}
+.folder-range{font-size:10px;color:#5a7aaa;margin-top:1px}
+.folder-meta{display:flex;align-items:center;gap:6px}
+.folder-cnt{font-size:11px;color:#5a7aaa;background:#060d1a;padding:2px 8px;border-radius:10px}
+.folder-arr{font-size:16px;color:#1a6fff;transition:transform .2s}
+.folder-arr.open{transform:rotate(90deg)}
+.folder-body{display:none;border-top:1px solid #1e2d4a}
+.folder-body.open{display:block}
+
+/* 구간 */
+.zone{border-bottom:1px solid #0f1a2e}
+.zone:last-child{border-bottom:none}
+.zone-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:pointer;background:#0c1525}
+.zone-hd:active{background:#0f1a2e}
+.zone-title{font-size:11px;font-weight:600;color:#3a7fff}
+.zone-cnt{font-size:10px;color:#3a5070}
+.zone-body{display:none}
+.zone-body.open{display:block}
+
+/* 문장 카드 */
+.phrase-card{padding:11px 14px;border-bottom:1px solid #0c1525;transition:background .15s}
+.phrase-card:last-child{border-bottom:none}
+.phrase-card:active{background:#131f33}
+.phrase-en{font-size:14px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:2px}
+.phrase-ko{font-size:12px;color:#5a7aaa;margin-bottom:2px}
+.phrase-tip{font-size:10px;color:#3a7fff;margin-bottom:6px}
+.phrase-num{font-size:10px;color:#2a3f5a}
+.phrase-actions{display:flex;gap:5px;margin-top:6px}
+.p-tts{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:5px 10px;color:#5b9fff;font-size:11px;cursor:pointer;font-weight:600}
+.p-tts:active{background:#1a6fff;color:#fff}
+.p-repeat{background:rgba(26,111,255,0.12);border:1px solid #1e2d4a;border-radius:8px;padding:5px 10px;color:#3a7fff;font-size:11px;cursor:pointer;font-weight:600}
+.p-repeat.on{background:#1a6fff;border-color:#1a6fff;color:#fff}
+.p-del{background:none;border:none;color:#2a3f5a;font-size:14px;cursor:pointer;padding:4px;margin-left:auto}
+.p-del:active{color:#ff4d6a}
+
+/* 플레이어 (구간 전체 재생) */
+.player{background:#060d1a;border:1px solid #1e2d4a;border-radius:10px;padding:10px 12px;margin:8px 14px;display:none}
+.player.show{display:block}
+.player-title{font-size:11px;color:#3a7fff;font-weight:600;margin-bottom:6px}
+.player-en{font-size:13px;font-weight:700;color:#e8f0ff;margin-bottom:2px;min-height:20px}
+.player-ko{font-size:11px;color:#5a7aaa;margin-bottom:8px;min-height:16px}
+.player-controls{display:flex;gap:6px;align-items:center}
+.p-ctrl-btn{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:6px 12px;color:#5b9fff;font-size:12px;cursor:pointer;font-weight:600;flex:1;text-align:center}
+.p-ctrl-btn.active{background:#1a6fff;border-color:#1a6fff;color:#fff}
+.p-ctrl-btn:active{opacity:0.7}
+.player-progress{font-size:10px;color:#3a5070;text-align:center;margin-top:4px}
+
+/* 모르는 문장 */
+.unk-card{background:#0f1a2e;border:1px solid rgba(255,77,106,0.2);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #ff4d6a}
+.unk-en{font-size:14px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:3px}
+.unk-ko{font-size:12px;color:#5a7aaa;margin-bottom:4px}
+.unk-tip{font-size:10px;color:#3a7fff;margin-bottom:8px}
+.unk-actions{display:flex;gap:6px}
+.unk-tts{flex:1;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:7px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center}
+.unk-tts:active{background:#1a6fff;color:#fff}
+.unk-know{flex:1;background:rgba(26,111,255,0.15);border:1px solid #1a6fff;border-radius:8px;padding:7px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.unk-know:active{background:#1a6fff;color:#fff}
+
+/* 통계 */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-box{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:12px;padding:12px}
+.stat-lbl{font-size:10px;color:#3a5070;font-weight:600}
+.stat-val{font-size:24px;font-weight:700;color:#e8f0ff;margin-top:3px}
+.stat-sub{font-size:10px;color:#5a7aaa;margin-top:1px}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;color:#5a7aaa;margin-bottom:4px}
+.prog-bar{height:7px;background:#0f1a2e;border-radius:4px;margin-bottom:12px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:#1a6fff;transition:width .5s}
+.sec-lbl{font-size:11px;font-weight:600;color:#5a7aaa;margin-bottom:8px;letter-spacing:0.5px}
+
+/* 로딩 */
+.loading-bg{display:none;position:fixed;inset:0;background:rgba(10,15,30,0.88);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:10px}
+.loading-bg.show{display:flex}
+.spin{width:36px;height:36px;border:3px solid #1e2d4a;border-top-color:#1a6fff;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:12px;color:#5b9fff}
+
+.toast{position:fixed;bottom:108px;left:50%;transform:translateX(-50%) translateY(16px);background:#1a6fff;color:#fff;padding:9px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:300;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.empty{text-align:center;padding:36px 0;color:#2a3f5a;font-size:12px}
+.empty-icon{font-size:36px;display:block;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <span class="badge">씨유에탑</span>
+        <h1>생활영어</h1>
+      </div>
+      <span class="total-count" id="total-count">0개</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('phrases')"><span class="tab-icon">💬</span>표현함</div>
+    <div class="tab" onclick="switchTab('unknown')"><span class="tab-icon">🔖</span>복습함</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-icon">📊</span>통계</div>
+  </div>
+
+  <!-- 표현함 -->
+  <div class="section active" id="sec-phrases">
+    <div class="input-card">
+      <div class="input-label">💡 한국어로 입력하면 AI가 영어 표현으로 바꿔드려요</div>
+      <div class="input-row">
+        <textarea class="ko-input" id="ko-input" placeholder="예: 오늘 날씨 정말 좋다&#10;배고파 죽겠어&#10;잠깐만 기다려줘" rows="2"></textarea>
+        <button class="add-btn" id="add-btn" onclick="addPhrase()">AI<br>변환</button>
+      </div>
+      <div class="result-preview" id="result-preview">
+        <div class="result-en" id="r-en"></div>
+        <div class="result-ko" id="r-ko"></div>
+        <div class="result-tip" id="r-tip"></div>
+        <div class="result-actions">
+          <button class="preview-tts" onclick="speakText(currentResult.en)">🔊 듣기</button>
+          <button class="preview-save" onclick="savePhrase()">✅ 저장하기</button>
+        </div>
+      </div>
+    </div>
+    <div id="folders-wrap"></div>
+  </div>
+
+  <!-- 복습함 -->
+  <div class="section" id="sec-unknown">
+    <div id="unknown-wrap"></div>
+  </div>
+
+  <!-- 통계 -->
+  <div class="section" id="sec-stats">
+    <div id="stats-wrap"></div>
+  </div>
+</div>
+
+<div class="loading-bg" id="loading">
+  <div class="spin"></div>
+  <div class="loading-txt" id="loading-txt">AI가 영어 표현을 만드는 중...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let phrases=[];
+let openF={};
+let openZ={};
+let currentResult=null;
+let repeatTimers={};
+let zonePlayer={};
+
+function save(){try{localStorage.setItem('cut_english_v1',JSON.stringify(phrases))}catch(e){}}
+function load(){try{phrases=JSON.parse(localStorage.getItem('cut_english_v1')||'[]')}catch(e){phrases=[]}}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function loading(show,txt='AI가 영어 표현을 만드는 중...'){
+  document.getElementById('loading-txt').textContent=txt;
+  document.getElementById('loading').classList.toggle('show',show);
+}
+
+function speakText(text,rate=0.85){
+  if(!('speechSynthesis' in window)){toast('TTS를 지원하지 않는 브라우저예요');return}
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='en-US';u.rate=rate;u.pitch=1;
+  window.speechSynthesis.speak(u);
+}
+
+async function addPhrase(){
+  const input=document.getElementById('ko-input');
+  const ko=input.value.trim();
+  if(!ko){toast('한국어 문장을 입력해주세요');return}
+
+  const btn=document.getElementById('add-btn');
+  btn.textContent='분석중';btn.classList.add('loading');btn.disabled=true;
+  document.getElementById('result-preview').classList.remove('show');
+  loading(true);
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        system:`You are a native English teacher. Convert Korean sentences to natural everyday English expressions.
+Respond ONLY with JSON (no markdown):
+{"en":"Natural English expression","ko":"Korean meaning (same as input or refined)","tip":"One short usage tip in Korean, max 20 chars"}`,
+        messages:[{role:'user',content:ko}]
+      })
+    });
+    const data=await res.json();
+    const result=JSON.parse(data.content[0].text.trim());
+    currentResult={...result,ko_input:ko};
+    document.getElementById('r-en').textContent=result.en;
+    document.getElementById('r-ko').textContent=result.ko;
+    document.getElementById('r-tip').textContent='💡 '+result.tip;
+    document.getElementById('result-preview').classList.add('show');
+    speakText(result.en);
+    input.value='';
+  }catch(e){
+    toast('❌ 오류가 발생했어요. 다시 시도해주세요.');
+  }
+  btn.innerHTML='AI<br>변환';btn.classList.remove('loading');btn.disabled=false;
+  loading(false);
+}
+
+function savePhrase(){
+  if(!currentResult)return;
+  if(phrases.find(p=>p.en===currentResult.en)){toast('이미 저장된 표현이에요!');return}
+  phrases.push({
+    id:Date.now(),
+    en:currentResult.en,
+    ko:currentResult.ko,
+    tip:currentResult.tip,
+    ko_input:currentResult.ko_input,
+    unknown:false,
+    addedAt:new Date().toISOString()
+  });
+  save();
+  currentResult=null;
+  document.getElementById('result-preview').classList.remove('show');
+  const fi=Math.floor((phrases.length-1)/100);
+  const zi=Math.floor((phrases.length-1)/10);
+  openF[fi]=true;openZ[zi]=true;
+  renderAll();
+  toast('✅ 저장됐어요!');
+}
+
+function toggleUnknown(id){
+  const p=phrases.find(p=>p.id===id);
+  if(p){p.unknown=!p.unknown;save();renderAll();}
+}
+function deletePhrase(id){
+  if(confirm('이 표현을 삭제할까요?')){
+    phrases=phrases.filter(p=>p.id!==id);save();renderAll();
+  }
+}
+function markKnown(id){
+  const p=phrases.find(p=>p.id===id);
+  if(p){p.unknown=false;save();renderAll();toast('✅ 완료!'); }
+}
+
+// 단일 반복재생
+function toggleRepeat(id){
+  if(repeatTimers[id]){
+    clearInterval(repeatTimers[id]);
+    delete repeatTimers[id];
+    renderFolders();
+    return;
+  }
+  const p=phrases.find(p=>p.id===id);
+  if(!p)return;
+  speakText(p.en);
+  repeatTimers[id]=setInterval(()=>speakText(p.en),4000);
+  renderFolders();
+  toast('🔁 반복 재생 시작 (다시 누르면 중지)');
+}
+
+// 구간 전체 자동재생
+function playZone(zi,zPhrases){
+  if(zonePlayer[zi]&&zonePlayer[zi].active){
+    zonePlayer[zi].active=false;
+    window.speechSynthesis.cancel();
+    renderFolders();
+    toast('⏹ 재생 중지');
+    return;
+  }
+  let idx=0;
+  zonePlayer[zi]={active:true,idx:0};
+  const playNext=()=>{
+    if(!zonePlayer[zi]||!zonePlayer[zi].active)return;
+    if(idx>=zPhrases.length){
+      zonePlayer[zi].active=false;
+      renderFolders();
+      toast('✅ 구간 재생 완료!');
+      return;
+    }
+    zonePlayer[zi].idx=idx;
+    const p=zPhrases[idx];
+    updatePlayerUI(zi,p,idx,zPhrases.length);
+    const u=new SpeechSynthesisUtterance(p.en);
+    u.lang='en-US';u.rate=0.85;
+    u.onend=()=>{
+      if(!zonePlayer[zi]||!zonePlayer[zi].active)return;
+      setTimeout(()=>{idx++;playNext();},1200);
+    };
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  };
+  playNext();
+  renderFolders();
+  toast('▶ 구간 전체 재생 시작!');
+}
+
+function updatePlayerUI(zi,p,idx,total){
+  const el=document.getElementById(`player-${zi}`);
+  if(!el)return;
+  el.querySelector('.player-en').textContent=p.en;
+  el.querySelector('.player-ko').textContent=p.ko;
+  el.querySelector('.player-progress').textContent=`${idx+1} / ${total}`;
+}
+
+function renderFolders(){
+  const wrap=document.getElementById('folders-wrap');
+  if(!phrases.length){
+    wrap.innerHTML=`<div class="empty"><span class="empty-icon">💬</span>한국어로 입력하면<br>AI가 영어로 바꿔드려요</div>`;
+    document.getElementById('total-count').textContent='0개';
+    return;
+  }
+  const folders={};
+  phrases.forEach((p,i)=>{
+    const fi=Math.floor(i/100);
+    if(!folders[fi])folders[fi]=[];
+    folders[fi].push({...p,gi:i});
+  });
+  let html='';
+  Object.keys(folders).sort((a,b)=>+a-+b).forEach(fi=>{
+    const fw=folders[fi];
+    const fs=+fi*100+1,fe=Math.min(+fi*100+100,phrases.length);
+    const unkCnt=fw.filter(p=>p.unknown).length;
+    const isOpen=openF[fi]!==false;
+    html+=`<div class="folder">
+      <div class="folder-header" onclick="toggleF(${fi})">
+        <div class="folder-left">
+          <span style="font-size:18px">📁</span>
+          <div>
+            <div class="folder-name">${+fi+1}번 폴더</div>
+            <div class="folder-range">${fs}~${fe}번 표현</div>
+          </div>
+        </div>
+        <div class="folder-meta">
+          ${unkCnt?`<span style="font-size:10px;color:#ff4d6a;background:rgba(255,77,106,0.12);padding:2px 6px;border-radius:8px">🔖 ${unkCnt}</span>`:''}
+          <span class="folder-cnt">${fw.length}개</span>
+          <span class="folder-arr ${isOpen?'open':''}">›</span>
+        </div>
+      </div>
+      <div class="folder-body ${isOpen?'open':''}">`;
+
+    const zones={};
+    fw.forEach(p=>{
+      const zi=Math.floor(p.gi/10);
+      if(!zones[zi])zones[zi]=[];
+      zones[zi].push(p);
+    });
+    Object.keys(zones).sort((a,b)=>+a-+b).forEach(zi=>{
+      const zp=zones[zi];
+      const zs=+zi*10+1,ze=Math.min(+zi*10+10,phrases.length);
+      const zUnk=zp.filter(p=>p.unknown).length;
+      const zOpen=openZ[zi]!==false;
+      const zPlaying=zonePlayer[zi]&&zonePlayer[zi].active;
+      html+=`<div class="zone">
+        <div class="zone-hd" onclick="toggleZ(${zi})">
+          <span class="zone-title">📌 ${zs}~${ze}번 구간</span>
+          <div style="display:flex;gap:5px;align-items:center">
+            ${zUnk?`<span style="font-size:9px;color:#ff4d6a;background:rgba(255,77,106,0.1);padding:1px 5px;border-radius:6px">🔖${zUnk}</span>`:''}
+            <span class="zone-cnt">${zp.length}개</span>
+          </div>
+        </div>
+        <div class="zone-body ${zOpen?'open':''}">
+          <div class="player ${zOpen?'show':''}" id="player-${zi}">
+            <div class="player-title">▶ 구간 자동재생</div>
+            <div class="player-en" id="pen-${zi}">${zPlaying?zp[zonePlayer[zi].idx]?.en||'':''}</div>
+            <div class="player-ko" id="pko-${zi}">${zPlaying?zp[zonePlayer[zi].idx]?.ko||'':''}</div>
+            <div class="player-controls">
+              <button class="p-ctrl-btn ${zPlaying?'active':''}" onclick="playZone(${zi},[${zp.map(p=>`phrases.find(x=>x.id===${p.id})`).join(',')}])">${zPlaying?'⏹ 중지':'▶ 전체 재생'}</button>
+              <button class="p-ctrl-btn" onclick="playZoneSlow(${zi},[${zp.map(p=>`phrases.find(x=>x.id===${p.id})`).join(',')}])">🐢 천천히</button>
+            </div>
+            <div class="player-progress" id="pprog-${zi}">${zPlaying?(zonePlayer[zi].idx+1)+'/'+zp.length:''}</div>
+          </div>`;
+      zp.forEach(p=>{
+        const isRep=!!repeatTimers[p.id];
+        html+=`<div class="phrase-card">
+          <div class="phrase-en">${p.en}</div>
+          <div class="phrase-ko">${p.ko}</div>
+          ${p.tip?`<div class="phrase-tip">💡 ${p.tip}</div>`:''}
+          <div class="phrase-num">#${phrases.indexOf(phrases.find(x=>x.id===p.id))+1}</div>
+          <div class="phrase-actions">
+            <button class="p-tts" onclick="speakText('${p.en.replace(/'/g,"\\'")}')">🔊 듣기</button>
+            <button class="p-repeat ${isRep?'on':''}" onclick="toggleRepeat(${p.id})">${isRep?'⏹ 반복중':'🔁 반복'}</button>
+            <button class="p-del" onclick="deletePhrase(${p.id})">🗑</button>
+          </div>
+        </div>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+=`</div></div>`;
+  });
+  wrap.innerHTML=html;
+  document.getElementById('total-count').textContent=`총 ${phrases.length}개`;
+}
+
+function playZoneSlow(zi,zPhrases){
+  zPhrases=zPhrases.filter(Boolean);
+  if(zonePlayer[zi]&&zonePlayer[zi].active){
+    zonePlayer[zi].active=false;
+    window.speechSynthesis.cancel();
+    renderFolders();return;
+  }
+  let idx=0;
+  zonePlayer[zi]={active:true,idx:0};
+  const playNext=()=>{
+    if(!zonePlayer[zi]||!zonePlayer[zi].active)return;
+    if(idx>=zPhrases.length){zonePlayer[zi].active=false;renderFolders();toast('✅ 완료!');return;}
+    zonePlayer[zi].idx=idx;
+    const p=zPhrases[idx];
+    updatePlayerUI(zi,p,idx,zPhrases.length);
+    const u=new SpeechSynthesisUtterance(p.en);
+    u.lang='en-US';u.rate=0.65;
+    u.onend=()=>{if(!zonePlayer[zi]||!zonePlayer[zi].active)return;setTimeout(()=>{idx++;playNext();},1800);};
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(u);
+  };
+  playNext();renderFolders();toast('🐢 천천히 재생 시작!');
+}
+
+function renderUnknown(){
+  const wrap=document.getElementById('unknown-wrap');
+  const unk=phrases.filter(p=>p.unknown);
+  if(!unk.length){
+    wrap.innerHTML=`<div class="empty"><span class="empty-icon">🎉</span>복습할 표현이 없어요!<br>카드의 🔖 버튼으로 표시해보세요</div>`;
+    return;
+  }
+  let html=`<div style="font-size:12px;font-weight:600;color:#ff4d6a;margin-bottom:10px;display:flex;align-items:center;gap:5px">🔖 복습 표현 ${unk.length}개</div>`;
+  unk.forEach(p=>{
+    html+=`<div class="unk-card">
+      <div class="unk-en">${p.en}</div>
+      <div class="unk-ko">${p.ko}</div>
+      ${p.tip?`<div class="unk-tip">💡 ${p.tip}</div>`:''}
+      <div class="unk-actions">
+        <button class="unk-tts" onclick="speakText('${p.en.replace(/'/g,"\\'")}')">🔊 듣기</button>
+        <button class="unk-know" onclick="markKnown(${p.id})">✅ 완료</button>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML=html;
+}
+
+function renderStats(){
+  const wrap=document.getElementById('stats-wrap');
+  const total=phrases.length;
+  const unk=phrases.filter(p=>p.unknown).length;
+  const known=total-unk;
+  const folders=Math.ceil(total/100)||0;
+  const zones=Math.ceil(total/10)||0;
+  const pct=total?Math.round(known/total*100):0;
+  let fHtml='';
+  for(let fi=0;fi<folders;fi++){
+    const fw=phrases.slice(fi*100,fi*100+100);
+    const fk=fw.filter(p=>!p.unknown).length;
+    const fp=Math.round(fk/fw.length*100);
+    fHtml+=`<div class="prog-row"><span>📁 ${fi+1}번 폴더 (${fi*100+1}~${Math.min(fi*100+100,total)})</span><span>${fk}/${fw.length} (${fp}%)</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${fp}%"></div></div>`;
+  }
+  wrap.innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-lbl">총 표현</div><div class="stat-val">${total}</div><div class="stat-sub">개 저장됨</div></div>
+      <div class="stat-box"><div class="stat-lbl">학습 완료</div><div class="stat-val">${known}</div><div class="stat-sub">${pct}% 달성</div></div>
+      <div class="stat-box"><div class="stat-lbl">복습 필요</div><div class="stat-val" style="color:#ff4d6a">${unk}</div><div class="stat-sub">🔖 표시됨</div></div>
+      <div class="stat-box"><div class="stat-lbl">폴더/구간</div><div class="stat-val">${folders}</div><div class="stat-sub">폴더 · ${zones}구간</div></div>
+    </div>
+    <div class="prog-row" style="margin-bottom:4px"><span style="color:#5b9fff;font-weight:600">전체 진도</span><span>${pct}%</span></div>
+    <div class="prog-bar" style="height:10px;margin-bottom:18px"><div class="prog-fill" style="width:${pct}%"></div></div>
+    ${folders?`<div class="sec-lbl">📁 폴더별 현황</div>${fHtml}`:''}
+  `;
+}
+
+function toggleF(fi){openF[fi]=openF[fi]===false?true:false;renderFolders()}
+function toggleZ(zi){openZ[zi]=openZ[zi]===false?true:false;renderFolders()}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['phrases','unknown','stats'][i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`sec-${tab}`).classList.add('active');
+  if(tab==='unknown')renderUnknown();
+  if(tab==='stats')renderStats();
+}
+
+function renderAll(){
+  renderFolders();
+  const idx=[...document.querySelectorAll('.tab')].findIndex(t=>t.classList.contains('active'));
+  if(idx===1)renderUnknown();
+  if(idx===2)renderStats();
+  document.getElementById('total-count').textContent=`총 ${phrases.length}개`;
+}
+
+// 입력창 엔터(Ctrl+Enter) 지원
+document.getElementById('ko-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();addPhrase();}
+});
+
+load();
+if(phrases.length>0){openF[0]=true;openZ[0]=true;}
+renderAll();
+</script>
+</body>
+</html>
