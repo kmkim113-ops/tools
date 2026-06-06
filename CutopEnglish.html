@@ -4,376 +4,378 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="씨유에탑 생활영어">
 <title>씨유에탑 생활영어</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
 html,body{height:100%;background:#0a0f1e;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#e8f0ff}
-.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:100px}
-.header{padding:14px 16px 10px;background:#0a0f1e;border-bottom:1px solid #1e2d4a;position:sticky;top:0;z-index:20}
-.header-top{display:flex;align-items:center;justify-content:space-between}
-.badge{font-size:10px;font-weight:700;background:#1a6fff;color:#fff;padding:3px 9px;border-radius:20px}
-.header h1{font-size:17px;font-weight:700;color:#e8f0ff;margin-left:8px}
-.total-count{font-size:11px;color:#5a7aaa;background:#0f1a2e;padding:3px 10px;border-radius:20px}
-.tabs{display:flex;border-bottom:1px solid #1e2d4a;background:#0a0f1e;position:sticky;top:51px;z-index:19}
-.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#2a3f5a;border-bottom:2px solid transparent;font-weight:600;transition:all .2s}
-.tab.active{color:#5b9fff;border-bottom-color:#1a6fff}
-.tab-icon{display:block;font-size:16px;margin-bottom:1px}
-.section{padding:12px;display:none}
-.section.active{display:block}
-.input-card{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:16px;padding:14px;margin-bottom:12px}
-.input-hint{font-size:11px;color:#3a5070;margin-bottom:8px;font-weight:600}
-.input-row{display:flex;gap:8px}
-.ko-input{flex:1;background:#060d1a;border:1.5px solid #1e2d4a;border-radius:10px;padding:10px 12px;color:#e8f0ff;font-size:15px;font-family:inherit;outline:none;transition:border-color .2s}
-.ko-input::placeholder{color:#1e3050}
-.ko-input:focus{border-color:#1a6fff}
-.add-btn{background:#1a6fff;border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
-.add-btn:active{background:#0d52cc;transform:scale(0.96)}
-.add-btn.loading{background:#1e2d4a;color:#3a5070;pointer-events:none}
-.result-box{background:#060d1a;border:1px solid #1e2d4a;border-radius:10px;padding:12px;margin-top:8px;display:none}
-.result-box.show{display:block}
-.result-en{font-size:15px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:3px}
-.result-ko{font-size:12px;color:#5a7aaa;margin-bottom:4px}
-.result-tip{font-size:11px;color:#3a7fff;background:rgba(26,111,255,0.08);padding:4px 9px;border-radius:7px;margin-bottom:8px}
-.result-actions{display:flex;gap:6px}
-.r-btn{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;border:none;transition:all .2s}
-.r-tts{background:#0f1a2e;color:#5b9fff;border:1px solid #1e2d4a}
-.r-tts:active{background:#1a6fff;color:#fff}
-.r-save{background:#1a6fff;color:#fff}
-.r-save:active{background:#0d52cc}
-.r-cancel{background:#0f1a2e;color:#3a5070;border:1px solid #1e2d4a}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px}
+/* 헤더 */
+.hd{padding:12px 16px;background:#0a0f1e;border-bottom:1px solid #1e2d4a;display:flex;align-items:center;justify-content:space-between}
+.hd-left{display:flex;align-items:center;gap:8px}
+.badge{font-size:11px;font-weight:700;background:#1a6fff;color:#fff;padding:4px 10px;border-radius:20px}
+.hd h1{font-size:17px;font-weight:700;color:#e8f0ff}
+.hd-right{display:flex;align-items:center;gap:8px}
+.cnt{font-size:11px;color:#5a7aaa;background:#0f1a2e;padding:4px 10px;border-radius:20px}
+/* API 키 배너 */
+.api-banner{background:#1a6fff;color:#fff;text-align:center;padding:11px;font-size:13px;font-weight:600;cursor:pointer;display:none}
+.api-banner.show{display:block}
+/* API 설정 패널 */
+.api-panel{background:#0f1a2e;border-bottom:1px solid #1e2d4a;padding:14px 16px;display:none}
+.api-panel.show{display:block}
+.api-panel-title{font-size:13px;font-weight:600;color:#5b9fff;margin-bottom:8px}
+.api-panel-desc{font-size:11px;color:#5a7aaa;margin-bottom:10px;line-height:1.5}
+.api-row{display:flex;gap:8px}
+.api-inp{flex:1;background:#060d1a;border:1.5px solid #1e2d4a;border-radius:8px;padding:9px 12px;color:#e8f0ff;font-size:13px;font-family:inherit;outline:none}
+.api-inp:focus{border-color:#1a6fff}
+.api-ok{background:#1a6fff;border:none;border-radius:8px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.api-ok:active{background:#0d52cc}
+.api-close{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:9px 12px;color:#5a7aaa;font-size:13px;cursor:pointer;margin-top:8px;width:100%;text-align:center}
+/* 탭 */
+.tabs{display:flex;border-bottom:1px solid #1e2d4a;background:#0a0f1e}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#2a3f5a;border-bottom:2px solid transparent;font-weight:600}
+.tab.on{color:#5b9fff;border-bottom-color:#1a6fff}
+.tab-ic{display:block;font-size:16px;margin-bottom:1px}
+.sec{padding:12px;display:none}
+.sec.on{display:block}
+/* 입력 */
+.in-card{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:14px;padding:14px;margin-bottom:12px}
+.in-hint{font-size:11px;color:#3a5070;margin-bottom:8px;font-weight:600}
+.in-row{display:flex;gap:8px}
+.in-txt{flex:1;background:#060d1a;border:1.5px solid #1e2d4a;border-radius:10px;padding:10px 12px;color:#e8f0ff;font-size:15px;font-family:inherit;outline:none}
+.in-txt:focus{border-color:#1a6fff}
+.in-btn{background:#1a6fff;border:none;border-radius:10px;padding:10px 18px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.in-btn:active{background:#0d52cc}
+.in-btn.busy{background:#1e2d4a;color:#3a5070;pointer-events:none}
+/* 결과 */
+.res{background:#060d1a;border:1px solid #1e2d4a;border-radius:10px;padding:12px;margin-top:8px;display:none}
+.res.on{display:block}
+.res-en{font-size:15px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:3px}
+.res-ko{font-size:12px;color:#5a7aaa;margin-bottom:4px}
+.res-tip{font-size:11px;color:#3a7fff;background:rgba(26,111,255,0.08);padding:4px 9px;border-radius:7px;margin-bottom:8px}
+.res-row{display:flex;gap:6px}
+.rb{flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;border:none}
+.rb-tts{background:#0f1a2e;color:#5b9fff;border:1px solid #1e2d4a}
+.rb-tts:active{background:#1a6fff;color:#fff}
+.rb-save{background:#1a6fff;color:#fff}
+.rb-save:active{background:#0d52cc}
+.rb-cancel{background:#0f1a2e;color:#3a5070;border:1px solid #1e2d4a}
+/* 폴더 */
 .folder{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:14px;margin-bottom:10px;overflow:hidden}
-.folder-hd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
-.folder-hd:active{background:#131f33}
-.folder-left{display:flex;align-items:center;gap:8px}
-.folder-name{font-size:13px;font-weight:700;color:#e8f0ff}
-.folder-range{font-size:10px;color:#5a7aaa;margin-top:1px}
-.folder-meta{display:flex;align-items:center;gap:6px}
-.folder-cnt{font-size:11px;color:#5a7aaa;background:#060d1a;padding:2px 8px;border-radius:10px}
-.folder-arr{font-size:16px;color:#1a6fff;transition:transform .2s}
-.folder-arr.open{transform:rotate(90deg)}
-.folder-body{display:none;border-top:1px solid #1e2d4a}
-.folder-body.open{display:block}
+.fhd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.fhd:active{background:#131f33}
+.fleft{display:flex;align-items:center;gap:8px}
+.fname{font-size:13px;font-weight:700;color:#e8f0ff}
+.frange{font-size:10px;color:#5a7aaa;margin-top:1px}
+.fmeta{display:flex;align-items:center;gap:6px}
+.fcnt{font-size:11px;color:#5a7aaa;background:#060d1a;padding:2px 8px;border-radius:10px}
+.farr{font-size:16px;color:#1a6fff;transition:transform .2s}
+.farr.op{transform:rotate(90deg)}
+.fbody{display:none;border-top:1px solid #1e2d4a}
+.fbody.op{display:block}
+/* 구간 */
 .zone{border-bottom:1px solid #0a0f1e}
 .zone:last-child{border-bottom:none}
-.zone-hd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:pointer;background:#0c1525}
-.zone-hd:active{background:#0f1a2e}
-.zone-title{font-size:11px;font-weight:600;color:#3a7fff}
-.zone-meta{display:flex;align-items:center;gap:5px}
-.zone-cnt{font-size:10px;color:#2a4060}
-.zone-body{display:none}
-.zone-body.open{display:block}
-.player{background:#060d1a;border-bottom:1px solid #1e2d4a;padding:10px 14px;display:none}
-.player.show{display:block}
-.player-label{font-size:10px;color:#3a7fff;font-weight:600;margin-bottom:4px}
-.player-en{font-size:13px;font-weight:700;color:#e8f0ff;min-height:18px;line-height:1.4}
-.player-ko{font-size:11px;color:#5a7aaa;margin-bottom:7px;min-height:14px}
-.player-btns{display:flex;gap:6px}
-.pl-btn{flex:1;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:7px;color:#5b9fff;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
-.pl-btn.active{background:#1a6fff;border-color:#1a6fff;color:#fff}
-.pl-btn:active{opacity:0.7}
+.zhd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:pointer;background:#0c1525}
+.zhd:active{background:#0f1a2e}
+.ztitle{font-size:11px;font-weight:600;color:#3a7fff}
+.zbody{display:none}
+.zbody.op{display:block}
+/* 플레이어 */
+.player{background:#060d1a;border-bottom:1px solid #1e2d4a;padding:10px 14px}
+.pl-lbl{font-size:10px;color:#3a7fff;font-weight:600;margin-bottom:4px}
+.pl-en{font-size:13px;font-weight:700;color:#e8f0ff;min-height:18px;line-height:1.4}
+.pl-ko{font-size:11px;color:#5a7aaa;margin-bottom:7px;min-height:14px}
+.pl-btns{display:flex;gap:6px}
+.plb{flex:1;background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:7px;color:#5b9fff;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+.plb.on{background:#1a6fff;border-color:#1a6fff;color:#fff}
+.plb:active{opacity:.7}
 .pl-prog{font-size:10px;color:#2a4060;text-align:center;margin-top:4px}
-.phrase-card{padding:11px 14px;border-bottom:1px solid #0c1525}
-.phrase-card:last-child{border-bottom:none}
-.phrase-en{font-size:14px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:2px}
-.phrase-ko{font-size:12px;color:#5a7aaa;margin-bottom:2px}
-.phrase-tip{font-size:10px;color:#3a7fff;margin-bottom:5px}
-.phrase-num{font-size:10px;color:#1a2840;margin-bottom:4px}
-.phrase-actions{display:flex;gap:5px;align-items:center}
-.p-tts{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:5px 9px;color:#5b9fff;font-size:11px;cursor:pointer;font-weight:600}
-.p-tts:active{background:#1a6fff;color:#fff}
-.p-rep{background:none;border:1px solid #1e2d4a;border-radius:8px;padding:5px 7px;color:#3a5070;font-size:11px;cursor:pointer}
-.p-rep.on{background:rgba(26,111,255,0.15);border-color:#1a6fff;color:#5b9fff}
-.p-unk{background:none;border:1px solid #1e2d4a;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0}
-.p-unk.marked{background:rgba(255,77,106,0.12);border-color:#ff4d6a}
-.p-del{background:none;border:none;color:#1a2840;font-size:15px;cursor:pointer;padding:3px;margin-left:auto}
-.p-del:active{color:#ff4d6a}
-.unk-card{background:#0f1a2e;border:1px solid rgba(255,77,106,0.2);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #ff4d6a}
-.unk-en{font-size:14px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:2px}
-.unk-ko{font-size:12px;color:#5a7aaa;margin-bottom:8px}
-.unk-row{display:flex;gap:6px}
-.unk-tts{flex:1;background:#060d1a;border:1px solid #1e2d4a;border-radius:8px;padding:8px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
-.unk-tts:active{background:#1a6fff;color:#fff}
-.unk-ok{flex:1;background:rgba(26,111,255,0.1);border:1px solid #1a6fff;border-radius:8px;padding:8px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
-.unk-ok:active{background:#1a6fff;color:#fff}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.stat-box{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:12px;padding:12px}
-.stat-lbl{font-size:10px;color:#2a4060;font-weight:600}
-.stat-val{font-size:24px;font-weight:700;color:#e8f0ff;margin-top:3px}
-.stat-sub{font-size:10px;color:#5a7aaa;margin-top:1px}
-.prog-row{display:flex;justify-content:space-between;font-size:11px;color:#3a5070;margin-bottom:4px}
-.prog-bar{height:7px;background:#0f1a2e;border-radius:4px;margin-bottom:12px;overflow:hidden}
-.prog-fill{height:100%;border-radius:4px;background:#1a6fff;transition:width .5s}
-.sec-lbl{font-size:11px;font-weight:600;color:#3a5070;margin-bottom:8px}
+/* 카드 */
+.pc{padding:11px 14px;border-bottom:1px solid #0c1525}
+.pc:last-child{border-bottom:none}
+.pc-en{font-size:14px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:2px}
+.pc-ko{font-size:12px;color:#5a7aaa;margin-bottom:2px}
+.pc-tip{font-size:10px;color:#3a7fff;margin-bottom:4px}
+.pc-num{font-size:10px;color:#1a2840;margin-bottom:4px}
+.pc-acts{display:flex;gap:5px;align-items:center}
+.pa{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:8px;padding:5px 9px;color:#5b9fff;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap}
+.pa:active{background:#1a6fff;color:#fff}
+.pa2{background:none;border:1px solid #1e2d4a;border-radius:8px;padding:5px 7px;color:#3a5070;font-size:11px;cursor:pointer}
+.pa2.on{background:rgba(26,111,255,.15);border-color:#1a6fff;color:#5b9fff}
+.pa3{background:none;border:1px solid #1e2d4a;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0}
+.pa3.mk{background:rgba(255,77,106,.12);border-color:#ff4d6a}
+.pa4{background:none;border:none;color:#1a2840;font-size:15px;cursor:pointer;padding:3px;margin-left:auto}
+.pa4:active{color:#ff4d6a}
+/* 복습 */
+.uc{background:#0f1a2e;border:1px solid rgba(255,77,106,.2);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #ff4d6a}
+.uc-en{font-size:14px;font-weight:700;color:#e8f0ff;line-height:1.5;margin-bottom:2px}
+.uc-ko{font-size:12px;color:#5a7aaa;margin-bottom:8px}
+.uc-row{display:flex;gap:6px}
+.ua{flex:1;background:#060d1a;border:1px solid #1e2d4a;border-radius:8px;padding:8px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.ua:active{background:#1a6fff;color:#fff}
+.ua2{flex:1;background:rgba(26,111,255,.1);border:1px solid #1a6fff;border-radius:8px;padding:8px;color:#5b9fff;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.ua2:active{background:#1a6fff;color:#fff}
+/* 통계 */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sb{background:#0f1a2e;border:1px solid #1e2d4a;border-radius:12px;padding:12px}
+.sl{font-size:10px;color:#2a4060;font-weight:600}
+.sv{font-size:24px;font-weight:700;color:#e8f0ff;margin-top:3px}
+.ss{font-size:10px;color:#5a7aaa;margin-top:1px}
+.pr{display:flex;justify-content:space-between;font-size:11px;color:#3a5070;margin-bottom:4px}
+.pb{height:7px;background:#0f1a2e;border-radius:4px;margin-bottom:12px;overflow:hidden}
+.pf{height:100%;border-radius:4px;background:#1a6fff;transition:width .5s}
 .empty{text-align:center;padding:36px 0;color:#1e3050;font-size:12px}
-.empty-icon{font-size:36px;display:block;margin-bottom:8px}
-.api-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;align-items:flex-end;justify-content:center}
-.api-modal.show{display:flex}
-.api-box{background:#0f1a2e;border-radius:20px 20px 0 0;padding:24px 16px 40px;width:100%;max-width:430px}
-.api-handle{width:36px;height:4px;background:#1e2d4a;border-radius:2px;margin:0 auto 16px}
-.api-title{font-size:16px;font-weight:700;color:#e8f0ff;margin-bottom:6px}
-.api-desc{font-size:12px;color:#5a7aaa;margin-bottom:16px;line-height:1.6}
-.api-input{width:100%;background:#060d1a;border:1.5px solid #1e2d4a;border-radius:10px;padding:11px 14px;color:#e8f0ff;font-size:13px;font-family:inherit;outline:none;margin-bottom:10px}
-.api-input:focus{border-color:#1a6fff}
-.api-save{width:100%;background:#1a6fff;border:none;border-radius:10px;padding:13px;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
-.api-save:active{background:#0d52cc}
-.api-skip{width:100%;background:none;border:none;color:#3a5070;font-size:13px;cursor:pointer;padding:10px;margin-top:4px}
-.settings-btn{background:none;border:1px solid #1e2d4a;border-radius:8px;padding:3px 8px;color:#3a5070;font-size:11px;cursor:pointer}
-.toast{position:fixed;bottom:108px;left:50%;transform:translateX(-50%) translateY(16px);background:#1a6fff;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:300;white-space:nowrap;pointer-events:none}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.ei{font-size:36px;display:block;margin-bottom:8px}
+/* 토스트 */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#1a6fff;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="header">
-    <div class="header-top">
-      <div style="display:flex;align-items:center">
-        <span class="badge">씨유에탑</span>
-        <h1>생활영어</h1>
-      </div>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button class="settings-btn" onclick="openApiModal()">⚙️ API키</button>
-        <span class="total-count" id="total-count">0개</span>
-      </div>
+  <div class="hd">
+    <div class="hd-left">
+      <span class="badge">씨유에탑</span>
+      <h1>생활영어</h1>
+    </div>
+    <div class="hd-right">
+      <button onclick="toggleApiPanel()" style="background:none;border:1px solid #1e2d4a;border-radius:8px;padding:4px 10px;color:#5a7aaa;font-size:11px;cursor:pointer">⚙️ API키</button>
+      <span class="cnt" id="total-count">0개</span>
     </div>
   </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('phrases')"><span class="tab-icon">💬</span>표현함</div>
-    <div class="tab" onclick="switchTab('unknown')"><span class="tab-icon">🔖</span>복습함</div>
-    <div class="tab" onclick="switchTab('stats')"><span class="tab-icon">📊</span>통계</div>
+
+  <!-- API 배너 -->
+  <div class="api-banner" id="api-banner" onclick="toggleApiPanel()">⚙️ API 키를 먼저 설정해주세요 — 탭하기</div>
+
+  <!-- API 패널 -->
+  <div class="api-panel" id="api-panel">
+    <div class="api-panel-title">🔑 Claude API 키 설정</div>
+    <div class="api-panel-desc">console.anthropic.com → API Keys 에서 발급<br>키는 이 기기에만 저장돼요</div>
+    <div class="api-row">
+      <input class="api-inp" type="password" id="api-inp" placeholder="sk-ant-api03-..." />
+      <button class="api-ok" onclick="saveKey()">저장</button>
+    </div>
+    <button class="api-close" onclick="toggleApiPanel()">닫기</button>
   </div>
-  <div class="section active" id="sec-phrases">
-    <div class="input-card">
-      <div class="input-hint">💡 한국어로 입력하면 AI가 영어 표현으로 바꿔드려요</div>
-      <div class="input-row">
-        <input class="ko-input" type="text" id="ko-input" placeholder="예: 배고파 죽겠어, 잠깐만요" onkeydown="if(event.key==='Enter')addPhrase()"/>
-        <button class="add-btn" id="add-btn" onclick="addPhrase()">변환</button>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('phrases')"><span class="tab-ic">💬</span>표현함</div>
+    <div class="tab" onclick="switchTab('unknown')"><span class="tab-ic">🔖</span>복습함</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-ic">📊</span>통계</div>
+  </div>
+
+  <div class="sec on" id="sec-phrases">
+    <div class="in-card">
+      <div class="in-hint">💡 한국어로 입력하면 AI가 영어 표현으로 바꿔드려요</div>
+      <div class="in-row">
+        <input class="in-txt" type="text" id="ko-inp" placeholder="예: 배고파 죽겠어" onkeydown="if(event.key==='Enter')convert()" />
+        <button class="in-btn" id="conv-btn" onclick="convert()">변환</button>
       </div>
-      <div class="result-box" id="result-box">
-        <div class="result-en" id="r-en"></div>
-        <div class="result-ko" id="r-ko"></div>
-        <div class="result-tip" id="r-tip"></div>
-        <div class="result-actions">
-          <button class="r-btn r-tts" onclick="speak(currentPhrase.en)">🔊 듣기</button>
-          <button class="r-btn r-save" onclick="savePhrase()">✅ 저장</button>
-          <button class="r-btn r-cancel" onclick="cancelPhrase()">✕</button>
+      <div class="res" id="res-box">
+        <div class="res-en" id="r-en"></div>
+        <div class="res-ko" id="r-ko"></div>
+        <div class="res-tip" id="r-tip"></div>
+        <div class="res-row">
+          <button class="rb rb-tts" onclick="speak(cur.en)">🔊 듣기</button>
+          <button class="rb rb-save" onclick="savePh()">✅ 저장</button>
+          <button class="rb rb-cancel" onclick="cancelRes()">✕</button>
         </div>
       </div>
     </div>
-    <div id="folders-wrap"></div>
+    <div id="folders"></div>
   </div>
-  <div class="section" id="sec-unknown"><div id="unknown-wrap"></div></div>
-  <div class="section" id="sec-stats"><div id="stats-wrap"></div></div>
+  <div class="sec" id="sec-unknown"><div id="unk-list"></div></div>
+  <div class="sec" id="sec-stats"><div id="stats-body"></div></div>
 </div>
-
-<div class="api-modal" id="api-modal">
-  <div class="api-box">
-    <div class="api-handle"></div>
-    <div class="api-title">🔑 Claude API 키 설정</div>
-    <div class="api-desc">API 키를 입력하면 한국어 → 영어 자동 변환이 돼요.<br>키는 이 기기에만 저장되며 외부로 전송되지 않아요.<br><br>발급: console.anthropic.com → API Keys</div>
-    <input class="api-input" type="password" id="api-key-input" placeholder="sk-ant-api03-..."/>
-    <button class="api-save" onclick="saveApiKey()">저장하기</button>
-    <button class="api-skip" onclick="closeApiModal()">나중에 설정하기</button>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
-<script>
-let phrases=[];
-let openF={};
-let openZ={};
-let repeatTimers={};
-let zonePlayer={};
-let currentPhrase=null;
 
-function save(){try{localStorage.setItem('cut_english_v3',JSON.stringify(phrases))}catch(e){}}
-function load(){try{phrases=JSON.parse(localStorage.getItem('cut_english_v3')||'[]')}catch(e){phrases=[]}}
-function getApiKey(){return localStorage.getItem('cut_api_key')||''}
-function saveApiKey(){
-  const k=document.getElementById('api-key-input').value.trim();
-  if(!k||k.length<20){toast('API 키를 입력해주세요');return}
-  localStorage.setItem('cut_api_key',k);
-  closeApiModal();toast('✅ API 키 저장됐어요!');
+<script>
+let phrases=[], openF={}, openZ={}, repTimers={}, zonePl={}, cur=null;
+
+function load(){try{phrases=JSON.parse(localStorage.getItem('ce_v4')||'[]')}catch(e){phrases=[]}}
+function save(){try{localStorage.setItem('ce_v4',JSON.stringify(phrases))}catch(e){}}
+function getKey(){return localStorage.getItem('ce_key')||''}
+
+function saveKey(){
+  const k=document.getElementById('api-inp').value.trim();
+  if(k.length<20){showToast('API 키가 너무 짧아요');return}
+  localStorage.setItem('ce_key',k);
+  document.getElementById('api-banner').classList.remove('show');
+  toggleApiPanel();
+  showToast('✅ API 키 저장됐어요!');
 }
-function openApiModal(){
-  const k=getApiKey();
-  if(k)document.getElementById('api-key-input').value=k;
-  document.getElementById('api-modal').classList.add('show');
+
+function toggleApiPanel(){
+  const p=document.getElementById('api-panel');
+  const isOpen=p.classList.contains('show');
+  if(!isOpen){
+    const k=getKey();
+    if(k)document.getElementById('api-inp').value=k;
+    p.classList.add('show');
+  } else {
+    p.classList.remove('show');
+  }
 }
-function closeApiModal(){document.getElementById('api-modal').classList.remove('show')}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
 
 function speak(text,rate=0.85){
-  if(!('speechSynthesis' in window)){toast('TTS를 지원하지 않아요');return}
+  if(!window.speechSynthesis){showToast('TTS 미지원');return}
   window.speechSynthesis.cancel();
   const u=new SpeechSynthesisUtterance(text);
-  u.lang='en-US';u.rate=rate;u.pitch=1;
+  u.lang='en-US';u.rate=rate;
   window.speechSynthesis.speak(u);
 }
 
-async function addPhrase(){
-  const input=document.getElementById('ko-input');
-  const ko=input.value.trim();
-  if(!ko){toast('한국어 문장을 입력해주세요');return}
-  const apiKey=getApiKey();
-  if(!apiKey){openApiModal();return}
-  const btn=document.getElementById('add-btn');
-  btn.textContent='변환중...';btn.classList.add('loading');
-  document.getElementById('result-box').classList.remove('show');
+async function convert(){
+  const inp=document.getElementById('ko-inp');
+  const ko=inp.value.trim();
+  if(!ko){showToast('한국어 문장을 입력해주세요');return}
+  const key=getKey();
+  if(!key){
+    document.getElementById('api-banner').classList.add('show');
+    toggleApiPanel();
+    return;
+  }
+  const btn=document.getElementById('conv-btn');
+  btn.textContent='변환중...';btn.classList.add('busy');
+  document.getElementById('res-box').classList.remove('on');
   await new Promise(r=>setTimeout(r,500));
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
       body:JSON.stringify({
         model:'claude-haiku-4-5-20251001',
         max_tokens:200,
-        system:`한국어를 자연스러운 생활 영어 표현으로 변환해주세요. JSON만 응답 (마크다운 없이):
-{"en":"자연스러운 영어 표현","ko":"한국어 의미","tip":"짧은 사용 팁 (한국어, 15자 이내)"}`,
+        system:'한국어를 자연스러운 생활 영어로 변환. JSON만 응답(마크다운 없이): {"en":"영어표현","ko":"한국어의미","tip":"팁(15자이내)"}',
         messages:[{role:'user',content:ko}]
       })
     });
-    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(res.status+' '+(err.error?.message||res.statusText));}
+    if(!res.ok){
+      const e=await res.json().catch(()=>({}));
+      throw new Error(res.status+' '+(e.error?.message||''));
+    }
     const data=await res.json();
-    if(!data.content||!data.content[0]){throw new Error('응답 없음');}
-    let raw=data.content[0].text.trim();
-    raw=raw.replace(/^```[a-z]*
-?/i,'').replace(/```$/,'').trim();
+    let raw=data.content[0].text.trim().replace(/^```[a-z]*\n?/i,'').replace(/```$/,'').trim();
     const result=JSON.parse(raw);
-    currentPhrase={...result,ko_input:ko};
+    cur=result;
     document.getElementById('r-en').textContent=result.en;
-    document.getElementById('r-ko').textContent=result.ko;
-    document.getElementById('r-tip').textContent='💡 '+result.tip;
-    document.getElementById('result-box').classList.add('show');
+    document.getElementById('r-ko').textContent=result.ko||'';
+    document.getElementById('r-tip').textContent=result.tip?'💡 '+result.tip:'';
+    document.getElementById('res-box').classList.add('on');
     speak(result.en);
-    input.value='';
+    inp.value='';
   }catch(e){
-    console.error('API Error:',e);
-    if(e.message&&e.message.includes('401')){toast('❌ API 키가 잘못됐어요. 다시 확인해주세요.');}
-    else if(e.message&&e.message.includes('fetch')){toast('❌ 네트워크 오류. 인터넷 확인해주세요.');}
-    else{toast('❌ 오류: '+e.message);}
+    showToast('❌ '+e.message);
   }
-  btn.textContent='변환';btn.classList.remove('loading');
+  btn.textContent='변환';btn.classList.remove('busy');
 }
 
-function savePhrase(){
-  if(!currentPhrase)return;
-  if(phrases.find(p=>p.en===currentPhrase.en)){toast('이미 있는 표현이에요!');return}
-  phrases.push({id:Date.now(),en:currentPhrase.en,ko:currentPhrase.ko,tip:currentPhrase.tip,unknown:false,addedAt:new Date().toISOString()});
+function savePh(){
+  if(!cur)return;
+  if(phrases.find(p=>p.en===cur.en)){showToast('이미 있는 표현!');return}
+  phrases.push({id:Date.now(),en:cur.en,ko:cur.ko||'',tip:cur.tip||'',unknown:false});
   save();
   const fi=Math.floor((phrases.length-1)/100);
   const zi=Math.floor((phrases.length-1)/10);
   openF[fi]=true;openZ[zi]=true;
-  document.getElementById('result-box').classList.remove('show');
-  currentPhrase=null;
-  renderAll();toast('✅ 저장됐어요!');
+  cur=null;
+  document.getElementById('res-box').classList.remove('on');
+  renderAll();showToast('✅ 저장됐어요!');
 }
 
-function cancelPhrase(){
-  document.getElementById('result-box').classList.remove('show');
-  currentPhrase=null;
-  document.getElementById('ko-input').focus();
+function cancelRes(){
+  cur=null;
+  document.getElementById('res-box').classList.remove('on');
+  document.getElementById('ko-inp').focus();
 }
 
 function toggleUnknown(id){const p=phrases.find(p=>p.id===id);if(p){p.unknown=!p.unknown;save();renderAll()}}
-function deletePhrase(id){if(confirm('삭제할까요?')){phrases=phrases.filter(p=>p.id!==id);save();renderAll()}}
-function markKnown(id){const p=phrases.find(p=>p.id===id);if(p){p.unknown=false;save();renderAll();toast('✅ 완료!')}}
+function delPh(id){if(confirm('삭제할까요?')){phrases=phrases.filter(p=>p.id!==id);save();renderAll()}}
+function markKnown(id){const p=phrases.find(p=>p.id===id);if(p){p.unknown=false;save();renderAll();showToast('✅ 완료!')}}
 
-function toggleRepeat(id){
-  if(repeatTimers[id]){clearInterval(repeatTimers[id]);delete repeatTimers[id];renderFolders();return}
+function toggleRep(id){
+  if(repTimers[id]){clearInterval(repTimers[id]);delete repTimers[id];renderFolders();return}
   const p=phrases.find(p=>p.id===id);if(!p)return;
   speak(p.en);
-  repeatTimers[id]=setInterval(()=>speak(p.en),4000);
-  renderFolders();toast('🔁 반복 재생 중');
+  repTimers[id]=setInterval(()=>speak(p.en),4000);
+  renderFolders();showToast('🔁 반복 재생 중');
 }
 
 function playZone(zi,rate=0.85){
-  if(zonePlayer[zi]&&zonePlayer[zi].active){zonePlayer[zi].active=false;window.speechSynthesis.cancel();renderFolders();toast('⏹ 중지');return}
+  if(zonePl[zi]?.active){zonePl[zi].active=false;window.speechSynthesis.cancel();renderFolders();showToast('⏹ 중지');return}
   const zp=phrases.filter((_,i)=>Math.floor(i/10)===zi);
   if(!zp.length)return;
-  let idx=0;zonePlayer[zi]={active:true,idx:0};
+  let idx=0;zonePl[zi]={active:true,idx:0};
   const next=()=>{
-    if(!zonePlayer[zi]||!zonePlayer[zi].active)return;
-    if(idx>=zp.length){zonePlayer[zi].active=false;renderFolders();toast('✅ 구간 완료!');return}
-    zonePlayer[zi].idx=idx;
-    updatePlayer(zi,zp[idx],idx,zp.length);
+    if(!zonePl[zi]?.active)return;
+    if(idx>=zp.length){zonePl[zi].active=false;renderFolders();showToast('✅ 완료!');return}
+    zonePl[zi].idx=idx;
+    const el=document.getElementById('pl-'+zi);
+    if(el){el.querySelector('.pl-en').textContent=zp[idx].en;el.querySelector('.pl-ko').textContent=zp[idx].ko||'';el.querySelector('.pl-prog').textContent=(idx+1)+'/'+zp.length;}
     const u=new SpeechSynthesisUtterance(zp[idx].en);
     u.lang='en-US';u.rate=rate;
-    u.onend=()=>{if(!zonePlayer[zi]||!zonePlayer[zi].active)return;setTimeout(()=>{idx++;next()},1500)};
+    u.onend=()=>{if(!zonePl[zi]?.active)return;setTimeout(()=>{idx++;next()},1500)};
     window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
   };
-  next();renderFolders();toast(rate<0.8?'🐢 천천히 재생':'▶ 자동재생 시작');
-}
-
-function updatePlayer(zi,p,idx,total){
-  const el=document.getElementById(`player-${zi}`);if(!el)return;
-  el.querySelector('.player-en').textContent=p.en;
-  el.querySelector('.player-ko').textContent=p.ko||'';
-  el.querySelector('.pl-prog').textContent=`${idx+1} / ${total}`;
+  next();renderFolders();showToast(rate<0.8?'🐢 천천히':'▶ 자동재생');
 }
 
 function renderFolders(){
-  const wrap=document.getElementById('folders-wrap');
-  if(!phrases.length){wrap.innerHTML=`<div class="empty"><span class="empty-icon">💬</span>한국어로 입력하면<br>AI가 영어로 바꿔드려요!</div>`;document.getElementById('total-count').textContent='0개';return}
-  const folders={};
-  phrases.forEach((p,i)=>{const fi=Math.floor(i/100);if(!folders[fi])folders[fi]=[];folders[fi].push({...p,gi:i})});
+  const wrap=document.getElementById('folders');
+  if(!phrases.length){wrap.innerHTML=`<div class="empty"><span class="ei">💬</span>한국어로 입력하면<br>AI가 영어로 바꿔드려요!</div>`;document.getElementById('total-count').textContent='0개';return}
+  const fmap={};
+  phrases.forEach((p,i)=>{const fi=Math.floor(i/100);if(!fmap[fi])fmap[fi]=[];fmap[fi].push({...p,gi:i})});
   let html='';
-  Object.keys(folders).sort((a,b)=>+a-+b).forEach(fi=>{
-    const fw=folders[fi];
-    const fs=+fi*100+1,fe=Math.min(+fi*100+100,phrases.length);
-    const unkCnt=fw.filter(p=>p.unknown).length;
-    const isOpen=openF[fi]!==false;
-    html+=`<div class="folder"><div class="folder-hd" onclick="toggleF(${fi})">
-      <div class="folder-left"><span style="font-size:18px">📁</span>
-        <div><div class="folder-name">${+fi+1}번 폴더</div><div class="folder-range">${fs}~${fe}번 표현</div></div>
-      </div>
-      <div class="folder-meta">
-        ${unkCnt?`<span style="font-size:10px;color:#ff4d6a;background:rgba(255,77,106,0.1);padding:2px 6px;border-radius:8px">🔖${unkCnt}</span>`:''}
-        <span class="folder-cnt">${fw.length}개</span>
-        <span class="folder-arr ${isOpen?'open':''}">›</span>
-      </div>
-    </div>
-    <div class="folder-body ${isOpen?'open':''}">`;
-    const zones={};
-    fw.forEach(p=>{const zi=Math.floor(p.gi/10);if(!zones[zi])zones[zi]=[];zones[zi].push(p)});
-    Object.keys(zones).sort((a,b)=>+a-+b).forEach(zi=>{
-      const zp=zones[zi];
-      const zs=+zi*10+1,ze=Math.min(+zi*10+10,phrases.length);
-      const zUnk=zp.filter(p=>p.unknown).length;
-      const zOpen=openZ[zi]!==false;
-      const zPlay=zonePlayer[zi]&&zonePlayer[zi].active;
-      html+=`<div class="zone"><div class="zone-hd" onclick="toggleZ(${zi})">
-        <span class="zone-title">📌 ${zs}~${ze}번 구간</span>
-        <div class="zone-meta">
-          ${zUnk?`<span style="font-size:9px;color:#ff4d6a;background:rgba(255,77,106,0.08);padding:1px 5px;border-radius:6px">🔖${zUnk}</span>`:''}
-          <span class="zone-cnt">${zp.length}개</span>
-        </div>
-      </div>
-      <div class="zone-body ${zOpen?'open':''}">
-        <div class="player ${zOpen?'show':''}" id="player-${zi}">
-          <div class="player-label">🔊 구간 자동재생</div>
-          <div class="player-en">${zPlay?zp[zonePlayer[zi].idx]?.en||'':''}</div>
-          <div class="player-ko">${zPlay?zp[zonePlayer[zi].idx]?.ko||'':''}</div>
-          <div class="player-btns">
-            <button class="pl-btn ${zPlay?'active':''}" onclick="playZone(${zi})">${zPlay?'⏹ 중지':'▶ 자동재생'}</button>
-            <button class="pl-btn" onclick="playZone(${zi},0.65)">🐢 천천히</button>
+  Object.keys(fmap).sort((a,b)=>+a-+b).forEach(fi=>{
+    const fw=fmap[fi],fs=+fi*100+1,fe=Math.min(+fi*100+100,phrases.length);
+    const uc=fw.filter(p=>p.unknown).length,isOp=openF[fi]!==false;
+    html+=`<div class="folder"><div class="fhd" onclick="tF(${fi})">
+      <div class="fleft"><span style="font-size:18px">📁</span><div><div class="fname">${+fi+1}번 폴더</div><div class="frange">${fs}~${fe}번 표현</div></div></div>
+      <div class="fmeta">${uc?`<span style="font-size:10px;color:#ff4d6a;background:rgba(255,77,106,.1);padding:2px 6px;border-radius:8px">🔖${uc}</span>`:''}<span class="fcnt">${fw.length}개</span><span class="farr ${isOp?'op':''}">›</span></div>
+    </div><div class="fbody ${isOp?'op':''}">`;
+    const zmap={};fw.forEach(p=>{const zi=Math.floor(p.gi/10);if(!zmap[zi])zmap[zi]=[];zmap[zi].push(p)});
+    Object.keys(zmap).sort((a,b)=>+a-+b).forEach(zi=>{
+      const zp=zmap[zi],zs=+zi*10+1,ze=Math.min(+zi*10+10,phrases.length);
+      const zu=zp.filter(p=>p.unknown).length,zOp=openZ[zi]!==false,zPlay=zonePl[zi]?.active;
+      html+=`<div class="zone"><div class="zhd" onclick="tZ(${zi})">
+        <span class="ztitle">📌 ${zs}~${ze}번 구간</span>
+        <div style="display:flex;align-items:center;gap:5px">${zu?`<span style="font-size:9px;color:#ff4d6a;background:rgba(255,77,106,.08);padding:1px 5px;border-radius:6px">🔖${zu}</span>`:''}<span style="font-size:10px;color:#2a4060">${zp.length}개</span></div>
+      </div><div class="zbody ${zOp?'op':''}">
+        <div class="player" id="pl-${zi}">
+          <div class="pl-lbl">🔊 구간 자동재생</div>
+          <div class="pl-en">${zPlay?zp[zonePl[zi].idx]?.en||'':''}</div>
+          <div class="pl-ko">${zPlay?zp[zonePl[zi].idx]?.ko||'':''}</div>
+          <div class="pl-btns">
+            <button class="plb ${zPlay?'on':''}" onclick="playZone(${zi})">${zPlay?'⏹ 중지':'▶ 자동재생'}</button>
+            <button class="plb" onclick="playZone(${zi},0.65)">🐢 천천히</button>
           </div>
-          <div class="pl-prog">${zPlay?(zonePlayer[zi].idx+1)+'/'+zp.length:''}</div>
+          <div class="pl-prog">${zPlay?(zonePl[zi].idx+1)+'/'+zp.length:''}</div>
         </div>`;
       zp.forEach(p=>{
-        const isRep=!!repeatTimers[p.id];
-        const safeEn=p.en.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-        html+=`<div class="phrase-card">
-          <div class="phrase-en">${p.en}</div>
-          ${p.ko?`<div class="phrase-ko">${p.ko}</div>`:''}
-          ${p.tip?`<div class="phrase-tip">💡 ${p.tip}</div>`:''}
-          <div class="phrase-num">#${phrases.indexOf(phrases.find(x=>x.id===p.id))+1}</div>
-          <div class="phrase-actions">
-            <button class="p-tts" onclick="speak('${safeEn}')">🔊</button>
-            <button class="p-rep ${isRep?'on':''}" onclick="toggleRepeat(${p.id})">${isRep?'⏹':'🔁'}</button>
-            <button class="p-unk ${p.unknown?'marked':''}" onclick="toggleUnknown(${p.id})">${p.unknown?'🔖':'☑️'}</button>
-            <button class="p-del" onclick="deletePhrase(${p.id})">🗑</button>
+        const isRep=!!repTimers[p.id];
+        const se=p.en.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        html+=`<div class="pc">
+          <div class="pc-en">${p.en}</div>
+          ${p.ko?`<div class="pc-ko">${p.ko}</div>`:''}
+          ${p.tip?`<div class="pc-tip">💡 ${p.tip}</div>`:''}
+          <div class="pc-num">#${phrases.indexOf(phrases.find(x=>x.id===p.id))+1}</div>
+          <div class="pc-acts">
+            <button class="pa" onclick="speak('${se}')">🔊</button>
+            <button class="pa2 ${isRep?'on':''}" onclick="toggleRep(${p.id})">${isRep?'⏹':'🔁'}</button>
+            <button class="pa3 ${p.unknown?'mk':''}" onclick="toggleUnknown(${p.id})">${p.unknown?'🔖':'☑️'}</button>
+            <button class="pa4" onclick="delPh(${p.id})">🗑</button>
           </div>
         </div>`;
       });
@@ -386,63 +388,58 @@ function renderFolders(){
 }
 
 function renderUnknown(){
-  const wrap=document.getElementById('unknown-wrap');
+  const wrap=document.getElementById('unk-list');
   const unk=phrases.filter(p=>p.unknown);
-  if(!unk.length){wrap.innerHTML=`<div class="empty"><span class="empty-icon">🎉</span>복습할 표현이 없어요!</div>`;return}
+  if(!unk.length){wrap.innerHTML=`<div class="empty"><span class="ei">🎉</span>복습할 표현이 없어요!</div>`;return}
   let html=`<div style="font-size:12px;font-weight:600;color:#ff4d6a;margin-bottom:10px">🔖 복습 표현 ${unk.length}개</div>`;
   unk.forEach(p=>{
-    const safeEn=p.en.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-    html+=`<div class="unk-card">
-      <div class="unk-en">${p.en}</div>
-      ${p.ko?`<div class="unk-ko">${p.ko}</div>`:''}
-      <div class="unk-row">
-        <button class="unk-tts" onclick="speak('${safeEn}')">🔊 듣기</button>
-        <button class="unk-ok" onclick="markKnown(${p.id})">✅ 완료</button>
-      </div>
-    </div>`;
+    const se=p.en.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    html+=`<div class="uc"><div class="uc-en">${p.en}</div>${p.ko?`<div class="uc-ko">${p.ko}</div>`:''}<div class="uc-row"><button class="ua" onclick="speak('${se}')">🔊 듣기</button><button class="ua2" onclick="markKnown(${p.id})">✅ 완료</button></div></div>`;
   });
   wrap.innerHTML=html;
 }
 
 function renderStats(){
-  const wrap=document.getElementById('stats-wrap');
+  const wrap=document.getElementById('stats-body');
   const total=phrases.length,unk=phrases.filter(p=>p.unknown).length,known=total-unk;
   const folders=Math.ceil(total/100)||0,zones=Math.ceil(total/10)||0;
   const pct=total?Math.round(known/total*100):0;
-  let fHtml='';
+  let fh='';
   for(let fi=0;fi<folders;fi++){
     const fw=phrases.slice(fi*100,fi*100+100);
     const fk=fw.filter(p=>!p.unknown).length,fp=Math.round(fk/fw.length*100);
-    fHtml+=`<div class="prog-row"><span>📁 ${fi+1}번 폴더</span><span>${fk}/${fw.length} (${fp}%)</span></div>
-    <div class="prog-bar"><div class="prog-fill" style="width:${fp}%"></div></div>`;
+    fh+=`<div class="pr"><span>📁 ${fi+1}번 폴더</span><span>${fk}/${fw.length} (${fp}%)</span></div><div class="pb"><div class="pf" style="width:${fp}%"></div></div>`;
   }
-  wrap.innerHTML=`<div class="stat-grid">
-    <div class="stat-box"><div class="stat-lbl">총 표현</div><div class="stat-val">${total}</div><div class="stat-sub">개</div></div>
-    <div class="stat-box"><div class="stat-lbl">학습 완료</div><div class="stat-val">${known}</div><div class="stat-sub">${pct}%</div></div>
-    <div class="stat-box"><div class="stat-lbl">복습 필요</div><div class="stat-val" style="color:#ff4d6a">${unk}</div><div class="stat-sub">🔖 표시됨</div></div>
-    <div class="stat-box"><div class="stat-lbl">폴더/구간</div><div class="stat-val">${folders}</div><div class="stat-sub">${zones}구간</div></div>
+  wrap.innerHTML=`<div class="sg">
+    <div class="sb"><div class="sl">총 표현</div><div class="sv">${total}</div><div class="ss">개</div></div>
+    <div class="sb"><div class="sl">학습 완료</div><div class="sv">${known}</div><div class="ss">${pct}%</div></div>
+    <div class="sb"><div class="sl">복습 필요</div><div class="sv" style="color:#ff4d6a">${unk}</div><div class="ss">🔖</div></div>
+    <div class="sb"><div class="sl">폴더/구간</div><div class="sv">${folders}</div><div class="ss">${zones}구간</div></div>
   </div>
-  <div class="prog-row"><span style="color:#5b9fff;font-weight:600">전체 진도</span><span>${pct}%</span></div>
-  <div class="prog-bar" style="height:10px;margin-bottom:18px"><div class="prog-fill" style="width:${pct}%"></div></div>
-  ${folders?`<div class="sec-lbl">📁 폴더별 현황</div>${fHtml}`:''}`;
+  <div class="pr"><span style="color:#5b9fff;font-weight:600">전체 진도</span><span>${pct}%</span></div>
+  <div class="pb" style="height:10px;margin-bottom:18px"><div class="pf" style="width:${pct}%"></div></div>
+  ${folders?fh:''}`;
 }
 
-function toggleF(fi){openF[fi]=openF[fi]===false?true:false;renderFolders()}
-function toggleZ(zi){openZ[zi]=openZ[zi]===false?true:false;renderFolders()}
+function tF(fi){openF[fi]=openF[fi]===false?true:false;renderFolders()}
+function tZ(zi){openZ[zi]=openZ[zi]===false?true:false;renderFolders()}
+
 function switchTab(tab){
-  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['phrases','unknown','stats'][i]===tab));
-  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
-  document.getElementById(`sec-${tab}`).classList.add('active');
-  if(tab==='unknown')renderUnknown();if(tab==='stats')renderStats();
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['phrases','unknown','stats'][i]===tab));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+tab).classList.add('on');
+  if(tab==='unknown')renderUnknown();
+  if(tab==='stats')renderStats();
 }
+
 function renderAll(){
   renderFolders();
-  const idx=[...document.querySelectorAll('.tab')].findIndex(t=>t.classList.contains('active'));
+  const idx=[...document.querySelectorAll('.tab')].findIndex(t=>t.classList.contains('on'));
   if(idx===1)renderUnknown();if(idx===2)renderStats();
 }
 
 load();
-if(!getApiKey())openApiModal();
+if(!getKey())document.getElementById('api-banner').classList.add('show');
 if(phrases.length>0){openF[0]=true;openZ[0]=true;}
 renderAll();
 </script>
