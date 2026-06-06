@@ -237,7 +237,10 @@ async function addPhrase(){
     if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(res.status+' '+(err.error?.message||res.statusText));}
     const data=await res.json();
     if(!data.content||!data.content[0]){throw new Error('응답 없음');}
-    const result=JSON.parse(data.content[0].text.trim());
+    let raw=data.content[0].text.trim();
+    raw=raw.replace(/^```[a-z]*
+?/i,'').replace(/```$/,'').trim();
+    const result=JSON.parse(raw);
     currentPhrase={...result,ko_input:ko};
     document.getElementById('r-en').textContent=result.en;
     document.getElementById('r-ko').textContent=result.ko;
