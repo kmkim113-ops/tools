@@ -192,7 +192,7 @@ function load(){try{phrases=JSON.parse(localStorage.getItem('cut_english_v3')||'
 function getApiKey(){return localStorage.getItem('cut_api_key')||''}
 function saveApiKey(){
   const k=document.getElementById('api-key-input').value.trim();
-  if(!k||!k.startsWith('sk-ant')){toast('올바른 API 키를 입력해주세요');return}
+  if(!k||k.length<20){toast('API 키를 입력해주세요');return}
   localStorage.setItem('cut_api_key',k);
   closeApiModal();toast('✅ API 키 저장됐어요!');
 }
@@ -233,7 +233,9 @@ async function addPhrase(){
         messages:[{role:'user',content:ko}]
       })
     });
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(res.status+' '+(err.error?.message||res.statusText));}
     const data=await res.json();
+    if(!data.content||!data.content[0]){throw new Error('응답 없음');}
     const result=JSON.parse(data.content[0].text.trim());
     currentPhrase={...result,ko_input:ko};
     document.getElementById('r-en').textContent=result.en;
@@ -243,7 +245,10 @@ async function addPhrase(){
     speak(result.en);
     input.value='';
   }catch(e){
-    toast('❌ 오류 발생. API 키를 확인해주세요.');
+    console.error('API Error:',e);
+    if(e.message&&e.message.includes('401')){toast('❌ API 키가 잘못됐어요. 다시 확인해주세요.');}
+    else if(e.message&&e.message.includes('fetch')){toast('❌ 네트워크 오류. 인터넷 확인해주세요.');}
+    else{toast('❌ 오류: '+e.message);}
   }
   btn.textContent='변환';btn.classList.remove('loading');
 }
