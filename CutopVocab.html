@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 단어장">
+<title>씨유에탑 단어장</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#0f0e1a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#f0eeff}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:100px}
+
+/* 헤더 */
+.header{padding:16px 16px 12px;background:#0f0e1a;border-bottom:1px solid #2a2545;position:sticky;top:0;z-index:20}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.header-left{display:flex;align-items:center;gap:10px}
+.badge{font-size:10px;font-weight:700;background:#534AB7;color:#fff;padding:3px 9px;border-radius:20px;letter-spacing:0.5px}
+.header h1{font-size:18px;font-weight:700;color:#f0eeff}
+.total-count{font-size:12px;color:#8b7fc7;background:#1e1b36;padding:4px 10px;border-radius:20px}
+
+/* 탭 */
+.tabs{display:flex;border-bottom:1px solid #2a2545;background:#0f0e1a;position:sticky;top:57px;z-index:19}
+.tab{flex:1;padding:10px 4px;text-align:center;font-size:11px;cursor:pointer;color:#6b5fa8;border-bottom:2px solid transparent;transition:all .2s;font-weight:600}
+.tab.active{color:#a594f9;border-bottom-color:#534AB7}
+.tab-icon{display:block;font-size:17px;margin-bottom:2px}
+
+.section{padding:14px;display:none}
+.section.active{display:block}
+
+/* 입력 영역 */
+.input-card{background:#1a1730;border:1px solid #2a2545;border-radius:16px;padding:16px;margin-bottom:14px}
+.input-row{display:flex;gap:8px;margin-bottom:0}
+.word-input{flex:1;background:#0f0e1a;border:1.5px solid #3a3060;border-radius:12px;padding:12px 14px;color:#f0eeff;font-size:16px;font-family:inherit;outline:none;transition:border-color .2s;letter-spacing:0.5px}
+.word-input::placeholder{color:#4a3f7a}
+.word-input:focus{border-color:#534AB7}
+.add-btn{background:#534AB7;border:none;border-radius:12px;padding:12px 18px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s}
+.add-btn:active{background:#3c3489;transform:scale(0.96)}
+.add-btn.loading{background:#3a3060;color:#8b7fc7}
+
+/* 폴더 */
+.folder{background:#1a1730;border:1px solid #2a2545;border-radius:16px;margin-bottom:12px;overflow:hidden}
+.folder-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;user-select:none}
+.folder-header:active{background:#1e1b36}
+.folder-title{display:flex;align-items:center;gap:8px}
+.folder-icon{font-size:18px}
+.folder-name{font-size:14px;font-weight:700;color:#f0eeff}
+.folder-range{font-size:11px;color:#8b7fc7;margin-top:1px}
+.folder-meta{display:flex;align-items:center;gap:8px}
+.folder-count{font-size:12px;color:#8b7fc7;background:#0f0e1a;padding:3px 9px;border-radius:20px}
+.folder-arrow{font-size:16px;color:#534AB7;transition:transform .2s}
+.folder-arrow.open{transform:rotate(90deg)}
+.folder-body{display:none;border-top:1px solid #2a2545}
+.folder-body.open{display:block}
+
+/* 구간 */
+.zone{border-bottom:1px solid #1e1b36}
+.zone:last-child{border-bottom:none}
+.zone-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;cursor:pointer;background:#161328}
+.zone-header:active{background:#1a1730}
+.zone-title{font-size:12px;font-weight:600;color:#a594f9}
+.zone-stats{display:flex;align-items:center;gap:6px}
+.zone-count{font-size:11px;color:#6b5fa8}
+.zone-unknown{font-size:11px;color:#ff6b6b;background:rgba(255,107,107,0.12);padding:2px 7px;border-radius:10px}
+.zone-body{display:none}
+.zone-body.open{display:block}
+
+/* 단어 카드 */
+.word-card{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #1a1730;transition:background .15s}
+.word-card:last-child{border-bottom:none}
+.word-card:active{background:#1e1b36}
+.word-main{flex:1;min-width:0}
+.word-eng{font-size:15px;font-weight:700;color:#f0eeff;letter-spacing:0.3px}
+.word-phonetic{font-size:11px;color:#a594f9;margin-top:1px;font-style:italic}
+.word-meaning{font-size:12px;color:#c4b8f0;margin-top:3px;line-height:1.5}
+.word-num{font-size:10px;color:#4a3f7a;margin-top:2px}
+.word-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.tts-btn{background:#1e1b36;border:1px solid #3a3060;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;transition:all .2s;color:#a594f9}
+.tts-btn:active{background:#534AB7;border-color:#534AB7}
+.unknown-btn{background:none;border:1.5px solid #3a3060;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s}
+.unknown-btn.marked{background:rgba(255,107,107,0.15);border-color:#ff6b6b}
+.del-btn{background:none;border:none;color:#3a3060;font-size:16px;cursor:pointer;padding:4px;transition:color .2s}
+.del-btn:active{color:#ff6b6b}
+
+/* 모르는 단어 탭 */
+.unknown-header{font-size:13px;font-weight:600;color:#ff6b6b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.unknown-card{background:#1a1730;border:1px solid rgba(255,107,107,0.25);border-radius:14px;padding:14px;margin-bottom:8px;border-left:3px solid #ff6b6b}
+.unknown-word{font-size:16px;font-weight:700;color:#f0eeff;letter-spacing:0.3px}
+.unknown-phonetic{font-size:11px;color:#a594f9;font-style:italic;margin-top:2px}
+.unknown-meaning{font-size:13px;color:#c4b8f0;margin-top:6px;line-height:1.6}
+.unknown-actions{display:flex;gap:8px;margin-top:10px}
+.unk-tts{flex:1;background:#1e1b36;border:1px solid #3a3060;border-radius:10px;padding:8px;color:#a594f9;font-size:13px;cursor:pointer;text-align:center}
+.unk-tts:active{background:#534AB7}
+.unk-know{flex:1;background:rgba(83,74,183,0.2);border:1px solid #534AB7;border-radius:10px;padding:8px;color:#a594f9;font-size:13px;cursor:pointer;text-align:center}
+.unk-know:active{background:#534AB7;color:#fff}
+
+/* 통계 */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat-box{background:#1a1730;border:1px solid #2a2545;border-radius:14px;padding:14px}
+.stat-label{font-size:11px;color:#6b5fa8;font-weight:600}
+.stat-val{font-size:26px;font-weight:700;color:#f0eeff;margin-top:4px}
+.stat-sub{font-size:11px;color:#8b7fc7;margin-top:2px}
+.prog-label{font-size:12px;color:#8b7fc7;margin-bottom:6px;display:flex;justify-content:space-between}
+.prog-bar{height:8px;background:#1e1b36;border-radius:4px;margin-bottom:14px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#534AB7,#a594f9);transition:width .5s}
+
+/* 로딩 */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(15,14,26,0.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:40px;height:40px;border:3px solid #2a2545;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{font-size:13px;color:#a594f9}
+
+.empty-state{text-align:center;padding:40px 0;color:#4a3f7a;font-size:13px}
+.empty-icon{font-size:40px;display:block;margin-bottom:10px}
+.section-label{font-size:12px;font-weight:600;color:#8b7fc7;margin-bottom:10px;letter-spacing:0.5px}
+
+/* 토스트 */
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(20px);background:#534AB7;color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:300;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-top">
+      <div class="header-left">
+        <span class="badge">씨유에탑</span>
+        <h1>단어장</h1>
+      </div>
+      <span class="total-count" id="total-count">0개</span>
+    </div>
+  </div>
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('words')"><span class="tab-icon">📚</span>단어장</div>
+    <div class="tab" onclick="switchTab('unknown')"><span class="tab-icon">❌</span>모르는단어</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-icon">📊</span>통계</div>
+  </div>
+
+  <!-- 단어장 탭 -->
+  <div class="section active" id="sec-words">
+    <div class="input-card">
+      <div class="input-row">
+        <input class="word-input" type="text" id="word-input" placeholder="영단어 입력..." autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" onkeydown="if(event.key==='Enter')addWord()" />
+        <button class="add-btn" id="add-btn" onclick="addWord()">AI 추가</button>
+      </div>
+    </div>
+    <div id="folders-container"></div>
+  </div>
+
+  <!-- 모르는 단어 탭 -->
+  <div class="section" id="sec-unknown">
+    <div id="unknown-container"></div>
+  </div>
+
+  <!-- 통계 탭 -->
+  <div class="section" id="sec-stats">
+    <div id="stats-container"></div>
+  </div>
+</div>
+
+<div class="loading-overlay" id="loading">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loading-text">AI가 단어를 분석하는 중...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let words = [];
+let openFolders = {};
+let openZones = {};
+
+function save(){ try{ localStorage.setItem('cut_vocab_v1', JSON.stringify(words)); }catch(e){} }
+function load(){ try{ words = JSON.parse(localStorage.getItem('cut_vocab_v1')||'[]'); }catch(e){ words=[]; } }
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+
+function showLoading(show, text='AI가 단어를 분석하는 중...'){
+  const el=document.getElementById('loading');
+  document.getElementById('loading-text').textContent=text;
+  el.classList.toggle('show', show);
+}
+
+async function addWord(){
+  const input=document.getElementById('word-input');
+  const word=input.value.trim().toLowerCase();
+  if(!word){ showToast('단어를 입력해주세요'); return; }
+  if(words.find(w=>w.word===word)){ showToast('이미 있는 단어예요!'); input.value=''; return; }
+
+  const btn=document.getElementById('add-btn');
+  btn.textContent='분석중...'; btn.classList.add('loading'); btn.disabled=true;
+  showLoading(true);
+  input.value='';
+
+  try{
+    const result = await fetchWordInfo(word);
+    words.push({
+      id: Date.now(),
+      word: word,
+      phonetic: result.phonetic || '',
+      meaning: result.meaning || '',
+      unknown: false,
+      addedAt: new Date().toISOString()
+    });
+    save();
+    renderAll();
+    showToast(`✅ "${word}" 추가됐어요!`);
+    // 추가된 폴더 자동 열기
+    const folderIdx = Math.floor((words.length-1)/100);
+    const zoneIdx = Math.floor((words.length-1)/10);
+    openFolders[folderIdx]=true;
+    openZones[zoneIdx]=true;
+  } catch(e){
+    showToast('❌ 오류가 발생했어요. 다시 시도해주세요.');
+  }
+
+  btn.textContent='AI 추가'; btn.classList.remove('loading'); btn.disabled=false;
+  showLoading(false);
+}
+
+async function fetchWordInfo(word){
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:300,
+      system:`You are an English dictionary. Given a word, respond ONLY with a JSON object (no markdown, no extra text):
+{"phonetic":"IPA pronunciation in brackets like [wɜːrd]","meaning":"한국어 뜻 (품사 포함, 예: (명) 단어, 낱말 / (동) 말하다)"}`,
+      messages:[{role:'user', content:word}]
+    })
+  });
+  const data = await res.json();
+  const text = data.content[0].text.trim();
+  return JSON.parse(text);
+}
+
+function speak(word){
+  if('speechSynthesis' in window){
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(word);
+    u.lang='en-US'; u.rate=0.85; u.pitch=1;
+    window.speechSynthesis.speak(u);
+  } else {
+    showToast('이 브라우저는 TTS를 지원하지 않아요');
+  }
+}
+
+function toggleUnknown(id){
+  const w=words.find(w=>w.id===id);
+  if(w){ w.unknown=!w.unknown; save(); renderAll(); }
+}
+
+function deleteWord(id){
+  if(confirm('이 단어를 삭제할까요?')){
+    words=words.filter(w=>w.id!==id);
+    save(); renderAll();
+  }
+}
+
+function markKnown(id){
+  const w=words.find(w=>w.id===id);
+  if(w){ w.unknown=false; save(); renderAll(); showToast('✅ 외운 단어로 이동했어요!'); }
+}
+
+function renderFolders(){
+  const container=document.getElementById('folders-container');
+  if(!words.length){
+    container.innerHTML=`<div class="empty-state"><span class="empty-icon">📖</span>단어를 입력하면<br>자동으로 저장돼요</div>`;
+    return;
+  }
+
+  // 폴더(100개 단위)로 그룹
+  const folders={};
+  words.forEach((w,i)=>{
+    const fi=Math.floor(i/100);
+    if(!folders[fi]) folders[fi]=[];
+    folders[fi].push({...w, globalIdx:i});
+  });
+
+  let html='';
+  Object.keys(folders).sort((a,b)=>+a-+b).forEach(fi=>{
+    const fWords=folders[fi];
+    const fStart=+fi*100+1;
+    const fEnd=Math.min(+fi*100+100, words.length);
+    const unknownCount=fWords.filter(w=>w.unknown).length;
+    const isOpen=openFolders[fi]!==false;
+
+    html+=`<div class="folder">
+      <div class="folder-header" onclick="toggleFolder(${fi})">
+        <div class="folder-title">
+          <span class="folder-icon">📁</span>
+          <div>
+            <div class="folder-name">${+fi+1}번 폴더</div>
+            <div class="folder-range">${fStart}~${fEnd}번 단어</div>
+          </div>
+        </div>
+        <div class="folder-meta">
+          ${unknownCount?`<span style="font-size:11px;color:#ff6b6b;background:rgba(255,107,107,0.12);padding:2px 8px;border-radius:10px">❌ ${unknownCount}</span>`:''}
+          <span class="folder-count">${fWords.length}개</span>
+          <span class="folder-arrow ${isOpen?'open':''}">›</span>
+        </div>
+      </div>
+      <div class="folder-body ${isOpen?'open':''}">`;
+
+    // 구간(10개 단위)으로 그룹
+    const zones={};
+    fWords.forEach(w=>{
+      const zi=Math.floor(w.globalIdx/10);
+      if(!zones[zi]) zones[zi]=[];
+      zones[zi].push(w);
+    });
+
+    Object.keys(zones).sort((a,b)=>+a-+b).forEach(zi=>{
+      const zWords=zones[zi];
+      const zStart=+zi*10+1;
+      const zEnd=Math.min(+zi*10+10, words.length);
+      const zUnknown=zWords.filter(w=>w.unknown).length;
+      const zOpen=openZones[zi]!==false;
+
+      html+=`<div class="zone">
+        <div class="zone-header" onclick="toggleZone(${zi})">
+          <span class="zone-title">📌 ${zStart}~${zEnd}번 구간</span>
+          <div class="zone-stats">
+            ${zUnknown?`<span class="zone-unknown">❌ ${zUnknown}</span>`:''}
+            <span class="zone-count">${zWords.length}개</span>
+            <span style="font-size:14px;color:#534AB7;transition:transform .2s;display:inline-block;transform:rotate(${zOpen?90:0}deg)">›</span>
+          </div>
+        </div>
+        <div class="zone-body ${zOpen?'open':''}">`;
+
+      zWords.forEach(w=>{
+        html+=wordCardHTML(w);
+      });
+      html+=`</div></div>`;
+    });
+
+    html+=`</div></div>`;
+  });
+
+  container.innerHTML=html;
+  document.getElementById('total-count').textContent=`총 ${words.length}개`;
+}
+
+function wordCardHTML(w){
+  return `<div class="word-card" id="wc-${w.id}">
+    <div class="word-main">
+      <div class="word-eng">${w.word}</div>
+      ${w.phonetic?`<div class="word-phonetic">${w.phonetic}</div>`:''}
+      ${w.meaning?`<div class="word-meaning">${w.meaning}</div>`:''}
+      <div class="word-num">#${words.indexOf(words.find(x=>x.id===w.id))+1}</div>
+    </div>
+    <div class="word-actions">
+      <button class="tts-btn" onclick="speak('${w.word.replace(/'/g,"\\'")}')">🔊</button>
+      <button class="unknown-btn ${w.unknown?'marked':''}" onclick="toggleUnknown(${w.id})" title="${w.unknown?'알아요':'몰라요'}">
+        ${w.unknown?'❌':'☑️'}
+      </button>
+      <button class="del-btn" onclick="deleteWord(${w.id})">🗑</button>
+    </div>
+  </div>`;
+}
+
+function renderUnknown(){
+  const container=document.getElementById('unknown-container');
+  const unk=words.filter(w=>w.unknown);
+  if(!unk.length){
+    container.innerHTML=`<div class="empty-state"><span class="empty-icon">🎉</span>모르는 단어가 없어요!<br>단어장에서 ❌ 버튼을 눌러<br>표시해보세요</div>`;
+    return;
+  }
+  let html=`<div class="unknown-header">❌ 모르는 단어 ${unk.length}개</div>`;
+  unk.forEach(w=>{
+    html+=`<div class="unknown-card">
+      <div class="unknown-word">${w.word} <span style="font-size:11px;color:#4a3f7a">#${words.indexOf(w)+1}</span></div>
+      ${w.phonetic?`<div class="unknown-phonetic">${w.phonetic}</div>`:''}
+      ${w.meaning?`<div class="unknown-meaning">${w.meaning}</div>`:''}
+      <div class="unknown-actions">
+        <button class="unk-tts" onclick="speak('${w.word.replace(/'/g,"\\'")}')">🔊 듣기</button>
+        <button class="unk-know" onclick="markKnown(${w.id})">✅ 외웠어요</button>
+      </div>
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+
+function renderStats(){
+  const container=document.getElementById('stats-container');
+  const total=words.length;
+  const unknown=words.filter(w=>w.unknown).length;
+  const known=total-unknown;
+  const folders=Math.ceil(total/100)||0;
+  const zones=Math.ceil(total/10)||0;
+  const pct=total?Math.round(known/total*100):0;
+
+  // 폴더별 현황
+  let folderStats='';
+  for(let fi=0;fi<folders;fi++){
+    const fw=words.slice(fi*100, fi*100+100);
+    const fKnown=fw.filter(w=>!w.unknown).length;
+    const fPct=Math.round(fKnown/fw.length*100);
+    folderStats+=`<div class="prog-label"><span>📁 ${fi+1}번 폴더 (${fi*100+1}~${Math.min(fi*100+100,total)})</span><span>${fKnown}/${fw.length} (${fPct}%)</span></div>
+    <div class="prog-bar"><div class="prog-fill" style="width:${fPct}%"></div></div>`;
+  }
+
+  container.innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-label">총 단어</div><div class="stat-val">${total}</div><div class="stat-sub">개 저장됨</div></div>
+      <div class="stat-box"><div class="stat-label">외운 단어</div><div class="stat-val">${known}</div><div class="stat-sub">${pct}% 달성</div></div>
+      <div class="stat-box"><div class="stat-label">모르는 단어</div><div class="stat-val" style="color:#ff6b6b">${unknown}</div><div class="stat-sub">복습 필요</div></div>
+      <div class="stat-box"><div class="stat-label">폴더 / 구간</div><div class="stat-val">${folders}</div><div class="stat-sub">폴더 · ${zones}구간</div></div>
+    </div>
+    <div class="prog-label"><span style="color:#a594f9;font-weight:600">전체 진도</span><span>${pct}%</span></div>
+    <div class="prog-bar" style="height:12px;margin-bottom:20px"><div class="prog-fill" style="width:${pct}%"></div></div>
+    ${folders?`<div class="section-label">📁 폴더별 현황</div>${folderStats}`:''}
+  `;
+}
+
+function toggleFolder(fi){
+  openFolders[fi]=!openFolders[fi];
+  renderFolders();
+}
+function toggleZone(zi){
+  openZones[zi]=openZones[zi]===false?true:false;
+  renderFolders();
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['words','unknown','stats'][i]===tab));
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById(`sec-${tab}`).classList.add('active');
+  if(tab==='unknown') renderUnknown();
+  if(tab==='stats') renderStats();
+}
+
+function renderAll(){
+  renderFolders();
+  // 현재 탭이 unknown이나 stats면 같이 업데이트
+  const activeTab=document.querySelector('.tab.active');
+  const tabs=['words','unknown','stats'];
+  const idx=[...document.querySelectorAll('.tab')].indexOf(activeTab);
+  if(idx===1) renderUnknown();
+  if(idx===2) renderStats();
+  document.getElementById('total-count').textContent=`총 ${words.length}개`;
+}
+
+// 초기화
+load();
+// 기본으로 첫번째 폴더/구간 열기
+if(words.length>0){
+  openFolders[0]=true;
+  openZones[0]=true;
+}
+renderAll();
+</script>
+</body>
+</html>
