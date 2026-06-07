@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 단어진도">
+<title>씨유에탑 단어진도</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{height:100%;background:#f5f4fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a2e}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px;background:#fff}
+.hd{padding:14px 16px 10px;background:#fff;border-bottom:1px solid #ede9ff;position:sticky;top:0;z-index:20}
+.hd-top{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:10px;font-weight:700;background:#0f6e56;color:#fff;padding:3px 9px;border-radius:20px}
+.hd h1{font-size:17px;font-weight:700;color:#1a1a2e;margin-left:8px}
+.hd-sub{font-size:11px;color:#888;margin-top:2px}
+.tabs{display:flex;border-bottom:1px solid #ede9ff;background:#fff;position:sticky;top:55px;z-index:19}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#aaa;border-bottom:2px solid transparent;font-weight:600}
+.tab.on{color:#0f6e56;border-bottom-color:#0f6e56}
+.tab-ic{display:block;font-size:15px;margin-bottom:1px}
+.sec{padding:12px;display:none}
+.sec.on{display:block}
+
+/* 카드 */
+.card{background:#fff;border:1px solid #d4f0e8;border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:600;color:#0f6e56;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #d4f0e8;background:#f0faf6;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:#0f6e56}
+.field textarea{resize:none;min-height:70px}
+.add-btn{width:100%;padding:12px;border-radius:12px;background:#0f6e56;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.add-btn:active{background:#085041}
+
+/* 단어장 칩 */
+.book-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.book-chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #d4f0e8;background:#f0faf6;color:#888;transition:all .2s;white-space:nowrap}
+.book-chip.on{color:#fff;border-color:transparent}
+
+/* 진도 바 */
+.prog-wrap{margin:6px 0 4px}
+.prog-bar{height:8px;background:#e8f5f1;border-radius:4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:4px;background:#0f6e56;transition:width .5s}
+.prog-label{display:flex;justify-content:space-between;font-size:11px;color:#aaa;margin-top:3px}
+
+/* 학생 카드 */
+.student-card{background:#fff;border:1px solid #d4f0e8;border-radius:12px;padding:12px;margin-bottom:8px}
+.sc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sc-name{font-size:14px;font-weight:700;color:#1a1a2e}
+.sc-class{font-size:11px;background:#e8f5f1;color:#0f6e56;padding:2px 8px;border-radius:10px;font-weight:600}
+.sc-books{display:flex;flex-direction:column;gap:6px}
+.sc-book-row{display:flex;align-items:center;gap:8px}
+.sc-book-name{font-size:11px;color:#888;width:80px;flex-shrink:0;font-weight:500}
+.sc-book-prog{flex:1}
+.sc-book-num{font-size:11px;color:#0f6e56;font-weight:600;white-space:nowrap}
+.sc-actions{display:flex;gap:5px;margin-top:8px}
+.sa{background:#f0faf6;border:1px solid #d4f0e8;border-radius:8px;padding:5px 10px;font-size:11px;color:#0f6e56;cursor:pointer;font-weight:600}
+.sa:active{background:#d4f0e8}
+.sa-share{background:#FEE500;border-color:#f0d800;color:#3A1D1D}
+.sa-share:active{background:#f0d800}
+
+/* 진도 입력 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:20px 16px 36px;width:100%;max-width:430px;max-height:85vh;overflow-y:auto}
+.modal-handle{width:36px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 14px}
+.modal-title{font-size:15px;font-weight:700;color:#1a1a2e;margin-bottom:14px}
+.book-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:10px;background:#f0faf6;border-radius:10px}
+.book-row-name{font-size:13px;font-weight:600;color:#1a1a2e;width:90px;flex-shrink:0}
+.book-row-inputs{display:flex;align-items:center;gap:6px;flex:1}
+.book-row-inputs input{width:70px;padding:7px 10px;border-radius:8px;border:1.5px solid #d4f0e8;background:#fff;color:#1a1a2e;font-size:13px;text-align:center;outline:none}
+.book-row-inputs input:focus{border-color:#0f6e56}
+.book-row-inputs span{font-size:12px;color:#aaa}
+.modal-save{width:100%;padding:12px;border-radius:12px;background:#0f6e56;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:6px}
+.modal-save:active{background:#085041}
+.modal-cancel{width:100%;padding:10px;border-radius:12px;background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;margin-top:6px}
+
+/* 공유 */
+.share-preview{background:#f0faf6;border:1px solid #d4f0e8;border-radius:10px;padding:12px;margin:8px 0;font-size:12px;color:#444;line-height:1.8;white-space:pre-wrap;max-height:220px;overflow-y:auto}
+.kakao-btn{flex:1;padding:11px;border-radius:10px;background:#FEE500;border:none;color:#3A1D1D;font-size:13px;font-weight:700;cursor:pointer}
+.kakao-btn:active{background:#f0d800}
+.copy-btn{padding:11px 14px;border-radius:10px;background:#e8f5f1;border:1px solid #d4f0e8;color:#0f6e56;font-size:13px;font-weight:600;cursor:pointer}
+
+/* 통계 */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:#f0faf6;border:1px solid #d4f0e8;border-radius:12px;padding:12px}
+.stat-label{font-size:10px;color:#aaa;font-weight:600}
+.stat-val{font-size:22px;font-weight:700;color:#1a1a2e;margin-top:3px}
+
+.filter-row{display:flex;gap:8px;margin-bottom:10px}
+.filter-sel{flex:1;padding:7px 10px;border-radius:8px;border:1px solid #d4f0e8;background:#f0faf6;color:#1a1a2e;font-size:12px;outline:none}
+
+.empty{text-align:center;padding:36px 0;color:#bbb;font-size:12px}
+.empty-ic{font-size:36px;display:block;margin-bottom:8px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#0f6e56;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 말씀 템플릿 */
+.msg-tpl{padding:5px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid #d4f0e8;background:#f0faf6;color:#0f6e56;white-space:nowrap;margin:3px}
+.msg-tpl:active{background:#d4f0e8}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div class="hd-top">
+      <div style="display:flex;align-items:center">
+        <span class="badge">씨유에탑</span>
+        <h1>단어진도</h1>
+      </div>
+      <span style="font-size:11px;color:#aaa" id="today-lbl"></span>
+    </div>
+    <div class="hd-sub">학생별 단어장 진도 관리</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('progress')"><span class="tab-ic">📊</span>진도현황</div>
+    <div class="tab" onclick="switchTab('input')"><span class="tab-ic">✏️</span>진도입력</div>
+    <div class="tab" onclick="switchTab('share')"><span class="tab-ic">📤</span>공유</div>
+    <div class="tab" onclick="switchTab('manage')"><span class="tab-ic">👥</span>학생관리</div>
+  </div>
+
+  <!-- 진도현황 탭 -->
+  <div class="sec on" id="sec-progress">
+    <div class="filter-row">
+      <select class="filter-sel" id="prog-filter-class" onchange="renderProgress()">
+        <option value="">전체 반</option>
+      </select>
+      <select class="filter-sel" id="prog-filter-book" onchange="renderProgress()">
+        <option value="">전체 단어장</option>
+      </select>
+    </div>
+    <div id="progress-list"></div>
+  </div>
+
+  <!-- 진도입력 탭 -->
+  <div class="sec" id="sec-input">
+    <div class="card">
+      <div class="card-title">✏️ 진도 입력</div>
+      <div class="field">
+        <label>반 선택</label>
+        <select id="inp-class" onchange="renderInputStudents()">
+          <option value="">반을 선택해주세요</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>날짜</label>
+        <input type="date" id="inp-date" />
+      </div>
+      <div id="inp-students-wrap" style="display:none">
+        <div style="font-size:12px;color:#888;margin-bottom:8px;font-weight:500">학생을 탭해서 진도를 입력하세요</div>
+        <div id="inp-students"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공유 탭 -->
+  <div class="sec" id="sec-share">
+    <div class="card">
+      <div class="card-title">📤 학부모 카톡 공유</div>
+
+      <!-- 공유 모드 -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div class="book-chip on" id="smode-class" style="flex:1;text-align:center;background:#0f6e56" onclick="setShareMode2('class')">🏫 반 전체</div>
+        <div class="book-chip" id="smode-student" style="flex:1;text-align:center" onclick="setShareMode2('student')">👤 개인별</div>
+      </div>
+
+      <div class="field">
+        <label>반 선택</label>
+        <select id="s2-class" onchange="onShare2ClassChange()" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #d4f0e8;background:#f0faf6;color:#1a1a2e;font-size:14px;outline:none"></select>
+      </div>
+
+      <!-- 개인별: 학생 선택 -->
+      <div id="s2-student-wrap" style="display:none" class="field">
+        <label>학생 선택</label>
+        <div id="s2-student-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+      </div>
+
+      <div class="field">
+        <label>단어장 선택</label>
+        <div class="book-chips" id="s2-book-chips"></div>
+      </div>
+
+      <!-- 전하는 말씀 -->
+      <div class="field">
+        <label>💌 학부모께 전하는 말씀 (선택)</label>
+        <textarea id="s2-message" placeholder="예: 이번 주 단어 진도가 좋습니다 😊"></textarea>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px" id="s2-msg-tpls"></div>
+      </div>
+
+      <button class="add-btn" style="margin-bottom:10px" onclick="buildShare2()">📋 내용 불러오기</button>
+
+      <div id="s2-result" style="display:none">
+        <!-- 전체 -->
+        <div id="s2-class-result">
+          <div class="share-preview" id="s2-share-text"></div>
+          <div style="display:flex;gap:8px">
+            <button class="kakao-btn" onclick="shareKakao2()">💬 카톡으로 공유</button>
+            <button class="copy-btn" onclick="copyShare2()">복사</button>
+          </div>
+        </div>
+        <!-- 개인별 -->
+        <div id="s2-student-result" style="display:none">
+          <div style="font-size:12px;color:#888;margin-bottom:8px;font-weight:600">학생별 카드 — 탭하면 복사돼요</div>
+          <div id="s2-student-cards"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 학생관리 탭 -->
+  <div class="sec" id="sec-manage">
+    <div class="card">
+      <div class="card-title">🏫 반 & 학생 관리</div>
+      <div class="field">
+        <label>반 추가</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-class" placeholder="예: 중1반" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #d4f0e8;background:#f0faf6;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addClass2()" />
+          <button onclick="addClass2()" style="background:#0f6e56;border:none;border-radius:10px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">추가</button>
+        </div>
+      </div>
+      <div id="class-manage-list" style="margin-bottom:14px"></div>
+      <div class="field">
+        <label>학생 추가</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <select id="stu-class-sel" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #d4f0e8;background:#f0faf6;color:#1a1a2e;font-size:14px;outline:none" onchange="renderStudentManage()"></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-student" placeholder="학생 이름" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #d4f0e8;background:#f0faf6;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addStudent2()" />
+          <button onclick="addStudent2()" style="background:#0f6e56;border:none;border-radius:10px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">추가</button>
+        </div>
+      </div>
+      <div id="student-manage-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 진도 입력 모달 -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modal-title">진도 입력</div>
+    <div id="modal-books"></div>
+    <button class="modal-save" onclick="saveProgress()">✅ 저장하기</button>
+    <button class="modal-cancel" onclick="closeModal2()">취소</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BOOKS=[
+  {id:'mid',name:'중학기본',total:500,color:'#534AB7'},
+  {id:'mock',name:'모고기본',total:600,color:'#185fa5'},
+  {id:'sat1',name:'수능기본',total:800,color:'#0f6e56'},
+  {id:'sat2',name:'수능고급',total:1000,color:'#cc2200'},
+];
+const MSG_TPLS=[
+  '단어 학습이 잘 되고 있어요 😊',
+  '꾸준한 단어 복습 부탁드립니다 📚',
+  '진도가 빠르게 향상되고 있어요 👍',
+  '단어 암기를 더 열심히 해야 해요 🙏',
+  '궁금한 점은 언제든 연락주세요 😊',
+];
+
+let classes=[], students=[], progRecords=[];
+let modalStudentId='', shareMode2='class', selShare2Student='', selShare2Book='mid';
+
+function saveAll(){
+  try{
+    localStorage.setItem('vp_cls',JSON.stringify(classes));
+    localStorage.setItem('vp_stu',JSON.stringify(students));
+    localStorage.setItem('vp_rec',JSON.stringify(progRecords));
+  }catch(e){}
+}
+function loadAll(){
+  try{classes=JSON.parse(localStorage.getItem('vp_cls')||'["중1","중2","중3","고1","고2","고3"]')}catch(e){classes=["중1","중2","중3","고1","고2","고3"]}
+  try{students=JSON.parse(localStorage.getItem('vp_stu')||'[]')}catch(e){students=[]}
+  try{progRecords=JSON.parse(localStorage.getItem('vp_rec')||'[]')}catch(e){progRecords=[]}
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
+
+const today=new Date();
+document.getElementById('today-lbl').textContent=today.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+document.getElementById('inp-date').value=today.toISOString().slice(0,10);
+
+// 최신 진도 가져오기
+function getLatestProg(studentId, bookId){
+  const recs=progRecords.filter(r=>r.studentId===studentId&&r.bookId===bookId).sort((a,b)=>a.date<b.date?1:-1);
+  return recs[0]||null;
+}
+
+function getPct(current, total){
+  return Math.min(Math.round(current/total*100),100);
+}
+
+// 반/학생 셀렉트 렌더
+function renderAllSelects(){
+  ['prog-filter-class','inp-class','s2-class','stu-class-sel'].forEach(id=>{
+    const el=document.getElementById(id);if(!el)return;
+    const cur=el.value;
+    const isFilter=id==='prog-filter-class';
+    el.innerHTML=(isFilter?'<option value="">전체 반</option>':'<option value="">반을 선택해주세요</option>')+
+      classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if(cur&&classes.includes(cur))el.value=cur;
+  });
+  // 단어장 필터
+  const bf=document.getElementById('prog-filter-book');
+  if(bf){
+    const cur=bf.value;
+    bf.innerHTML='<option value="">전체 단어장</option>'+BOOKS.map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+    if(cur)bf.value=cur;
+  }
+  // 공유 단어장 칩
+  renderShare2BookChips();
+  renderShare2MsgTpls();
+}
+
+function renderShare2BookChips(){
+  const wrap=document.getElementById('s2-book-chips');
+  if(!wrap)return;
+  wrap.innerHTML=BOOKS.map((b,i)=>`<div class="book-chip ${i===0?'on':''}" style="${i===0?'background:'+b.color+';color:#fff;border-color:transparent':''}" onclick="selShare2Book2('${b.id}',this,'${b.color}')">${b.name}</div>`).join('');
+  selShare2Book=BOOKS[0].id;
+}
+
+function selShare2Book2(id,el,color){
+  selShare2Book=id;
+  document.querySelectorAll('#s2-book-chips .book-chip').forEach(c=>{
+    c.classList.remove('on');
+    c.style.background='';c.style.color='';c.style.borderColor='';
+  });
+  el.classList.add('on');
+  el.style.background=color;el.style.color='#fff';el.style.borderColor='transparent';
+}
+
+function renderShare2MsgTpls(){
+  const wrap=document.getElementById('s2-msg-tpls');
+  if(!wrap)return;
+  wrap.innerHTML=MSG_TPLS.map(t=>`<div class="msg-tpl" onclick="setMsg2('${t}')">${t}</div>`).join('');
+}
+
+function setMsg2(msg){document.getElementById('s2-message').value=msg;}
+
+// 진도현황 렌더
+function renderProgress(){
+  const wrap=document.getElementById('progress-list');
+  const filterClass=document.getElementById('prog-filter-class').value;
+  const filterBook=document.getElementById('prog-filter-book').value;
+  let filtered=students;
+  if(filterClass)filtered=filtered.filter(s=>s.className===filterClass);
+  if(!filtered.length){wrap.innerHTML=`<div class="empty"><span class="empty-ic">📊</span>학생이 없어요<br>학생관리 탭에서 추가해주세요</div>`;return}
+
+  wrap.innerHTML=filtered.map(s=>{
+    const booksToShow=filterBook?BOOKS.filter(b=>b.id===filterBook):BOOKS;
+    const bookRows=booksToShow.map(b=>{
+      const rec=getLatestProg(s.id,b.id);
+      const cur=rec?rec.to:0;
+      const pct=getPct(cur,b.total);
+      return `<div class="sc-book-row">
+        <div class="sc-book-name" style="color:${b.color}">${b.name}</div>
+        <div class="sc-book-prog">
+          <div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${b.color}"></div></div>
+        </div>
+        <div class="sc-book-num" style="color:${b.color}">${cur}/${b.total}</div>
+      </div>`;
+    }).join('');
+
+    return `<div class="student-card">
+      <div class="sc-header">
+        <span class="sc-name">${s.name}</span>
+        <span class="sc-class">${s.className}</span>
+      </div>
+      <div class="sc-books">${bookRows}</div>
+      <div class="sc-actions">
+        <button class="sa" onclick="openModal('${s.id}')">✏️ 진도입력</button>
+        <button class="sa sa-share" onclick="quickShare('${s.id}')">💬 카톡공유</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 진도입력 탭 학생 리스트
+function renderInputStudents(){
+  const cls=document.getElementById('inp-class').value;
+  const wrap=document.getElementById('inp-students-wrap');
+  if(!cls){wrap.style.display='none';return}
+  const classStudents=students.filter(s=>s.className===cls);
+  wrap.style.display='block';
+  if(!classStudents.length){
+    document.getElementById('inp-students').innerHTML=`<div style="font-size:12px;color:#bbb;padding:8px">이 반에 학생이 없어요</div>`;return;
+  }
+  document.getElementById('inp-students').innerHTML=classStudents.map(s=>{
+    const bookRows=BOOKS.map(b=>{
+      const rec=getLatestProg(s.id,b.id);
+      const cur=rec?rec.to:0;
+      const pct=getPct(cur,b.total);
+      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div style="font-size:11px;color:${b.color};width:70px;flex-shrink:0;font-weight:600">${b.name}</div>
+        <div style="flex:1"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${b.color}"></div></div></div>
+        <div style="font-size:11px;color:${b.color};font-weight:600;white-space:nowrap">${cur}번</div>
+      </div>`;
+    }).join('');
+    return `<div style="background:#f0faf6;border:1px solid #d4f0e8;border-radius:12px;padding:12px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:14px;font-weight:700">${s.name}</span>
+        <button onclick="openModal('${s.id}')" style="background:#0f6e56;border:none;border-radius:8px;padding:5px 12px;color:#fff;font-size:12px;font-weight:600;cursor:pointer">✏️ 입력</button>
+      </div>
+      ${bookRows}
+    </div>`;
+  }).join('');
+}
+
+// 모달
+function openModal(studentId){
+  const s=students.find(s=>s.id===studentId);if(!s)return;
+  modalStudentId=studentId;
+  document.getElementById('modal-title').textContent=`✏️ ${s.name} 진도 입력`;
+  document.getElementById('modal-books').innerHTML=BOOKS.map(b=>{
+    const rec=getLatestProg(studentId,b.id);
+    const cur=rec?rec.to:0;
+    return `<div class="book-row">
+      <div class="book-row-name" style="color:${b.color}">${b.name}<br><span style="font-size:10px;color:#aaa">현재 ${cur}번</span></div>
+      <div class="book-row-inputs">
+        <input type="number" id="prog-${b.id}" placeholder="${cur||0}" min="0" max="${b.total}" value="${cur||''}" style="border-color:${b.color}" />
+        <span>번까지</span>
+        <span style="font-size:11px;color:#aaa">/ ${b.total}</span>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('modal-bg').classList.add('on');
+}
+
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;closeModal2();}
+function closeModal2(){document.getElementById('modal-bg').classList.remove('on');}
+
+function saveProgress(){
+  if(!modalStudentId)return;
+  const date=document.getElementById('inp-date').value||today.toISOString().slice(0,10);
+  let saved=0;
+  BOOKS.forEach(b=>{
+    const val=parseInt(document.getElementById('prog-'+b.id)?.value||'0');
+    if(val>=0){
+      progRecords.push({id:Date.now()+'_'+b.id,studentId:modalStudentId,bookId:b.id,to:val,date,createdAt:new Date().toISOString()});
+      saved++;
+    }
+  });
+  saveAll();
+  closeModal2();
+  renderProgress();
+  renderInputStudents();
+  showToast('✅ 진도 저장됐어요!');
+}
+
+// 빠른 공유 (진도현황에서 바로)
+function quickShare(studentId){
+  const s=students.find(s=>s.id===studentId);if(!s)return;
+  const txt=makeStudentShareText(s,'',today.toISOString().slice(0,10),'');
+  copyText(txt,`${s.name} 학부모님께 보낼 내용 복사됐어요!`);
+}
+
+function makeStudentShareText(student,bookId,date,message){
+  let txt=`📚 씨유에탑 단어 진도 현황\n`;
+  txt+=`👤 ${student.name} 학부모님\n`;
+  txt+=`📅 ${new Date(date.replace(/-/g,'/')).toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})}\n`;
+  txt+=`${'─'.repeat(20)}\n\n`;
+  const booksToShow=bookId?BOOKS.filter(b=>b.id===bookId):BOOKS;
+  booksToShow.forEach(b=>{
+    const rec=getLatestProg(student.id,b.id);
+    const cur=rec?rec.to:0;
+    const pct=getPct(cur,b.total);
+    const bar='█'.repeat(Math.floor(pct/10))+'░'.repeat(10-Math.floor(pct/10));
+    txt+=`📖 ${b.name}\n`;
+    txt+=`   진도: ${cur}번 / ${b.total}번 (${pct}%)\n`;
+    txt+=`   ${bar}\n\n`;
+  });
+  txt+=`${'─'.repeat(20)}\n`;
+  if(message)txt+=`💌 ${message}\n\n`;
+  txt+=`씨유에탑`;
+  return txt;
+}
+
+function makeClassShareText(cls,bookId,message){
+  const classStudents=students.filter(s=>s.className===cls);
+  const book=BOOKS.find(b=>b.id===bookId);
+  let txt=`📚 씨유에탑 단어 진도 현황\n`;
+  txt+=`🏫 ${cls} — ${book?book.name:'전체 단어장'}\n`;
+  txt+=`📅 ${today.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})}\n`;
+  txt+=`${'─'.repeat(20)}\n\n`;
+  classStudents.forEach(s=>{
+    const rec=getLatestProg(s.id,bookId);
+    const cur=rec?rec.to:0;
+    const total=book?book.total:0;
+    const pct=book?getPct(cur,total):0;
+    txt+=`👤 ${s.name}: ${cur}번 (${pct}%)\n`;
+  });
+  txt+=`\n${'─'.repeat(20)}\n`;
+  if(message)txt+=`💌 ${message}\n\n`;
+  txt+=`씨유에탑`;
+  return txt;
+}
+
+// 공유 탭
+function setShareMode2(mode){
+  shareMode2=mode;
+  document.getElementById('smode-class').classList.toggle('on',mode==='class');
+  document.getElementById('smode-student').classList.toggle('on',mode==='student');
+  const selColor=BOOKS.find(b=>b.id===selShare2Book)?.color||'#0f6e56';
+  if(mode==='class'){
+    document.getElementById('smode-class').style.background='#0f6e56';
+    document.getElementById('smode-class').style.color='#fff';
+    document.getElementById('smode-student').style.background='';
+    document.getElementById('smode-student').style.color='';
+  } else {
+    document.getElementById('smode-student').style.background='#0f6e56';
+    document.getElementById('smode-student').style.color='#fff';
+    document.getElementById('smode-class').style.background='';
+    document.getElementById('smode-class').style.color='';
+  }
+  document.getElementById('s2-student-wrap').style.display=mode==='student'?'block':'none';
+  document.getElementById('s2-result').style.display='none';
+}
+
+function onShare2ClassChange(){
+  const cls=document.getElementById('s2-class').value;
+  const classStudents=students.filter(s=>s.className===cls);
+  selShare2Student=classStudents[0]?.id||'';
+  document.getElementById('s2-student-chips').innerHTML=classStudents.map(s=>
+    `<div class="book-chip ${s.id===selShare2Student?'on':''}" style="${s.id===selShare2Student?'background:#0f6e56;color:#fff;border-color:transparent':''}" onclick="selS2Student('${s.id}',this)">${s.name}</div>`
+  ).join('');
+  document.getElementById('s2-result').style.display='none';
+}
+
+function selS2Student(id,el){
+  selShare2Student=id;
+  document.querySelectorAll('#s2-student-chips .book-chip').forEach(c=>{
+    c.classList.remove('on');c.style.background='';c.style.color='';c.style.borderColor='';
+  });
+  el.classList.add('on');el.style.background='#0f6e56';el.style.color='#fff';el.style.borderColor='transparent';
+}
+
+function buildShare2(){
+  const cls=document.getElementById('s2-class').value;
+  const message=document.getElementById('s2-message').value.trim();
+  if(!cls){showToast('반을 선택해주세요');return}
+  document.getElementById('s2-result').style.display='block';
+  const dateStr=today.toISOString().slice(0,10);
+
+  if(shareMode2==='class'){
+    const txt=makeClassShareText(cls,selShare2Book,message);
+    document.getElementById('s2-share-text').textContent=txt;
+    shareText2=txt;
+    document.getElementById('s2-class-result').style.display='block';
+    document.getElementById('s2-student-result').style.display='none';
+  } else {
+    const classStudents=students.filter(s=>s.className===cls);
+    document.getElementById('s2-class-result').style.display='none';
+    document.getElementById('s2-student-result').style.display='block';
+    document.getElementById('s2-student-cards').innerHTML=classStudents.map(s=>{
+      const txt=makeStudentShareText(s,selShare2Book,dateStr,message);
+      const safe=txt.replace(/\\/g,'\\\\').replace(/`/g,"'");
+      return `<div style="background:#f0faf6;border:1px solid #d4f0e8;border-radius:12px;padding:12px;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:6px">👤 ${s.name} 학부모님</div>
+        <div style="font-size:11px;color:#666;line-height:1.7;white-space:pre-wrap;max-height:120px;overflow-y:auto;margin-bottom:8px">${txt}</div>
+        <button onclick="copyText('${safe}','${s.name} 학부모님 내용 복사됐어요!')" style="width:100%;padding:9px;border-radius:8px;background:#0f6e56;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer">💬 ${s.name} 학부모님께 카톡 전송</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+let shareText2='';
+function shareKakao2(){
+  if(!shareText2){showToast('먼저 내용을 불러오세요');return}
+  copyText(shareText2,'📋 복사됐어요! 카톡에 붙여넣기 해주세요');
+}
+function copyShare2(){
+  if(!shareText2){showToast('먼저 내용을 불러오세요');return}
+  copyText(shareText2,'✅ 복사됐어요!');
+}
+
+function copyText(txt,msg){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>showToast(msg)).catch(()=>fallbackCopy(txt,msg));
+  } else fallbackCopy(txt,msg);
+}
+function fallbackCopy(txt,msg){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');showToast(msg||'복사됐어요!');}catch(e){showToast('직접 선택해서 복사해주세요');}
+  document.body.removeChild(ta);
+}
+
+// 학생 관리
+function renderClassManage2(){
+  document.getElementById('class-manage-list').innerHTML=classes.map((c,i)=>`
+    <div style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#e8f5f1;border:1.5px solid #d4f0e8;color:#0f6e56;margin:3px">
+      ${c}<span onclick="delClass2(${i})" style="cursor:pointer;opacity:.6;font-size:10px;margin-left:2px">✕</span>
+    </div>`).join('');
+}
+
+function renderStudentManage(){
+  const cls=document.getElementById('stu-class-sel')?.value||classes[0]||'';
+  const classStudents=students.filter(s=>s.className===cls);
+  document.getElementById('student-manage-list').innerHTML=classStudents.length
+    ?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">`+classStudents.map(s=>
+        `<div style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:12px;background:#f0faf6;border:1.5px solid #d4f0e8;color:#0f6e56;margin:2px">
+          ${s.name}<span onclick="delStudent2('${s.id}')" style="cursor:pointer;opacity:.6;font-size:10px;margin-left:2px">✕</span>
+        </div>`).join('')+`</div>`
+    :`<div style="font-size:12px;color:#bbb;padding:8px 0">${cls} 학생이 없어요</div>`;
+}
+
+function addClass2(){
+  const inp=document.getElementById('new-class');
+  const name=inp.value.trim();
+  if(!name){showToast('반 이름을 입력해주세요');return}
+  if(classes.includes(name)){showToast('이미 있는 반이에요');return}
+  classes.push(name);saveAll();
+  renderAllSelects();renderClassManage2();renderStudentManage();
+  inp.value='';showToast(`✅ ${name} 추가!`);
+}
+function delClass2(idx){
+  if(!confirm(`"${classes[idx]}" 반 삭제할까요?`))return;
+  classes.splice(idx,1);saveAll();renderAllSelects();renderClassManage2();renderStudentManage();
+}
+function addStudent2(){
+  const cls=document.getElementById('stu-class-sel').value;
+  const name=document.getElementById('new-student').value.trim();
+  if(!cls){showToast('반을 선택해주세요');return}
+  if(!name){showToast('이름을 입력해주세요');return}
+  if(students.find(s=>s.className===cls&&s.name===name)){showToast('이미 있는 학생이에요');return}
+  students.push({id:Date.now()+'',className:cls,name});
+  saveAll();renderStudentManage();renderProgress();
+  document.getElementById('new-student').value='';
+  showToast(`✅ ${name} 추가!`);
+}
+function delStudent2(id){
+  if(!confirm('학생을 삭제할까요?'))return;
+  students=students.filter(s=>s.id!==id);saveAll();renderStudentManage();renderProgress();
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['progress','input','share','manage'][i]===tab));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+tab).classList.add('on');
+  if(tab==='progress')renderProgress();
+  if(tab==='input')renderInputStudents();
+  if(tab==='manage'){renderClassManage2();renderStudentManage();}
+}
+
+loadAll();
+renderAllSelects();
+renderClassManage2();
+renderStudentManage();
+renderProgress();
+</script>
+</body>
+</html>
