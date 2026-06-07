@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 수업일지">
+<title>씨유에탑 수업일지</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{height:100%;background:#f5f4fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a2e}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px;background:#fff}
+.hd{padding:14px 16px 10px;background:#fff;border-bottom:1px solid #ede9ff;position:sticky;top:0;z-index:20}
+.hd-top{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:10px;font-weight:700;background:#534AB7;color:#fff;padding:3px 9px;border-radius:20px}
+.hd h1{font-size:17px;font-weight:700;color:#1a1a2e;margin-left:8px}
+.hd-sub{font-size:11px;color:#888;margin-top:3px}
+.tabs{display:flex;border-bottom:1px solid #ede9ff;background:#fff;position:sticky;top:55px;z-index:19}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#aaa;border-bottom:2px solid transparent;font-weight:600}
+.tab.on{color:#534AB7;border-bottom-color:#534AB7}
+.tab-ic{display:block;font-size:16px;margin-bottom:1px}
+.sec{padding:12px;display:none}
+.sec.on{display:block}
+
+/* 반 관리 */
+.class-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.class-chip{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #ede9ff;background:#f8f7ff;color:#888;transition:all .2s}
+.class-chip.on{background:#534AB7;color:#fff;border-color:#534AB7}
+.class-chip.add{background:none;border:1.5px dashed #c5bff7;color:#534AB7}
+.class-chip.add:active{background:#eeedfe}
+
+/* 입력 카드 */
+.card{background:#fff;border:1px solid #ede9ff;border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:600;color:#534AB7;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #ede9ff;background:#faf9ff;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus,.field textarea:focus{border-color:#534AB7}
+.field textarea{resize:none;min-height:80px}
+.add-btn{width:100%;padding:12px;border-radius:12px;background:#534AB7;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.add-btn:active{background:#3c3489}
+
+/* 일지 리스트 */
+.log-item{background:#fff;border:1px solid #ede9ff;border-radius:12px;padding:13px;margin-bottom:8px}
+.log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.log-class{font-size:11px;font-weight:700;background:#eeedfe;color:#534AB7;padding:3px 9px;border-radius:20px}
+.log-date{font-size:11px;color:#aaa}
+.log-subject{font-size:14px;font-weight:600;color:#1a1a2e;margin-bottom:4px}
+.log-content{font-size:12px;color:#666;line-height:1.6;margin-bottom:6px}
+.log-hw{font-size:11px;color:#ff6b35;background:#fff3ee;padding:3px 9px;border-radius:8px;display:inline-block;margin-bottom:6px}
+.log-actions{display:flex;gap:6px}
+.la{background:#f8f7ff;border:1px solid #ede9ff;border-radius:8px;padding:5px 10px;font-size:11px;color:#534AB7;cursor:pointer;font-weight:600}
+.la:active{background:#eeedfe}
+.la-del{color:#ff6b6b;background:#fff5f5;border-color:#ffd5d5}
+.la-del:active{background:#ffe0e0}
+
+/* 공유 모달 */
+.share-panel{background:#f8f7ff;border:1px solid #ede9ff;border-radius:12px;padding:14px;margin-bottom:12px;display:none}
+.share-panel.on{display:block}
+.share-preview{background:#fff;border:1px solid #ede9ff;border-radius:10px;padding:12px;margin:8px 0;font-size:12px;color:#444;line-height:1.8;white-space:pre-wrap;max-height:200px;overflow-y:auto}
+.share-btns{display:flex;gap:8px}
+.kakao-btn{flex:1;padding:11px;border-radius:10px;background:#FEE500;border:none;color:#3A1D1D;font-size:13px;font-weight:700;cursor:pointer}
+.kakao-btn:active{background:#f0d800}
+.copy-btn{padding:11px 14px;border-radius:10px;background:#f0eeff;border:1px solid #c5bff7;color:#534AB7;font-size:13px;font-weight:600;cursor:pointer}
+
+/* 통계 */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-box{background:#f8f7ff;border:1px solid #ede9ff;border-radius:12px;padding:12px}
+.stat-label{font-size:10px;color:#aaa;font-weight:600}
+.stat-val{font-size:22px;font-weight:700;color:#1a1a2e;margin-top:3px}
+
+.empty{text-align:center;padding:36px 0;color:#bbb;font-size:12px}
+.empty-ic{font-size:36px;display:block;margin-bottom:8px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#534AB7;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.filter-row{display:flex;gap:6px;margin-bottom:10px;align-items:center}
+.filter-select{flex:1;padding:7px 10px;border-radius:8px;border:1px solid #ede9ff;background:#faf9ff;color:#1a1a2e;font-size:12px;outline:none}
+.filter-btn{padding:7px 12px;border-radius:8px;background:#eeedfe;border:1px solid #c5bff7;color:#534AB7;font-size:12px;font-weight:600;cursor:pointer}
+.filter-btn:active{background:#ddd8f8}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div class="hd-top">
+      <div style="display:flex;align-items:center">
+        <span class="badge">씨유에탑</span>
+        <h1>수업일지</h1>
+      </div>
+      <span style="font-size:11px;color:#aaa" id="today-label"></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('write')"><span class="tab-ic">✏️</span>기록</div>
+    <div class="tab" onclick="switchTab('list')"><span class="tab-ic">📋</span>일지목록</div>
+    <div class="tab" onclick="switchTab('share')"><span class="tab-ic">📤</span>공유</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-ic">📊</span>통계</div>
+  </div>
+
+  <!-- 기록 탭 -->
+  <div class="sec on" id="sec-write">
+    <div class="card">
+      <div class="card-title">📚 수업 내용 기록</div>
+      <div class="field">
+        <label>반 선택</label>
+        <div class="class-bar" id="class-bar-write"></div>
+      </div>
+      <div class="field">
+        <label>날짜</label>
+        <input type="date" id="w-date" />
+      </div>
+      <div class="field">
+        <label>과목 / 단원</label>
+        <input type="text" id="w-subject" placeholder="예: 영어 - Unit 3 현재완료" />
+      </div>
+      <div class="field">
+        <label>수업 내용</label>
+        <textarea id="w-content" placeholder="오늘 수업한 내용을 적어주세요..."></textarea>
+      </div>
+      <div class="field">
+        <label>숙제 (선택)</label>
+        <input type="text" id="w-homework" placeholder="예: 교재 p.45 문제풀기" />
+      </div>
+      <button class="add-btn" onclick="addLog()">📝 저장하기</button>
+    </div>
+
+    <!-- 반 추가 -->
+    <div class="card">
+      <div class="card-title">➕ 반 관리</div>
+      <div class="field">
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-class" placeholder="반 이름 입력 (예: 중1반)" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #ede9ff;background:#faf9ff;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addClass()" />
+          <button onclick="addClass()" style="background:#534AB7;border:none;border-radius:10px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">추가</button>
+        </div>
+      </div>
+      <div class="class-bar" id="class-manage-bar"></div>
+    </div>
+  </div>
+
+  <!-- 일지목록 탭 -->
+  <div class="sec" id="sec-list">
+    <div class="filter-row">
+      <select class="filter-select" id="filter-class" onchange="renderList()">
+        <option value="">전체 반</option>
+      </select>
+      <input type="month" id="filter-month" onchange="renderList()" style="flex:1;padding:7px 10px;border-radius:8px;border:1px solid #ede9ff;background:#faf9ff;color:#1a1a2e;font-size:12px;outline:none" />
+    </div>
+    <div id="log-list"></div>
+  </div>
+
+  <!-- 공유 탭 -->
+  <div class="sec" id="sec-share">
+    <div class="card">
+      <div class="card-title">📤 카톡으로 공유하기</div>
+      <div class="field">
+        <label>반 선택</label>
+        <select class="filter-select" id="share-class" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #ede9ff">
+          <option value="">반을 선택해주세요</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>기간</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="date" id="share-from" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #ede9ff;background:#faf9ff;color:#1a1a2e;font-size:13px;outline:none" />
+          <span style="color:#aaa;font-size:12px">~</span>
+          <input type="date" id="share-to" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #ede9ff;background:#faf9ff;color:#1a1a2e;font-size:13px;outline:none" />
+        </div>
+      </div>
+      <button class="add-btn" style="margin-bottom:10px" onclick="buildShareText()">📋 내용 불러오기</button>
+      <div id="share-preview-wrap" style="display:none">
+        <div class="share-preview" id="share-preview-text"></div>
+        <div class="share-btns">
+          <button class="kakao-btn" onclick="shareKakao()">💬 카톡으로 공유</button>
+          <button class="copy-btn" onclick="copyShare()">복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 통계 탭 -->
+  <div class="sec" id="sec-stats">
+    <div id="stats-body"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let logs=[], classes=[];
+let shareText='';
+
+function save(){
+  try{
+    localStorage.setItem('cl_logs_v1',JSON.stringify(logs));
+    localStorage.setItem('cl_classes_v1',JSON.stringify(classes));
+  }catch(e){}
+}
+function load(){
+  try{logs=JSON.parse(localStorage.getItem('cl_logs_v1')||'[]')}catch(e){logs=[]}
+  try{classes=JSON.parse(localStorage.getItem('cl_classes_v1')||'["중1반","중2반","고1반"]')}catch(e){classes=["중1반","중2반","고1반"]}
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
+
+const today=new Date();
+document.getElementById('today-label').textContent=today.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+document.getElementById('w-date').value=today.toISOString().slice(0,10);
+
+// 이번달 기본 설정
+const ym=today.toISOString().slice(0,7);
+document.getElementById('filter-month').value=ym;
+const firstDay=ym+'-01';
+const lastDay=new Date(today.getFullYear(),today.getMonth()+1,0).toISOString().slice(0,10);
+document.getElementById('share-from').value=firstDay;
+document.getElementById('share-to').value=lastDay;
+
+function renderClassBars(){
+  // 쓰기 탭 반 선택
+  const writeBar=document.getElementById('class-bar-write');
+  writeBar.innerHTML=classes.map((c,i)=>`<div class="class-chip ${i===0?'on':''}" onclick="selectClass(this,'write')">${c}</div>`).join('');
+
+  // 관리 바
+  const manageBar=document.getElementById('class-manage-bar');
+  manageBar.innerHTML=classes.map((c,i)=>`<div class="class-chip on" style="display:flex;align-items:center;gap:4px">${c}<span onclick="deleteClass(${i})" style="font-size:10px;cursor:pointer;margin-left:2px;opacity:.7">✕</span></div>`).join('');
+
+  // 필터 셀렉트들
+  ['filter-class','share-class'].forEach(id=>{
+    const sel=document.getElementById(id);
+    const cur=sel.value;
+    sel.innerHTML=`<option value="">${id==='filter-class'?'전체 반':'반을 선택해주세요'}</option>`+classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if(cur)sel.value=cur;
+  });
+}
+
+function selectClass(el,type){
+  document.querySelectorAll(`#class-bar-${type} .class-chip`).forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function getSelectedClass(type){
+  const el=document.querySelector(`#class-bar-${type} .class-chip.on`);
+  return el?el.textContent:'';
+}
+
+function addClass(){
+  const inp=document.getElementById('new-class');
+  const name=inp.value.trim();
+  if(!name){showToast('반 이름을 입력해주세요');return}
+  if(classes.includes(name)){showToast('이미 있는 반이에요');return}
+  classes.push(name);save();renderClassBars();inp.value='';
+  showToast(`✅ ${name} 추가됐어요!`);
+}
+
+function deleteClass(idx){
+  if(!confirm(`"${classes[idx]}" 반을 삭제할까요?`))return;
+  classes.splice(idx,1);save();renderClassBars();
+  showToast('삭제됐어요');
+}
+
+function addLog(){
+  const className=getSelectedClass('write');
+  const date=document.getElementById('w-date').value;
+  const subject=document.getElementById('w-subject').value.trim();
+  const content=document.getElementById('w-content').value.trim();
+  const homework=document.getElementById('w-homework').value.trim();
+  if(!className){showToast('반을 선택해주세요');return}
+  if(!date){showToast('날짜를 선택해주세요');return}
+  if(!subject){showToast('과목/단원을 입력해주세요');return}
+  if(!content){showToast('수업 내용을 입력해주세요');return}
+  logs.unshift({id:Date.now(),className,date,subject,content,homework,createdAt:new Date().toISOString()});
+  save();
+  document.getElementById('w-subject').value='';
+  document.getElementById('w-content').value='';
+  document.getElementById('w-homework').value='';
+  showToast('✅ 수업일지 저장됐어요!');
+  renderList();renderStats();
+}
+
+function deleteLog(id){
+  if(!confirm('이 수업일지를 삭제할까요?'))return;
+  logs=logs.filter(l=>l.id!==id);save();renderList();renderStats();
+  showToast('삭제됐어요');
+}
+
+function renderList(){
+  const wrap=document.getElementById('log-list');
+  const filterClass=document.getElementById('filter-class').value;
+  const filterMonth=document.getElementById('filter-month').value;
+  let filtered=logs;
+  if(filterClass)filtered=filtered.filter(l=>l.className===filterClass);
+  if(filterMonth)filtered=filtered.filter(l=>l.date.startsWith(filterMonth));
+  filtered.sort((a,b)=>a.date<b.date?1:-1);
+  if(!filtered.length){wrap.innerHTML=`<div class="empty"><span class="empty-ic">📋</span>수업일지가 없어요</div>`;return}
+  wrap.innerHTML=filtered.map(l=>`<div class="log-item">
+    <div class="log-header">
+      <span class="log-class">${l.className}</span>
+      <span class="log-date">${l.date}</span>
+    </div>
+    <div class="log-subject">📖 ${l.subject}</div>
+    <div class="log-content">${l.content}</div>
+    ${l.homework?`<div class="log-hw">📝 숙제: ${l.homework}</div>`:''}
+    <div class="log-actions">
+      <button class="la la-del" onclick="deleteLog(${l.id})">🗑 삭제</button>
+    </div>
+  </div>`).join('');
+}
+
+function buildShareText(){
+  const cls=document.getElementById('share-class').value;
+  const from=document.getElementById('share-from').value;
+  const to=document.getElementById('share-to').value;
+  if(!cls){showToast('반을 선택해주세요');return}
+  if(!from||!to){showToast('기간을 선택해주세요');return}
+  const filtered=logs.filter(l=>l.className===cls&&l.date>=from&&l.date<=to).sort((a,b)=>a.date>b.date?1:-1);
+  if(!filtered.length){showToast('해당 기간 수업일지가 없어요');return}
+  const fromLabel=new Date(from.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  const toLabel=new Date(to.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  let txt=`📚 씨유에탑 수업일지\n`;
+  txt+=`🏫 ${cls}\n`;
+  txt+=`📅 ${fromLabel} ~ ${toLabel}\n`;
+  txt+=`${'─'.repeat(20)}\n`;
+  filtered.forEach(l=>{
+    const d=new Date(l.date.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+    txt+=`\n📌 ${d}\n`;
+    txt+=`📖 ${l.subject}\n`;
+    txt+=`${l.content}\n`;
+    if(l.homework)txt+=`📝 숙제: ${l.homework}\n`;
+  });
+  txt+=`\n${'─'.repeat(20)}\n씨유에탑`;
+  shareText=txt;
+  document.getElementById('share-preview-text').textContent=txt;
+  document.getElementById('share-preview-wrap').style.display='block';
+}
+
+function shareKakao(){
+  if(!shareText){showToast('먼저 내용을 불러오세요');return}
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(shareText).then(()=>{
+      showToast('📋 복사됐어요! 카톡에 붙여넣기 해주세요');
+    }).catch(()=>fallbackCopy());
+  } else fallbackCopy();
+}
+
+function copyShare(){
+  if(!shareText){showToast('먼저 내용을 불러오세요');return}
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(shareText).then(()=>showToast('✅ 복사됐어요!'));
+  } else fallbackCopy();
+}
+
+function fallbackCopy(){
+  const ta=document.createElement('textarea');
+  ta.value=shareText;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');showToast('📋 복사됐어요! 카톡에 붙여넣기 해주세요');}
+  catch(e){showToast('복사 실패. 직접 선택해서 복사해주세요');}
+  document.body.removeChild(ta);
+}
+
+function renderStats(){
+  const wrap=document.getElementById('stats-body');
+  const total=logs.length;
+  const thisMonth=logs.filter(l=>l.date.startsWith(ym)).length;
+  const classCount={};
+  logs.forEach(l=>{classCount[l.className]=(classCount[l.className]||0)+1});
+  let classHtml='';
+  Object.entries(classCount).sort((a,b)=>b[1]-a[1]).forEach(([name,cnt])=>{
+    const pct=total?Math.round(cnt/total*100):0;
+    classHtml+=`<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${name}</span><span style="color:#aaa">${cnt}회</span></div>
+      <div style="height:7px;background:#f0eeff;border-radius:4px;overflow:hidden"><div style="height:100%;width:${pct}%;background:#534AB7;border-radius:4px"></div></div>
+    </div>`;
+  });
+  wrap.innerHTML=`<div class="stat-grid">
+    <div class="stat-box"><div class="stat-label">총 수업일지</div><div class="stat-val">${total}</div></div>
+    <div class="stat-box"><div class="stat-label">이번 달</div><div class="stat-val">${thisMonth}</div></div>
+  </div>
+  ${classHtml||'<div class="empty"><span class="empty-ic">📊</span>데이터가 없어요</div>'}`;
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['write','list','share','stats'][i]===tab));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+tab).classList.add('on');
+  if(tab==='list')renderList();
+  if(tab==='stats')renderStats();
+}
+
+load();renderClassBars();renderList();renderStats();
+</script>
+</body>
+</html>
