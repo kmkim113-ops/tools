@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="신약 50일 읽기">
+<title>신약 50일 읽기</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{height:100%;background:#1a1205;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#f5e6c8}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px}
+.hd{padding:14px 16px 10px;background:#1a1205;border-bottom:1px solid #3d2e10;position:sticky;top:0;z-index:20}
+.hd-top{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:10px;font-weight:700;background:#8b6914;color:#fff;padding:3px 9px;border-radius:20px}
+.hd h1{font-size:17px;font-weight:700;color:#f5e6c8;margin-left:8px}
+.hd-sub{font-size:11px;color:#aa8844;margin-top:3px}
+.progress-bar-wrap{padding:10px 16px;background:#1a1205;border-bottom:1px solid #3d2e10}
+.overall-label{display:flex;justify-content:space-between;font-size:12px;color:#aa8844;margin-bottom:5px}
+.overall-bar{height:8px;background:#3d2e10;border-radius:4px;overflow:hidden}
+.overall-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#8b6914,#d4a832);transition:width .5s}
+.tabs{display:flex;border-bottom:1px solid #3d2e10;background:#1a1205;position:sticky;top:97px;z-index:19}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#7a5a20;border-bottom:2px solid transparent;font-weight:600}
+.tab.on{color:#d4a832;border-bottom-color:#8b6914}
+.tab-ic{display:block;font-size:15px;margin-bottom:1px}
+.sec{padding:12px;display:none}
+.sec.on{display:block}
+
+/* 오늘의 읽기 */
+.today-card{background:#231908;border:1px solid #5a3e18;border-radius:16px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.today-card::before{content:'✝';position:absolute;right:12px;top:10px;font-size:48px;opacity:.06;color:#d4a832}
+.today-day{font-size:11px;color:#aa8844;font-weight:600;margin-bottom:4px}
+.today-range{font-size:20px;font-weight:700;color:#f5e6c8;margin-bottom:6px}
+.today-theme{font-size:14px;color:#d4a832;font-weight:600;margin-bottom:10px}
+.today-summary{font-size:13px;color:#c8b080;line-height:1.7;margin-bottom:10px}
+.today-meditation{background:#1a1205;border-left:3px solid #8b6914;border-radius:0 8px 8px 0;padding:10px 12px;margin-bottom:12px}
+.today-meditation-label{font-size:10px;color:#8b6914;font-weight:700;margin-bottom:4px;letter-spacing:0.5px}
+.today-meditation-text{font-size:13px;color:#f5e6c8;line-height:1.6}
+.check-row{display:flex;gap:8px}
+.check-btn-done{flex:1;padding:12px;border-radius:12px;background:#8b6914;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.check-btn-done:active{background:#6b4f10}
+.check-btn-done.completed{background:#2d4a1e;border:1px solid #4a7a30;color:#7ecf4e}
+.check-btn-prev{padding:12px 14px;border-radius:12px;background:#231908;border:1px solid #5a3e18;color:#aa8844;font-size:13px;font-weight:600;cursor:pointer}
+.check-btn-prev:active{background:#3d2e10}
+
+/* 전체 목록 */
+.day-item{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid #2a1e08;cursor:pointer;transition:background .15s}
+.day-item:last-child{border-bottom:none}
+.day-item:active{background:#231908}
+.day-item.completed .di-day{color:#4a7a30}
+.day-item.completed .di-range{color:#4a7a30}
+.day-item.today-item{background:#231908}
+.di-check{width:28px;height:28px;border-radius:50%;border:2px solid #5a3e18;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px}
+.di-check.done{background:#2d4a1e;border-color:#4a7a30;color:#7ecf4e}
+.di-check.today-c{background:#8b6914;border-color:#d4a832;color:#fff}
+.di-info{flex:1;min-width:0}
+.di-day{font-size:11px;color:#aa8844;font-weight:600}
+.di-range{font-size:13px;font-weight:600;color:#f5e6c8;margin-top:1px}
+.di-theme{font-size:11px;color:#8b6914;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.di-arrow{font-size:16px;color:#5a3e18}
+
+/* 상세 모달 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:flex-end;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:#1e1508;border-radius:20px 20px 0 0;padding:20px 16px 40px;width:100%;max-width:430px;max-height:88vh;overflow-y:auto;border-top:1px solid #5a3e18}
+.modal-handle{width:36px;height:4px;background:#3d2e10;border-radius:2px;margin:0 auto 16px}
+.modal-day-badge{font-size:11px;font-weight:700;background:#3d2e10;color:#d4a832;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:8px}
+.modal-range{font-size:22px;font-weight:700;color:#f5e6c8;margin-bottom:6px}
+.modal-theme{font-size:15px;color:#d4a832;font-weight:600;margin-bottom:12px}
+.modal-section-label{font-size:11px;font-weight:700;color:#8b6914;letter-spacing:0.5px;margin-bottom:6px;margin-top:14px}
+.modal-summary{font-size:14px;color:#c8b080;line-height:1.8}
+.modal-meditation{background:#1a1205;border-left:3px solid #8b6914;border-radius:0 10px 10px 0;padding:12px 14px;margin-top:10px}
+.modal-med-label{font-size:10px;color:#8b6914;font-weight:700;margin-bottom:5px;letter-spacing:0.5px}
+.modal-med-text{font-size:14px;color:#f5e6c8;line-height:1.7}
+.modal-check{width:100%;padding:13px;border-radius:12px;background:#8b6914;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer;margin-top:16px}
+.modal-check:active{background:#6b4f10}
+.modal-check.done{background:#2d4a1e;border:1px solid #4a7a30;color:#7ecf4e}
+.modal-close{width:100%;padding:10px;border-radius:12px;background:none;border:none;color:#7a5a20;font-size:13px;cursor:pointer;margin-top:6px}
+
+/* 통계 */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-box{background:#231908;border:1px solid #5a3e18;border-radius:12px;padding:12px}
+.stat-label{font-size:10px;color:#7a5a20;font-weight:600}
+.stat-val{font-size:24px;font-weight:700;color:#f5e6c8;margin-top:3px}
+.stat-sub{font-size:10px;color:#aa8844;margin-top:1px}
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.week-cell{aspect-ratio:1;border-radius:4px;background:#231908;border:1px solid #3d2e10;display:flex;align-items:center;justify-content:center;font-size:9px;color:#7a5a20}
+.week-cell.done{background:#2d4a1e;border-color:#4a7a30;color:#7ecf4e}
+.week-cell.today-cell{background:#5a3e18;border-color:#d4a832;color:#d4a832;font-weight:700}
+.week-cell.future{opacity:.3}
+
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#8b6914;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div class="hd-top">
+      <div style="display:flex;align-items:center">
+        <span class="badge">씨유에탑</span>
+        <h1>✝ 신약 50일 읽기</h1>
+      </div>
+      <span style="font-size:11px;color:#aa8844" id="today-lbl"></span>
+    </div>
+    <div class="hd-sub" id="hd-sub">오늘의 말씀을 읽어보세요</div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="overall-label">
+      <span>전체 진행률</span>
+      <span id="prog-pct">0 / 50일</span>
+    </div>
+    <div class="overall-bar"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('today')"><span class="tab-ic">📖</span>오늘읽기</div>
+    <div class="tab" onclick="switchTab('list')"><span class="tab-ic">📋</span>전체목록</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-ic">📊</span>기록</div>
+  </div>
+
+  <div class="sec on" id="sec-today"></div>
+  <div class="sec" id="sec-list"></div>
+  <div class="sec" id="sec-stats"></div>
+</div>
+
+<!-- 상세 모달 -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const PLAN=[
+  {day:1,range:"마태복음 1-4장",theme:"예수님의 탄생과 사역 시작",summary:"예수님의 족보와 탄생, 동방박사의 경배, 애굽 피난, 세례 요한의 사역, 예수님의 세례와 광야 시험, 갈릴리 사역의 시작과 첫 제자 부르심.",meditation:"예수님은 모든 시험을 말씀으로 이기셨습니다. 오늘 내가 직면한 시험을 어떻게 말씀으로 이길 수 있을까요?"},
+  {day:2,range:"마태복음 5-7장",theme:"산상수훈 — 천국 백성의 삶",summary:"팔복, 소금과 빛, 율법의 완성, 원수 사랑, 구제·기도·금식의 바른 자세, 주기도문, 황금률, 좁은 문.",meditation:"'먼저 그의 나라와 그의 의를 구하라.' 오늘 내 삶의 우선순위는 무엇인가요?"},
+  {day:3,range:"마태복음 8-10장",theme:"능력의 주님과 제자 파송",summary:"나병환자·백부장 종·베드로 장모 치유, 광풍을 잠재우심, 귀신 들린 자 치유, 열두 제자 선택과 파송 명령.",meditation:"예수님은 '두려워 말라'고 하셨습니다. 지금 내가 두려워하는 것을 주님께 내려놓아 봅시다."},
+  {day:4,range:"마태복음 11-13장",theme:"천국 비유와 배척",summary:"세례 요한의 질문, 회개치 않는 도시들 책망, '수고하고 무거운 짐 진 자들아', 안식일 논쟁, 씨 뿌리는 자·겨자씨·누룩 비유.",meditation:"천국은 밭에 숨겨진 보화와 같습니다. 나는 천국을 얻기 위해 무엇을 포기할 수 있나요?"},
+  {day:5,range:"마태복음 14-17장",theme:"오병이어와 신앙 고백",summary:"세례 요한의 순교, 오병이어 기적, 물 위를 걸으심, 베드로의 신앙고백 '주는 그리스도시오', 변화산 사건.",meditation:"'주는 그리스도시오 살아 계신 하나님의 아들이시니이다.' 이 고백이 나의 고백이 되고 있나요?"},
+  {day:6,range:"마태복음 18-20장",theme:"용서와 섬김의 공동체",summary:"어린아이처럼 낮아짐, 잃은 양 비유, 용서에 관한 가르침 (일흔 번씩 일곱 번), 혼인 비유, 포도원 품꾼 비유, 섬기는 자가 크다.",meditation:"나는 얼마나 용서하고 있나요? 지금 용서해야 할 사람이 있나요?"},
+  {day:7,range:"마태복음 21-23장",theme:"예루살렘 입성과 종교 지도자 책망",summary:"예루살렘 입성, 성전 청결, 무화과나무 저주, 두 아들·포도원 소작인 비유, 바리새인·서기관들에 대한 화 선언.",meditation:"예수님은 형식이 아닌 진심을 보십니다. 나의 신앙 생활은 겉과 속이 일치하나요?"},
+  {day:8,range:"마태복음 24-25장",theme:"종말과 재림에 관한 가르침",summary:"성전 멸망 예언, 재림의 징조, 열 처녀 비유, 달란트 비유, 양과 염소 비유 — 지극히 작은 자를 섬기는 것이 주님을 섬기는 것.",meditation:"달란트 비유에서 나는 받은 것을 어떻게 사용하고 있나요?"},
+  {day:9,range:"마태복음 26-28장",theme:"수난과 부활 — 복음의 완성",summary:"최후의 만찬, 겟세마네 기도, 체포와 재판, 십자가 죽음, 부활, 지상대명령 '모든 민족을 제자로 삼으라'.",meditation:"'볼지어다 내가 세상 끝날까지 너희와 항상 함께 있으리라.' 이 약속이 오늘 내게 어떤 힘이 되나요?"},
+  {day:10,range:"마가복음 1-3장",theme:"즉각적인 하나님의 아들",summary:"마가는 '즉시'를 반복 사용하며 예수님의 역동적 사역을 묘사. 세례·시험·갈릴리 사역 시작·귀신 축출·열두 제자 선택.",meditation:"마가복음은 행동하시는 예수님을 보여줍니다. 나는 믿음을 행동으로 옮기고 있나요?"},
+  {day:11,range:"마가복음 4-6장",theme:"기적과 믿음",summary:"씨 뿌리는 자 비유, 풍랑을 잠잠케 하심, 거라사 귀신 들린 자 치유, 야이로 딸과 혈루증 여인 치유, 고향에서의 배척, 오병이어.",meditation:"혈루증 여인은 군중 속에서도 믿음으로 예수님을 만졌습니다. 나는 어떻게 주님을 만지고 있나요?"},
+  {day:12,range:"마가복음 7-10장",theme:"제자도와 섬김",summary:"수로보니게 여인의 믿음, 귀 먹고 말 못하는 자 치유, 베드로 고백, 첫 번째·두 번째 수난 예고, 제자들의 다툼, 섬기는 자가 으뜸.",meditation:"예수님은 '자기를 부인하고 자기 십자가를 지고 나를 따르라' 하셨습니다. 나의 십자가는 무엇인가요?"},
+  {day:13,range:"마가복음 11-13장",theme:"예루살렘에서의 가르침",summary:"예루살렘 입성, 성전 청결, 권위 논쟁, 가이사의 것과 하나님의 것, 과부의 두 렙돈, 종말 강화.",meditation:"과부의 두 렙돈 이야기를 묵상합니다. 나는 남은 것으로 드리나요, 전부를 드리나요?"},
+  {day:14,range:"마가복음 14-16장",theme:"수난과 부활",summary:"향유를 부은 여인, 최후의 만찬, 겟세마네, 체포와 부인, 십자가와 부활, 막달라 마리아에게 첫 나타나심, 승천.",meditation:"'가서 모든 족속에게 복음을 전파하라.' 나는 오늘 누구에게 복음을 전할 수 있을까요?"},
+  {day:15,range:"누가복음 1-3장",theme:"구원의 역사 시작",summary:"세례 요한과 예수님의 탄생 예고, 마리아의 찬가, 목자들의 경배, 시므온과 안나의 예언, 소년 예수 성전 방문, 세례와 족보.",meditation:"마리아는 '주의 여종이오니 말씀대로 이루어지이다'라고 했습니다. 나는 하나님의 뜻에 얼마나 순종하고 있나요?"},
+  {day:16,range:"누가복음 4-6장",theme:"갈릴리 사역과 제자 부르심",summary:"광야 시험, 나사렛 회당에서 이사야 낭독, 제자 부르심, 산상수훈 (평지수훈), 원수를 사랑하라, 황금률.",meditation:"'너희 원수를 사랑하며 너희를 미워하는 자를 선대하라.' 오늘 내가 선대해야 할 사람이 있나요?"},
+  {day:17,range:"누가복음 7-9장",theme:"자비와 긍휼의 주님",summary:"백부장의 믿음, 나인성 과부 아들 살리심, 죄 많은 여인의 향유, 씨 뿌리는 자 비유, 오병이어, 베드로 고백, 변화산.",meditation:"예수님은 눈물 흘리는 과부를 보시고 먼저 다가가셨습니다. 나는 주변의 아픔에 얼마나 민감한가요?"},
+  {day:18,range:"누가복음 10-12장",theme:"제자의 삶과 기도",summary:"70인 파송, 선한 사마리아인, 마리아와 마르다, 주기도문, '구하라 찾으라 두드리라', 어리석은 부자 비유.",meditation:"선한 사마리아인 비유에서 나는 누구인가요? 도움이 필요한 이웃이 내 주변에 있나요?"},
+  {day:19,range:"누가복음 13-15장",theme:"잃어버린 것을 찾으시는 하나님",summary:"회개의 촉구, 좁은 문, 예루살렘을 향한 탄식, 잔치 비유, 잃은 양·잃은 동전·잃은 아들(탕자) 비유.",meditation:"탕자의 아버지처럼 하나님은 우리를 기다리십니다. 나는 지금 아버지께 돌아가야 할 부분이 있나요?"},
+  {day:20,range:"누가복음 16-18장",theme:"재물과 기도와 믿음",summary:"불의한 청지기, 부자와 나사로, 용서와 믿음, 열 명의 나병환자, 과부와 불의한 재판관, 바리새인과 세리의 기도.",meditation:"세리는 '하나님이여 불쌍히 여기소서 나는 죄인이로소이다'라고 기도했습니다. 나의 기도는 어떤가요?"},
+  {day:21,range:"누가복음 19-21장",theme:"예루살렘 입성과 가르침",summary:"삭개오의 회심, 예루살렘 입성, 성전 청결, 포도원 농부 비유, 부활 논쟁, 과부의 헌금, 종말 강화.",meditation:"삭개오는 예수님을 만난 후 삶이 바뀌었습니다. 나의 만남 이후 무엇이 변화되었나요?"},
+  {day:22,range:"누가복음 22-24장",theme:"수난·부활·승천",summary:"최후의 만찬, 겟세마네, 베드로의 부인, 십자가, '아버지여 저들을 사하여 주옵소서', 엠마오 도상, 부활 현현, 승천.",meditation:"엠마오 제자들은 말씀을 들을 때 마음이 뜨거워졌습니다. 오늘 말씀 앞에서 내 마음은 어떤가요?"},
+  {day:23,range:"요한복음 1-3장",theme:"말씀이 육신이 되어",summary:"태초의 말씀, 빛과 어둠, 세례 요한의 증언, 첫 제자들, 가나 혼인 잔치, 성전 청결, 니고데모와의 대화, '하나님이 세상을 이처럼 사랑하사'.",meditation:"요 3:16을 천천히 읽어보세요. '하나님이 세상을 이처럼 사랑하사' — 이 사랑이 나에게 어떤 의미인가요?"},
+  {day:24,range:"요한복음 4-6장",theme:"생명의 물과 생명의 떡",summary:"수가성 여인, '신령과 진정으로 예배', 왕의 신하 아들 치유, 베데스다 기적, 오병이어, '나는 생명의 떡이라'.",meditation:"수가성 여인에게 예수님은 먼저 다가가셨습니다. 주님은 나의 가장 깊은 목마름을 아시나요?"},
+  {day:25,range:"요한복음 7-9장",theme:"빛이신 예수님",summary:"초막절 논쟁, 간음하다 잡힌 여인, '나는 세상의 빛이라', 아브라함보다 먼저인 나, 날 때부터 맹인 된 자 치유.",meditation:"'나는 세상의 빛이니 나를 따르는 자는 어둠에 다니지 아니하리라.' 나는 오늘 어둠에서 빛으로 나아가고 있나요?"},
+  {day:26,range:"요한복음 10-12장",theme:"선한 목자와 생명의 주",summary:"선한 목자와 삯꾼, 나사로 살리심, '나는 부활이요 생명이니', 향유를 부은 마리아, 예루살렘 입성.",meditation:"'나는 선한 목자라 선한 목자는 양들을 위하여 목숨을 버리거니와.' 주님이 나의 목자이심을 오늘 느끼나요?"},
+  {day:27,range:"요한복음 13-15장",theme:"다락방 강화 — 사랑의 계명",summary:"제자들의 발을 씻기심, 유다의 배반 예고, 새 계명 '서로 사랑하라', 베드로의 부인 예고, 길·진리·생명이신 예수님, 포도나무 비유.",meditation:"'너희가 서로 사랑하면 이로써 모든 사람이 너희가 내 제자인 줄 알리라.' 나의 사랑이 증거가 되고 있나요?"},
+  {day:28,range:"요한복음 16-18장",theme:"성령의 오심과 겟세마네",summary:"성령의 사역, 예수님의 대제사장적 기도 '아버지여 하나로 하소서', 겟세마네와 체포, 베드로의 부인, 빌라도 재판.",meditation:"요 17장 예수님의 기도를 읽으며 — 주님이 나를 위해 기도하셨다는 사실이 오늘 어떤 위로가 되나요?"},
+  {day:29,range:"요한복음 19-21장",theme:"십자가와 부활 — 사랑의 완성",summary:"십자가 처형, '다 이루었다', 부활과 막달라 마리아, 도마의 고백 '나의 주님 나의 하나님', 디베랴 바닷가, '네가 나를 사랑하느냐'.",meditation:"'네가 나를 사랑하느냐?' 예수님이 오늘 나에게 이 질문을 하신다면 나는 어떻게 대답할까요?"},
+  {day:30,range:"사도행전 1-3장",theme:"성령 강림과 초대 교회",summary:"승천, 성령 강림 약속, 오순절 성령 강림, 베드로의 설교, 3000명 세례, 초대 교회의 모습 — 함께 모이고 나누고 기도함.",meditation:"초대 교회는 '날마다 마음을 같이하여' 모였습니다. 나의 교회 공동체와의 관계는 어떤가요?"},
+  {day:31,range:"사도행전 4-6장",theme:"박해와 성장",summary:"베드로·요한 체포, '하나님보다 사람을 더 순종함이 마땅하냐', 아나니아와 삽비라, 스데반 선택, 교회 성장.",meditation:"사도들은 예수님의 이름으로 고난받는 것을 기뻐했습니다. 나는 믿음으로 불편함을 감수한 적이 있나요?"},
+  {day:32,range:"사도행전 7-9장",theme:"스데반의 순교와 바울의 회심",summary:"스데반의 설교와 순교 — '저들의 죄를 돌리지 마옵소서', 빌립의 에디오피아 내시 전도, 사울의 다메섹 체험과 회심.",meditation:"스데반은 죽으면서도 원수를 용서했습니다. 나는 상처 준 사람을 어떻게 대하고 있나요?"},
+  {day:33,range:"사도행전 10-12장",theme:"이방인에게 열린 복음",summary:"고넬료 환상과 베드로의 설교, 이방인에게 성령 부어주심, 안디옥 교회 설립, 헤롯의 박해와 베드로 구출, 야고보의 순교.",meditation:"베드로는 편견을 버리고 이방인에게 나아갔습니다. 내가 버려야 할 편견은 무엇인가요?"},
+  {day:34,range:"사도행전 13-15장",theme:"1차 전도여행과 예루살렘 공의회",summary:"바울·바나바 파송, 구브로·비시디아 안디옥·이고니온·루스드라·더베 전도, 예루살렘 공의회 — 율법이냐 은혜냐.",meditation:"바울과 바나바는 복음을 위해 돌에 맞고도 계속 전도했습니다. 나의 복음에 대한 열정은 어떤가요?"},
+  {day:35,range:"사도행전 16-18장",theme:"2차 전도여행 — 유럽 선교",summary:"빌립보 루디아와 감옥에서의 찬송, 데살로니가·베뢰아·아덴·고린도 전도, 아굴라와 브리스길라.",meditation:"바울은 감옥에서도 찬송했습니다. 나는 어려운 상황에서 어떻게 반응하나요?"},
+  {day:36,range:"사도행전 19-21장",theme:"3차 전도여행과 예루살렘행",summary:"에베소 사역 — 두란노 서원, 은장색 데메드리오의 소동, 드로아에서 유두고 살림, 밀레도 고별 설교, 예루살렘 도착.",meditation:"'나는 달려갈 길과 주 예수께 받은 사명 곧 하나님의 은혜의 복음 증언하는 일을 마치려 함에는 나의 생명도 귀한 것으로 여기지 아니하노라.' 나에게 주어진 사명은 무엇인가요?"},
+  {day:37,range:"사도행전 22-25장",theme:"바울의 재판",summary:"예루살렘 체포, 유대인들 앞 변론, 산헤드린 공회, 가이사랴로 이송, 벨릭스·베스도 앞 변론, '가이사에게 상소하노라'.",meditation:"바울은 어디서든 복음을 전했습니다. 나는 어떤 상황에서도 믿음을 고백할 준비가 되어있나요?"},
+  {day:38,range:"사도행전 26-28장",theme:"로마까지 복음이",summary:"아그립바 앞 변론, 로마 항해·폭풍·파선·멜리데 섬, 로마 도착, '땅 끝까지 이르러 내 증인이 되리라' 성취.",meditation:"복음은 죄수 바울을 통해 로마까지 전해졌습니다. 하나님은 어떤 상황도 복음의 도구로 쓰십니다. 내 삶에서는요?"},
+  {day:39,range:"로마서 1-4장",theme:"모든 사람은 죄인, 오직 믿음으로",summary:"복음의 능력, 이방인과 유대인 모두 죄 아래 있음, 율법이 아닌 믿음으로 의롭다 함, 아브라함의 믿음의 의.",meditation:"'의인은 믿음으로 살리라.' 오늘 나는 무엇을 믿음으로 감당하려 하나요?"},
+  {day:40,range:"로마서 5-8장",theme:"은혜와 성령 안에서의 자유",summary:"아담과 그리스도, 죄에 대하여 죽고 의에 대하여 살라, 율법과 죄, 성령 안에서의 자유, '모든 것이 합력하여 선을 이루느니라'.",meditation:"롬 8:28 '모든 것이 합력하여 선을 이루느니라.' 지금 힘든 상황이 있다면 이 약속을 붙잡아 보세요."},
+  {day:41,range:"로마서 9-11장",theme:"이스라엘과 하나님의 구원 계획",summary:"이스라엘의 선택과 거절, 믿음의 말씀, '누구든지 주의 이름을 부르는 자는 구원을 받으리라', 이방인의 구원, 접붙임의 비유.",meditation:"롬 10:9-10의 구원의 확신을 다시 한 번 나 자신에게 적용해 보세요."},
+  {day:42,range:"로마서 12-16장",theme:"산 제물로 드리는 삶",summary:"산 제사, 몸의 지체로서 은사 활용, 원수를 선으로 갚으라, 위에 있는 권세에 복종, 강한 자와 약한 자, 복음 전파 계획.",meditation:"'너희 몸을 산 제물로 드리라.' 오늘 내 삶의 어떤 부분을 하나님께 드릴 수 있을까요?"},
+  {day:43,range:"고린도전서 1-6장",theme:"교회의 분쟁과 거룩한 삶",summary:"파당 싸움 경계, 십자가의 도가 능력, 지혜의 두 종류, 바울의 사역 방식, 성도들 간의 소송 금지, 몸은 성령의 전.",meditation:"'너희 몸은 성령의 전인 줄을 알지 못하느냐.' 나는 몸과 마음을 어떻게 관리하고 있나요?"},
+  {day:44,range:"고린도전서 7-12장",theme:"결혼·우상제물·은사",summary:"결혼과 독신, 우상 제물, 머리 덮음, 성찬의 의미, 은사의 다양성 — 같은 성령 안에서 각각 다른 은사.",meditation:"'은사는 여러 가지나 성령은 같고.' 내가 받은 은사는 무엇이며 어떻게 사용하고 있나요?"},
+  {day:45,range:"고린도전서 13-16장",theme:"사랑과 부활 소망",summary:"사랑장 — 사랑은 오래 참고 온유하며, 방언·예언·부활 논쟁, '사망아 너의 이기는 것이 어디 있느냐', 헌금과 마무리.",meditation:"고전 13장의 사랑을 내 이름으로 바꾸어 읽어보세요. '(내 이름)은 오래 참고...' 어떤 고백이 나오나요?"},
+  {day:46,range:"고린도후서 1-7장",theme:"약함 속의 능력",summary:"환난과 위로, 새 언약의 일꾼, 질그릇에 담긴 보배, '우리가 낙심하지 아니하노니', 화목케 하는 직분, 바울의 기쁨.",meditation:"'우리는 이 보배를 질그릇에 가졌으니.' 나의 약함 안에서 역사하시는 하나님을 경험한 적이 있나요?"},
+  {day:47,range:"고린도후서 8-13장 / 갈라디아서 1-3장",theme:"헌금·약함의 자랑·오직 믿음",summary:"연보의 원리, 바울의 사도 권위, 가시와 은혜 '내 능력이 약한 데서 온전하여짐', 갈라디아 교회의 문제, 율법 아닌 믿음으로.",meditation:"'내가 약할 그 때에 강함이라.' 지금 나의 약함이 하나님의 능력을 드러내고 있나요?"},
+  {day:48,range:"갈라디아서 4-6장 / 에베소서 1-3장",theme:"자유와 교회의 신비",summary:"종의 영과 양자의 영, 성령의 열매, 서로 짐을 져라, 하늘의 복, 그리스도 안에서 선택됨, 은혜로 구원, 교회는 그의 몸.",meditation:"엡 2:8-9 '너희는 그 은혜에 의하여 믿음으로 말미암아 구원을 받았으니.' 구원의 감사를 다시 한 번 고백해 보세요."},
+  {day:49,range:"에베소서 4-6장 / 빌립보서 / 골로새서",summary:"새 사람을 입으라, 가정과 직장에서의 삶, 전신갑주, '내게 능력 주시는 자 안에서 내가 모든 것을 할 수 있느니라', 그리스도의 충만, 위의 것을 찾으라.",theme:"그리스도 안에서의 충만한 삶",meditation:"빌 4:13을 묵상하세요. 오늘 '내가 할 수 있다'는 믿음으로 도전해야 할 일이 있나요?"},
+  {day:50,range:"데살로니가전·후서 / 디모데전·후서 / 디도서 / 빌레몬서 / 히브리서 / 야고보서 / 베드로전·후서 / 요한1·2·3서 / 유다서 / 요한계시록 요약",theme:"편지들의 완성 — 믿음으로 끝까지",summary:"재림 소망, 믿음의 선한 싸움, 히브리서의 믿음의 영웅들, 야고보의 행함있는 믿음, 베드로의 고난 중 소망, 요한의 사랑, 계시록의 '이기는 자'와 '어린 양의 혼인 잔치'.",meditation:"50일간의 여정을 마치며 — 신약이 내게 전하는 가장 중요한 메시지는 무엇인가요? 앞으로의 삶에 어떻게 적용할까요?"},
+];
+
+let checked=[];
+let startDate=null;
+
+function save(){
+  try{
+    localStorage.setItem('bible50_checked',JSON.stringify(checked));
+    localStorage.setItem('bible50_start',startDate||'');
+  }catch(e){}
+}
+function load(){
+  try{checked=JSON.parse(localStorage.getItem('bible50_checked')||'[]')}catch(e){checked=[]}
+  const s=localStorage.getItem('bible50_start');
+  if(s)startDate=s;
+  else{startDate=new Date().toISOString().slice(0,10);save();}
+}
+
+function getToday(){return new Date().toISOString().slice(0,10);}
+
+function getDayIndex(){
+  if(!startDate)return 0;
+  const start=new Date(startDate.replace(/-/g,'/'));
+  const now=new Date();
+  const diff=Math.floor((now-start)/(1000*60*60*24));
+  return Math.max(0,Math.min(diff,49));
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
+
+function updateHeader(){
+  const done=checked.length;
+  const pct=Math.round(done/50*100);
+  document.getElementById('prog-pct').textContent=`${done} / 50일`;
+  document.getElementById('overall-fill').style.width=pct+'%';
+  const today=new Date();
+  document.getElementById('today-lbl').textContent=today.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+  document.getElementById('hd-sub').textContent=`${pct}% 완료 · 함께 말씀을 읽어요`;
+}
+
+function renderToday(){
+  const idx=getDayIndex();
+  const plan=PLAN[idx];
+  const isDone=checked.includes(idx+1);
+  const wrap=document.getElementById('sec-today');
+
+  let nextHtml='';
+  if(idx<49){
+    const next=PLAN[idx+1];
+    nextHtml=`<div style="background:#231908;border:1px solid #3d2e10;border-radius:12px;padding:12px;margin-top:4px">
+      <div style="font-size:10px;color:#7a5a20;font-weight:600;margin-bottom:4px">내일 읽을 말씀</div>
+      <div style="font-size:13px;font-weight:600;color:#c8b080">${next.range}</div>
+      <div style="font-size:11px;color:#8b6914;margin-top:2px">${next.theme}</div>
+    </div>`;
+  }
+
+  wrap.innerHTML=`
+    <div class="today-card">
+      <div class="today-day">📅 ${idx+1}일차 · ${getToday().replace(/-/g,'.')}</div>
+      <div class="today-range">${plan.range}</div>
+      <div class="today-theme">✦ ${plan.theme}</div>
+      <div class="today-summary">${plan.summary}</div>
+      <div class="today-meditation">
+        <div class="today-meditation-label">🙏 묵상 포인트</div>
+        <div class="today-meditation-text">${plan.meditation}</div>
+      </div>
+      <div class="check-row">
+        <button class="check-btn-done ${isDone?'completed':''}" onclick="toggleCheck(${idx+1})">
+          ${isDone?'✅ 오늘 읽기 완료!':'📖 오늘 읽기 완료'}
+        </button>
+        ${idx>0?`<button class="check-btn-prev" onclick="openDayModal(${idx})">◀ 어제</button>`:''}
+      </div>
+    </div>
+    ${nextHtml}
+  `;
+}
+
+function renderList(){
+  const wrap=document.getElementById('sec-list');
+  const todayIdx=getDayIndex();
+  wrap.innerHTML=`<div style="background:#231908;border-radius:14px;overflow:hidden;border:1px solid #3d2e10">
+    ${PLAN.map((p,i)=>{
+      const isDone=checked.includes(i+1);
+      const isToday=i===todayIdx;
+      return `<div class="day-item ${isDone?'completed':''} ${isToday?'today-item':''}" onclick="openDayModal(${i+1})">
+        <div class="di-check ${isDone?'done':isToday?'today-c':''}">${isDone?'✓':isToday?'→':i+1}</div>
+        <div class="di-info">
+          <div class="di-day">${i+1}일차 ${isToday?'· 오늘':''}</div>
+          <div class="di-range">${p.range}</div>
+          <div class="di-theme">${p.theme}</div>
+        </div>
+        <div class="di-arrow">›</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderStats(){
+  const done=checked.length;
+  const pct=Math.round(done/50*100);
+  const todayIdx=getDayIndex();
+  const streak=getStreak();
+
+  const cells=PLAN.map((p,i)=>{
+    const isDone=checked.includes(i+1);
+    const isToday=i===todayIdx;
+    const isFuture=i>todayIdx;
+    return `<div class="week-cell ${isDone?'done':isToday?'today-cell':isFuture?'future':''}" title="${i+1}일">${i+1}</div>`;
+  }).join('');
+
+  document.getElementById('sec-stats').innerHTML=`
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-label">완료한 날</div><div class="stat-val">${done}</div><div class="stat-sub">/ 50일</div></div>
+      <div class="stat-box"><div class="stat-label">달성률</div><div class="stat-val">${pct}%</div><div class="stat-sub">완료</div></div>
+      <div class="stat-box"><div class="stat-label">현재 진행</div><div class="stat-val">${todayIdx+1}일</div><div class="stat-sub">째</div></div>
+      <div class="stat-box"><div class="stat-label">남은 날</div><div class="stat-val">${50-done}</div><div class="stat-sub">일</div></div>
+    </div>
+    <div style="font-size:11px;color:#8b6914;font-weight:600;margin-bottom:8px;letter-spacing:0.5px">📅 50일 진행표</div>
+    <div class="week-grid">${cells}</div>
+    <div style="display:flex;gap:12px;font-size:11px;color:#7a5a20;margin-bottom:16px;flex-wrap:wrap">
+      <span>🟩 완료</span><span style="color:#d4a832">▪ 오늘</span><span>▫ 진행예정</span>
+    </div>
+    <div style="background:#231908;border:1px solid #3d2e10;border-radius:12px;padding:14px;text-align:center">
+      <div style="font-size:28px;margin-bottom:6px">✝</div>
+      <div style="font-size:13px;color:#d4a832;font-weight:600;margin-bottom:4px">시작일: ${startDate}</div>
+      <div style="font-size:12px;color:#7a5a20">50일 완료 예정: ${getEndDate()}</div>
+      <button onclick="resetStart()" style="margin-top:12px;background:none;border:1px solid #5a3e18;border-radius:8px;padding:6px 14px;color:#7a5a20;font-size:11px;cursor:pointer">📅 시작일 변경</button>
+    </div>
+  `;
+}
+
+function getStreak(){
+  let streak=0;
+  for(let i=getDayIndex();i>=0;i--){
+    if(checked.includes(i+1))streak++;
+    else break;
+  }
+  return streak;
+}
+
+function getEndDate(){
+  if(!startDate)return '';
+  const s=new Date(startDate.replace(/-/g,'/'));
+  s.setDate(s.getDate()+49);
+  return s.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+}
+
+function resetStart(){
+  if(!confirm('시작일을 오늘로 초기화할까요?\n체크 기록은 유지됩니다.'))return;
+  startDate=getToday();save();
+  renderToday();renderList();renderStats();updateHeader();
+  showToast('시작일이 오늘로 변경됐어요');
+}
+
+function toggleCheck(day){
+  if(checked.includes(day)){
+    checked=checked.filter(d=>d!==day);
+    showToast(`${day}일차 체크 해제됐어요`);
+  } else {
+    checked.push(day);
+    showToast(`🙏 ${day}일차 완료! 말씀 읽으셨군요`);
+  }
+  save();renderAll();
+}
+
+function openDayModal(day){
+  const p=PLAN[day-1];if(!p)return;
+  const isDone=checked.includes(day);
+  document.getElementById('modal-content').innerHTML=`
+    <div class="modal-day-badge">📅 ${day}일차</div>
+    <div class="modal-range">${p.range}</div>
+    <div class="modal-theme">✦ ${p.theme}</div>
+    <div class="modal-section-label">📖 핵심 내용</div>
+    <div class="modal-summary">${p.summary}</div>
+    <div class="modal-meditation">
+      <div class="modal-med-label">🙏 묵상 포인트</div>
+      <div class="modal-med-text">${p.meditation}</div>
+    </div>
+    <button class="modal-check ${isDone?'done':''}" onclick="toggleCheck(${day});closeModal2()">
+      ${isDone?'✅ 완료됨 (취소하려면 탭)':'📖 읽기 완료 체크'}
+    </button>
+    <button class="modal-close" onclick="closeModal2()">닫기</button>
+  `;
+  document.getElementById('modal-bg').classList.add('on');
+}
+
+function closeModal(e){if(e&&e.target!==document.getElementById('modal-bg'))return;closeModal2();}
+function closeModal2(){document.getElementById('modal-bg').classList.remove('on');}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['today','list','stats'][i]===tab));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+tab).classList.add('on');
+  if(tab==='list')renderList();
+  if(tab==='stats')renderStats();
+}
+
+function renderAll(){
+  updateHeader();
+  renderToday();
+  // 현재 탭에 따라
+  const idx=[...document.querySelectorAll('.tab')].findIndex(t=>t.classList.contains('on'));
+  if(idx===1)renderList();
+  if(idx===2)renderStats();
+}
+
+load();
+renderAll();
+</script>
+</body>
+</html>
