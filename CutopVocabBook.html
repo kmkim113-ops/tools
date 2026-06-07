@@ -459,24 +459,24 @@ function renderFlash(){
     const start=zi*ZONE_SIZE;
     const end=Math.min(start+ZONE_SIZE,ALL_WORDS.length);
     const isSel=fcZone===zi;
-    zBtns+=`<div class="fc-zone-btn ${isSel?'on':''}" onclick="selFcZone(${zi})">${zi+1}구간<br><span style="font-size:9px">${start+1}~${end}</span></div>`;
+    zBtns+=`<button class="fc-zone-btn ${isSel?'on':''}" data-zi="${zi}">${zi+1}구간<br><span style="font-size:9px">${start+1}~${end}</span></button>`;
   }
   wrap.innerHTML=`
     <div class="fc-setup">
       <div class="fc-setup-title">🃏 플래시카드 — 구간 선택</div>
       <div class="fc-zone-grid" id="fc-zone-grid">${zBtns}</div>
-      <button class="fc-start-btn" onclick="startFlash()">▶ 시작하기</button>
+      <button class="fc-start-btn" id="fc-start-btn">▶ 시작하기</button>
     </div>
     <div id="fc-game" style="display:none"></div>
   `;
-  if(fcZone>=0){
-    document.querySelectorAll('.fc-zone-btn')[fcZone]?.classList.add('on');
-  }
-}
-
-function selFcZone(zi){
-  fcZone=zi;
-  document.querySelectorAll('.fc-zone-btn').forEach((b,i)=>b.classList.toggle('on',i===zi));
+  // 이벤트 위임: 그리드 클릭
+  document.getElementById('fc-zone-grid').addEventListener('click', function(e){
+    const btn=e.target.closest('.fc-zone-btn');
+    if(!btn)return;
+    fcZone=parseInt(btn.dataset.zi);
+    document.querySelectorAll('.fc-zone-btn').forEach(b=>b.classList.toggle('on', parseInt(b.dataset.zi)===fcZone));
+  });
+  document.getElementById('fc-start-btn').addEventListener('click', startFlash);
 }
 
 function startFlash(){
