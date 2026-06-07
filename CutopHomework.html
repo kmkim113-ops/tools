@@ -81,6 +81,18 @@ html,body{height:100%;background:#f5f4fb;font-family:-apple-system,BlinkMacSyste
 
 .empty{text-align:center;padding:36px 0;color:#bbb;font-size:12px}
 .empty-ic{font-size:36px;display:block;margin-bottom:8px}
+.share-mode-btn{flex:1;padding:10px;border-radius:10px;text-align:center;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #fde8de;background:#fff9f6;color:#aaa;transition:all .2s}
+.share-mode-btn.on{background:#ff6b35;color:#fff;border-color:#ff6b35}
+.stu-chip{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #fde8de;background:#fff9f6;color:#888;transition:all .2s}
+.stu-chip.on{background:#ff6b35;color:#fff;border-color:#ff6b35}
+.msg-tpl{padding:5px 10px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid #fde8de;background:#fff9f6;color:#ff6b35;white-space:nowrap}
+.msg-tpl:active{background:#fff3ee}
+.stu-share-card{background:#fff9f6;border:1px solid #fde8de;border-radius:12px;padding:12px;margin-bottom:8px}
+.stu-share-name{font-size:14px;font-weight:700;color:#1a1a2e;margin-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.stu-share-preview{font-size:11px;color:#666;line-height:1.7;white-space:pre-wrap;margin-bottom:8px;max-height:120px;overflow-y:auto}
+.stu-copy-btn{width:100%;padding:9px;border-radius:8px;background:#ff6b35;border:none;color:#fff;font-size:12px;font-weight:700;cursor:pointer}
+.stu-copy-btn:active{background:#e05520}
+.toast{position:fixed;bottom:90px
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#ff6b35;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
 .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -136,12 +148,28 @@ html,body{height:100%;background:#f5f4fb;font-family:-apple-system,BlinkMacSyste
 
   <!-- 공유 탭 -->
   <div class="sec" id="sec-share">
+    <!-- 공유 방식 선택 -->
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div class="share-mode-btn on" id="mode-class" onclick="setShareMode('class')">🏫 반 전체</div>
+      <div class="share-mode-btn" id="mode-student" onclick="setShareMode('student')">👤 개인별</div>
+    </div>
+
     <div class="card">
-      <div class="card-title">📤 학부모 카톡 공유</div>
+      <div class="card-title" id="share-card-title">📤 학부모 카톡 공유</div>
+
+      <!-- 공통: 반 선택 -->
       <div class="field">
         <label>반 선택</label>
-        <select id="s-class" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;outline:none"></select>
+        <select id="s-class" onchange="onShareClassChange()" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;outline:none"></select>
       </div>
+
+      <!-- 개인별: 학생 선택 -->
+      <div class="field" id="student-sel-wrap" style="display:none">
+        <label>학생 선택</label>
+        <div id="student-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px"></div>
+      </div>
+
+      <!-- 기간 -->
       <div class="field">
         <label>기간</label>
         <div style="display:flex;gap:8px;align-items:center">
@@ -150,12 +178,29 @@ html,body{height:100%;background:#f5f4fb;font-family:-apple-system,BlinkMacSyste
           <input type="date" id="s-to" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:13px;outline:none" />
         </div>
       </div>
+
+      <!-- 전하는 말씀 -->
+      <div class="field">
+        <label>💌 학부모께 전하는 말씀 (선택)</label>
+        <textarea id="s-message" placeholder="예: 이번 주 아이가 열심히 참여했습니다. 숙제 확인 부탁드립니다 😊" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:13px;font-family:inherit;outline:none;resize:none;min-height:70px"></textarea>
+        <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap" id="msg-templates"></div>
+      </div>
+
       <button class="add-btn" style="margin-bottom:10px;background:#ff6b35" onclick="buildHwShare()">📋 내용 불러오기</button>
+
       <div id="hw-share-wrap" style="display:none">
-        <div class="share-preview" id="hw-share-text"></div>
-        <div style="display:flex;gap:8px">
-          <button class="kakao-btn" onclick="shareKakao()">💬 카톡으로 공유</button>
-          <button class="copy-btn" onclick="copyShare()">복사</button>
+        <!-- 전체 공유 결과 -->
+        <div id="class-share-result">
+          <div class="share-preview" id="hw-share-text"></div>
+          <div style="display:flex;gap:8px">
+            <button class="kakao-btn" onclick="shareKakao()">💬 카톡으로 공유</button>
+            <button class="copy-btn" onclick="copyShare()">복사</button>
+          </div>
+        </div>
+        <!-- 개인별 공유 결과 -->
+        <div id="student-share-result" style="display:none">
+          <div style="font-size:12px;color:#888;margin-bottom:8px;font-weight:600">학생을 탭하면 해당 학부모께 보낼 내용이 복사돼요</div>
+          <div id="student-share-cards"></div>
         </div>
       </div>
     </div>
@@ -364,30 +409,140 @@ function renderCheckList(){
   }).join('');
 }
 
+let shareMode='class';
+let selStudentId='';
+
+function setShareMode(mode){
+  shareMode=mode;
+  document.getElementById('mode-class').classList.toggle('on',mode==='class');
+  document.getElementById('mode-student').classList.toggle('on',mode==='student');
+  document.getElementById('student-sel-wrap').style.display=mode==='student'?'block':'none';
+  document.getElementById('hw-share-wrap').style.display='none';
+  document.getElementById('share-card-title').textContent=mode==='class'?'📤 반 전체 공유':'👤 개인별 공유';
+}
+
+function onShareClassChange(){
+  const cls=document.getElementById('s-class').value;
+  const classStudents=students.filter(s=>s.className===cls);
+  selStudentId=classStudents[0]?.id||'';
+  document.getElementById('student-chips').innerHTML=classStudents.map(s=>
+    `<div class="stu-chip ${s.id===selStudentId?'on':''}" onclick="selStudent('${s.id}')">${s.name}</div>`
+  ).join('');
+  document.getElementById('hw-share-wrap').style.display='none';
+}
+
+function selStudent(id){
+  selStudentId=id;
+  document.querySelectorAll('.stu-chip').forEach(c=>{
+    c.classList.toggle('on',c.textContent===students.find(s=>s.id===id)?.name);
+  });
+}
+
+// 말씀 템플릿
+const MSG_TEMPLATES=[
+  '숙제 확인 부탁드립니다 😊',
+  '이번 주도 열심히 참여했습니다 👍',
+  '미제출 숙제를 확인해주세요 🙏',
+  '꾸준한 복습이 중요합니다 📚',
+  '궁금한 점은 언제든 연락주세요 😊',
+];
+
+function renderMsgTemplates(){
+  document.getElementById('msg-templates').innerHTML=MSG_TEMPLATES.map(t=>
+    `<div class="msg-tpl" onclick="setMsg('${t}')">${t}</div>`
+  ).join('');
+}
+
+function setMsg(msg){
+  document.getElementById('s-message').value=msg;
+}
+
+function makeStudentText(student, filtered, from, to, message){
+  const fromLabel=new Date(from.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  const toLabel=new Date(to.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  let txt=`📝 씨유에탑 숙제 현황\n`;
+  txt+=`👤 ${student.name} 학부모님\n`;
+  txt+=`📅 ${fromLabel} ~ ${toLabel}\n`;
+  txt+=`${'─'.repeat(20)}\n`;
+  filtered.forEach(hw=>{
+    const d=new Date(hw.date.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+    const st=hw.checks[student.id]||'none';
+    const icon=st==='ok'?'✅ 제출완료':st==='late'?'⏰ 늦게제출':st==='no'?'❌ 미제출':'○ 미확인';
+    txt+=`\n📌 ${d}\n`;
+    txt+=`   ${hw.title}\n`;
+    txt+=`   ${icon}\n`;
+  });
+  txt+=`\n${'─'.repeat(20)}\n`;
+  if(message)txt+=`💌 ${message}\n\n`;
+  txt+=`씨유에탑`;
+  return txt;
+}
+
 function buildHwShare(){
   const cls=document.getElementById('s-class').value;
   const from=document.getElementById('s-from').value;
   const to=document.getElementById('s-to').value;
+  const message=document.getElementById('s-message').value.trim();
   if(!cls){showToast('반을 선택해주세요');return}
   const filtered=homeworks.filter(h=>h.className===cls&&h.date>=from&&h.date<=to).sort((a,b)=>a.date>b.date?1:-1);
   if(!filtered.length){showToast('해당 기간 숙제가 없어요');return}
   const classStudents=students.filter(s=>s.className===cls);
-  const fromLabel=new Date(from.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
-  const toLabel=new Date(to.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
-  let txt=`📝 씨유에탑 숙제 현황\n🏫 ${cls}\n📅 ${fromLabel} ~ ${toLabel}\n${'─'.repeat(20)}\n`;
-  filtered.forEach(hw=>{
-    const d=new Date(hw.date.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
-    txt+=`\n📌 ${d} — ${hw.title}\n`;
-    classStudents.forEach(s=>{
-      const st=hw.checks[s.id]||'none';
-      const icon=st==='ok'?'✅':st==='late'?'⏰':st==='no'?'❌':'○';
-      txt+=`  ${icon} ${s.name}\n`;
-    });
-  });
-  txt+=`\n${'─'.repeat(20)}\n씨유에탑`;
-  shareText=txt;
-  document.getElementById('hw-share-text').textContent=txt;
   document.getElementById('hw-share-wrap').style.display='block';
+
+  if(shareMode==='class'){
+    // 반 전체
+    const fromLabel=new Date(from.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+    const toLabel=new Date(to.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+    let txt=`📝 씨유에탑 숙제 현황\n🏫 ${cls}\n📅 ${fromLabel} ~ ${toLabel}\n${'─'.repeat(20)}\n`;
+    filtered.forEach(hw=>{
+      const d=new Date(hw.date.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+      txt+=`\n📌 ${d} — ${hw.title}\n`;
+      classStudents.forEach(s=>{
+        const st=hw.checks[s.id]||'none';
+        const icon=st==='ok'?'✅':st==='late'?'⏰':st==='no'?'❌':'○';
+        txt+=`  ${icon} ${s.name}\n`;
+      });
+    });
+    txt+=`\n${'─'.repeat(20)}\n`;
+    if(message)txt+=`💌 ${message}\n\n`;
+    txt+=`씨유에탑`;
+    shareText=txt;
+    document.getElementById('hw-share-text').textContent=txt;
+    document.getElementById('class-share-result').style.display='block';
+    document.getElementById('student-share-result').style.display='none';
+  } else {
+    // 개인별
+    document.getElementById('class-share-result').style.display='none';
+    document.getElementById('student-share-result').style.display='block';
+    const cards=classStudents.map(s=>{
+      const txt=makeStudentText(s,filtered,from,to,message);
+      return `<div class="stu-share-card">
+        <div class="stu-share-name">
+          <span>👤 ${s.name} 학부모님</span>
+          <span style="font-size:10px;color:#aaa">${filtered.length}개 숙제</span>
+        </div>
+        <div class="stu-share-preview">${txt}</div>
+        <button class="stu-copy-btn" onclick="copyStudentShare(\`${txt.replace(/`/g,"'")}\`)">💬 ${s.name} 학부모님께 카톡 전송</button>
+      </div>`;
+    }).join('');
+    document.getElementById('student-share-cards').innerHTML=cards;
+  }
+}
+
+function copyStudentShare(txt){
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>showToast('📋 복사됐어요! 카톡에 붙여넣기 해주세요')).catch(()=>{
+      fallbackCopyText(txt);
+    });
+  } else fallbackCopyText(txt);
+}
+
+function fallbackCopyText(txt){
+  const ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');showToast('📋 복사됐어요! 카톡에 붙여넣기 해주세요');}
+  catch(e){showToast('직접 선택해서 복사해주세요');}
+  document.body.removeChild(ta);
 }
 
 function shareKakao(){
@@ -433,6 +588,7 @@ renderStudentManage();
 renderCheckFilter();
 renderCheckList();
 renderStats();
+renderMsgTemplates();
 </script>
 </body>
 </html>
