@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 일본어">
+<title>씨유에탑 일본어</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{height:100%;background:#1a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#fff0f0}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px}
+.hd{padding:12px 16px;background:#1a0a0a;border-bottom:1px solid #3d1515;display:flex;align-items:center;justify-content:space-between}
+.hd-left{display:flex;align-items:center;gap:8px}
+.badge{font-size:11px;font-weight:700;background:#cc2200;color:#fff;padding:4px 10px;border-radius:20px}
+.hd h1{font-size:17px;font-weight:700;color:#fff0f0}
+.hd-right{display:flex;align-items:center;gap:8px}
+.cnt{font-size:11px;color:#aa6666;background:#2a0f0f;padding:4px 10px;border-radius:20px}
+.api-banner{background:#cc2200;color:#fff;text-align:center;padding:11px;font-size:13px;font-weight:600;cursor:pointer;display:none}
+.api-banner.show{display:block}
+.api-panel{background:#2a0f0f;border-bottom:1px solid #3d1515;padding:14px 16px;display:none}
+.api-panel.show{display:block}
+.api-title{font-size:13px;font-weight:600;color:#ff6b6b;margin-bottom:6px}
+.api-desc{font-size:11px;color:#aa6666;margin-bottom:10px;line-height:1.5}
+.api-row{display:flex;gap:8px}
+.api-inp{flex:1;background:#100505;border:1.5px solid #3d1515;border-radius:8px;padding:9px 12px;color:#fff0f0;font-size:13px;font-family:inherit;outline:none}
+.api-inp:focus{border-color:#cc2200}
+.api-ok{background:#cc2200;border:none;border-radius:8px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.api-ok:active{background:#aa1800}
+.api-close{background:#2a0f0f;border:1px solid #3d1515;border-radius:8px;padding:9px;color:#aa6666;font-size:13px;cursor:pointer;margin-top:8px;width:100%;text-align:center}
+.tabs{display:flex;border-bottom:1px solid #3d1515;background:#1a0a0a}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#5a2a2a;border-bottom:2px solid transparent;font-weight:600}
+.tab.on{color:#ff8080;border-bottom-color:#cc2200}
+.tab-ic{display:block;font-size:16px;margin-bottom:1px}
+.sec{padding:12px;display:none}
+.sec.on{display:block}
+/* 입력 */
+.in-card{background:#2a0f0f;border:1px solid #3d1515;border-radius:14px;padding:14px;margin-bottom:12px}
+.in-hint{font-size:11px;color:#7a3a3a;margin-bottom:8px;font-weight:600}
+.in-row{display:flex;gap:8px}
+.in-txt{flex:1;background:#100505;border:1.5px solid #3d1515;border-radius:10px;padding:10px 12px;color:#fff0f0;font-size:15px;font-family:inherit;outline:none}
+.in-txt:focus{border-color:#cc2200}
+.in-btn{background:#cc2200;border:none;border-radius:10px;padding:10px 18px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap}
+.in-btn:active{background:#aa1800}
+.in-btn.busy{background:#3d1515;color:#7a3a3a;pointer-events:none}
+/* 결과 */
+.res{background:#100505;border:1px solid #3d1515;border-radius:10px;padding:14px;margin-top:8px;display:none}
+.res.on{display:block}
+.res-jp{font-size:22px;font-weight:700;color:#fff0f0;margin-bottom:4px;letter-spacing:2px}
+.res-read{font-size:14px;color:#ff8080;margin-bottom:3px;font-weight:600}
+.res-ko{font-size:13px;color:#aa6666;margin-bottom:10px}
+.res-row{display:flex;gap:6px}
+.rb{flex:1;padding:9px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-align:center;border:none}
+.rb-tts{background:#2a0f0f;color:#ff8080;border:1px solid #3d1515}
+.rb-tts:active{background:#cc2200;color:#fff}
+.rb-save{background:#cc2200;color:#fff}
+.rb-save:active{background:#aa1800}
+.rb-cancel{background:#2a0f0f;color:#7a3a3a;border:1px solid #3d1515}
+/* 폴더 */
+.folder{background:#2a0f0f;border:1px solid #3d1515;border-radius:14px;margin-bottom:10px;overflow:hidden}
+.fhd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;cursor:pointer}
+.fhd:active{background:#331010}
+.fleft{display:flex;align-items:center;gap:8px}
+.fname{font-size:13px;font-weight:700;color:#fff0f0}
+.frange{font-size:10px;color:#aa6666;margin-top:1px}
+.fmeta{display:flex;align-items:center;gap:6px}
+.fcnt{font-size:11px;color:#aa6666;background:#100505;padding:2px 8px;border-radius:10px}
+.farr{font-size:16px;color:#cc2200;transition:transform .2s}
+.farr.op{transform:rotate(90deg)}
+.fbody{display:none;border-top:1px solid #3d1515}
+.fbody.op{display:block}
+/* 구간 */
+.zone{border-bottom:1px solid #1a0a0a}
+.zone:last-child{border-bottom:none}
+.zhd{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;cursor:pointer;background:#220d0d}
+.zhd:active{background:#2a0f0f}
+.ztitle{font-size:11px;font-weight:600;color:#ff6b6b}
+.zbody{display:none}
+.zbody.op{display:block}
+/* 플레이어 */
+.player{background:#100505;border-bottom:1px solid #3d1515;padding:10px 14px}
+.pl-lbl{font-size:10px;color:#ff6b6b;font-weight:600;margin-bottom:4px}
+.pl-jp{font-size:16px;font-weight:700;color:#fff0f0;min-height:20px;letter-spacing:1px}
+.pl-read{font-size:12px;color:#ff8080;min-height:14px}
+.pl-ko{font-size:11px;color:#aa6666;margin-bottom:7px;min-height:14px}
+.pl-btns{display:flex;gap:6px}
+.plb{flex:1;background:#2a0f0f;border:1px solid #3d1515;border-radius:8px;padding:7px;color:#ff8080;font-size:11px;font-weight:600;cursor:pointer;text-align:center}
+.plb.on{background:#cc2200;border-color:#cc2200;color:#fff}
+.plb:active{opacity:.7}
+.pl-prog{font-size:10px;color:#5a2a2a;text-align:center;margin-top:4px}
+/* 단어 카드 */
+.wc{padding:12px 14px;border-bottom:1px solid #220d0d}
+.wc:last-child{border-bottom:none}
+.wc-jp{font-size:16px;font-weight:700;color:#fff0f0;letter-spacing:1px;margin-bottom:2px}
+.wc-read{font-size:12px;color:#ff8080;font-weight:600;margin-bottom:2px}
+.wc-ko{font-size:12px;color:#aa6666;margin-bottom:4px}
+.wc-num{font-size:10px;color:#3d1515;margin-bottom:4px}
+.wc-acts{display:flex;gap:5px;align-items:center}
+.wa{background:#2a0f0f;border:1px solid #3d1515;border-radius:8px;padding:5px 9px;color:#ff8080;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap}
+.wa:active{background:#cc2200;color:#fff}
+.wa2{background:none;border:1px solid #3d1515;border-radius:8px;padding:5px 7px;color:#5a2a2a;font-size:11px;cursor:pointer}
+.wa2.on{background:rgba(204,34,0,.15);border-color:#cc2200;color:#ff8080}
+.wa3{background:none;border:1px solid #3d1515;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;flex-shrink:0}
+.wa3.mk{background:rgba(255,107,107,.12);border-color:#ff6b6b}
+.wa4{background:none;border:none;color:#3d1515;font-size:15px;cursor:pointer;padding:3px;margin-left:auto}
+.wa4:active{color:#ff6b6b}
+/* 모르는 단어 */
+.uc{background:#2a0f0f;border:1px solid rgba(255,107,107,.2);border-radius:12px;padding:12px;margin-bottom:8px;border-left:3px solid #ff6b6b}
+.uc-jp{font-size:16px;font-weight:700;color:#fff0f0;letter-spacing:1px;margin-bottom:2px}
+.uc-read{font-size:12px;color:#ff8080;font-weight:600;margin-bottom:2px}
+.uc-ko{font-size:12px;color:#aa6666;margin-bottom:8px}
+.uc-row{display:flex;gap:6px}
+.ua{flex:1;background:#100505;border:1px solid #3d1515;border-radius:8px;padding:8px;color:#ff8080;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.ua:active{background:#cc2200;color:#fff}
+.ua2{flex:1;background:rgba(204,34,0,.1);border:1px solid #cc2200;border-radius:8px;padding:8px;color:#ff8080;font-size:12px;cursor:pointer;text-align:center;font-weight:600}
+.ua2:active{background:#cc2200;color:#fff}
+/* 통계 */
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.sb{background:#2a0f0f;border:1px solid #3d1515;border-radius:12px;padding:12px}
+.sl{font-size:10px;color:#5a2a2a;font-weight:600}
+.sv{font-size:24px;font-weight:700;color:#fff0f0;margin-top:3px}
+.ss{font-size:10px;color:#aa6666;margin-top:1px}
+.pr{display:flex;justify-content:space-between;font-size:11px;color:#7a3a3a;margin-bottom:4px}
+.pb{height:7px;background:#2a0f0f;border-radius:4px;margin-bottom:12px;overflow:hidden}
+.pf{height:100%;border-radius:4px;background:#cc2200;transition:width .5s}
+.empty{text-align:center;padding:36px 0;color:#3d1515;font-size:12px}
+.ei{font-size:36px;display:block;margin-bottom:8px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#cc2200;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div class="hd-left">
+      <span class="badge">씨유에탑</span>
+      <h1>🇯🇵 일본어</h1>
+    </div>
+    <div class="hd-right">
+      <button onclick="toggleApiPanel()" style="background:none;border:1px solid #3d1515;border-radius:8px;padding:4px 10px;color:#aa6666;font-size:11px;cursor:pointer">⚙️ API키</button>
+      <span class="cnt" id="total-count">0개</span>
+    </div>
+  </div>
+
+  <div class="api-banner" id="api-banner" onclick="toggleApiPanel()">⚙️ API 키를 먼저 설정해주세요 — 탭하기</div>
+
+  <div class="api-panel" id="api-panel">
+    <div class="api-title">🔑 Claude API 키 설정</div>
+    <div class="api-desc">console.anthropic.com → API Keys 에서 발급<br>키는 이 기기에만 저장돼요</div>
+    <div class="api-row">
+      <input class="api-inp" type="password" id="api-inp" placeholder="sk-ant-api03-..." />
+      <button class="api-ok" onclick="saveKey()">저장</button>
+    </div>
+    <button class="api-close" onclick="toggleApiPanel()">닫기</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('words')"><span class="tab-ic">📖</span>단어장</div>
+    <div class="tab" onclick="switchTab('unknown')"><span class="tab-ic">❌</span>모르는단어</div>
+    <div class="tab" onclick="switchTab('stats')"><span class="tab-ic">📊</span>통계</div>
+  </div>
+
+  <div class="sec on" id="sec-words">
+    <div class="in-card">
+      <div class="in-hint">💡 한국어로 입력하면 AI가 일본어 + 한글 발음으로 바꿔드려요</div>
+      <div class="in-row">
+        <input class="in-txt" type="text" id="ko-inp" placeholder="예: 사랑, 학교, 감사합니다" onkeydown="if(event.key==='Enter')addWord()" />
+        <button class="in-btn" id="add-btn" onclick="addWord()">추가</button>
+      </div>
+      <div class="res" id="res-box">
+        <div class="res-jp" id="r-jp"></div>
+        <div class="res-read" id="r-read"></div>
+        <div class="res-ko" id="r-ko"></div>
+        <div class="res-row">
+          <button class="rb rb-tts" onclick="speakJP(cur.jp)">🔊 듣기</button>
+          <button class="rb rb-save" onclick="saveWord()">✅ 저장</button>
+          <button class="rb rb-cancel" onclick="cancelRes()">✕</button>
+        </div>
+      </div>
+    </div>
+    <div id="folders"></div>
+  </div>
+  <div class="sec" id="sec-unknown"><div id="unk-list"></div></div>
+  <div class="sec" id="sec-stats"><div id="stats-body"></div></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let words=[], openF={}, openZ={}, repTimers={}, zonePl={}, cur=null;
+
+function load(){try{words=JSON.parse(localStorage.getItem('cj_v1')||'[]')}catch(e){words=[]}}
+function save(){try{localStorage.setItem('cj_v1',JSON.stringify(words))}catch(e){}}
+function getKey(){return localStorage.getItem('ce_key')||''}
+
+function saveKey(){
+  const k=document.getElementById('api-inp').value.trim();
+  if(k.length<20){showToast('API 키가 너무 짧아요');return}
+  localStorage.setItem('ce_key',k);
+  document.getElementById('api-banner').classList.remove('show');
+  toggleApiPanel();
+  showToast('✅ API 키 저장됐어요!');
+}
+
+function toggleApiPanel(){
+  const p=document.getElementById('api-panel');
+  if(!p.classList.contains('show')){
+    const k=getKey();
+    if(k)document.getElementById('api-inp').value=k;
+    p.classList.add('show');
+  } else {
+    p.classList.remove('show');
+  }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
+
+function speakJP(text, rate=0.85){
+  if(!window.speechSynthesis){showToast('TTS 미지원');return}
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);
+  u.lang='ja-JP';u.rate=rate;u.pitch=1;
+  window.speechSynthesis.speak(u);
+}
+
+async function addWord(){
+  const inp=document.getElementById('ko-inp');
+  const ko=inp.value.trim();
+  if(!ko){showToast('한국어 단어/표현을 입력해주세요');return}
+  const key=getKey();
+  if(!key){document.getElementById('api-banner').classList.add('show');toggleApiPanel();return}
+
+  const btn=document.getElementById('add-btn');
+  btn.textContent='분석중...';btn.classList.add('busy');
+  document.getElementById('res-box').classList.remove('on');
+  await new Promise(r=>setTimeout(r,1500));
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':key,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-haiku-4-5-20251001',
+        max_tokens:200,
+        system:`한국어 단어/표현을 일본어로 변환해주세요. JSON만 응답(마크다운 절대 없이):
+{"jp":"일본어(히라가나/한자)","read":"한글발음표기(예:아리가토)","ko":"한국어 의미"}
+예시: {"jp":"ありがとう","read":"아리가토","ko":"고마워요"}`,
+        messages:[{role:'user',content:ko}]
+      })
+    });
+    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(res.status+' '+(e.error?.message||''))}
+    const data=await res.json();
+    let raw=data.content[0].text.trim().replace(/^```[a-z]*\n?/i,'').replace(/```$/,'').trim();
+    const result=JSON.parse(raw);
+    cur=result;
+    document.getElementById('r-jp').textContent=result.jp;
+    document.getElementById('r-read').textContent='📢 '+result.read;
+    document.getElementById('r-ko').textContent=result.ko||ko;
+    document.getElementById('res-box').classList.add('on');
+    speakJP(result.jp);
+    inp.value='';
+  }catch(e){
+    showToast('❌ '+e.message);
+  }
+  btn.textContent='추가';btn.classList.remove('busy');
+}
+
+function saveWord(){
+  if(!cur)return;
+  if(words.find(w=>w.jp===cur.jp)){showToast('이미 있는 단어예요!');return}
+  words.push({id:Date.now(),jp:cur.jp,read:cur.read,ko:cur.ko,unknown:false,addedAt:new Date().toISOString()});
+  save();
+  const fi=Math.floor((words.length-1)/100);
+  const zi=Math.floor((words.length-1)/10);
+  openF[fi]=true;openZ[zi]=true;
+  cur=null;
+  document.getElementById('res-box').classList.remove('on');
+  renderAll();showToast('✅ 저장됐어요!');
+}
+
+function cancelRes(){
+  cur=null;
+  document.getElementById('res-box').classList.remove('on');
+  document.getElementById('ko-inp').focus();
+}
+
+function toggleUnknown(id){const w=words.find(w=>w.id===id);if(w){w.unknown=!w.unknown;save();renderAll()}}
+function delWord(id){if(confirm('삭제할까요?')){words=words.filter(w=>w.id!==id);save();renderAll()}}
+function markKnown(id){const w=words.find(w=>w.id===id);if(w){w.unknown=false;save();renderAll();showToast('✅ 외운 단어로!')}}
+
+function toggleRep(id){
+  if(repTimers[id]){clearInterval(repTimers[id]);delete repTimers[id];renderFolders();return}
+  const w=words.find(w=>w.id===id);if(!w)return;
+  speakJP(w.jp);
+  repTimers[id]=setInterval(()=>speakJP(w.jp),4000);
+  renderFolders();showToast('🔁 반복 재생 중');
+}
+
+function playZone(zi,rate=0.85){
+  if(zonePl[zi]?.active){zonePl[zi].active=false;window.speechSynthesis.cancel();renderFolders();showToast('⏹ 중지');return}
+  const zw=words.filter((_,i)=>Math.floor(i/10)===zi);
+  if(!zw.length)return;
+  let idx=0;zonePl[zi]={active:true,idx:0};
+  const next=()=>{
+    if(!zonePl[zi]?.active)return;
+    if(idx>=zw.length){zonePl[zi].active=false;renderFolders();showToast('✅ 완료!');return}
+    zonePl[zi].idx=idx;
+    const el=document.getElementById('pl-'+zi);
+    if(el){
+      el.querySelector('.pl-jp').textContent=zw[idx].jp;
+      el.querySelector('.pl-read').textContent=zw[idx].read||'';
+      el.querySelector('.pl-ko').textContent=zw[idx].ko||'';
+      el.querySelector('.pl-prog').textContent=(idx+1)+'/'+zw.length;
+    }
+    const u=new SpeechSynthesisUtterance(zw[idx].jp);
+    u.lang='ja-JP';u.rate=rate;
+    u.onend=()=>{if(!zonePl[zi]?.active)return;setTimeout(()=>{idx++;next()},1500)};
+    window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
+  };
+  next();renderFolders();showToast(rate<0.8?'🐢 천천히':'▶ 자동재생');
+}
+
+function renderFolders(){
+  const wrap=document.getElementById('folders');
+  if(!words.length){
+    wrap.innerHTML=`<div class="empty"><span class="ei">📖</span>한국어로 입력하면<br>일본어 + 한글 발음이 나와요!</div>`;
+    document.getElementById('total-count').textContent='0개';return;
+  }
+  const fmap={};
+  words.forEach((w,i)=>{const fi=Math.floor(i/100);if(!fmap[fi])fmap[fi]=[];fmap[fi].push({...w,gi:i})});
+  let html='';
+  Object.keys(fmap).sort((a,b)=>+a-+b).forEach(fi=>{
+    const fw=fmap[fi],fs=+fi*100+1,fe=Math.min(+fi*100+100,words.length);
+    const uc=fw.filter(w=>w.unknown).length,isOp=openF[fi]!==false;
+    html+=`<div class="folder"><div class="fhd" onclick="tF(${fi})">
+      <div class="fleft"><span style="font-size:18px">📁</span>
+        <div><div class="fname">${+fi+1}번 폴더</div><div class="frange">${fs}~${fe}번 단어</div></div>
+      </div>
+      <div class="fmeta">${uc?`<span style="font-size:10px;color:#ff6b6b;background:rgba(255,107,107,.1);padding:2px 6px;border-radius:8px">❌${uc}</span>`:''}<span class="fcnt">${fw.length}개</span><span class="farr ${isOp?'op':''}">›</span></div>
+    </div><div class="fbody ${isOp?'op':''}">`;
+    const zmap={};fw.forEach(w=>{const zi=Math.floor(w.gi/10);if(!zmap[zi])zmap[zi]=[];zmap[zi].push(w)});
+    Object.keys(zmap).sort((a,b)=>+a-+b).forEach(zi=>{
+      const zw=zmap[zi],zs=+zi*10+1,ze=Math.min(+zi*10+10,words.length);
+      const zu=zw.filter(w=>w.unknown).length,zOp=openZ[zi]!==false,zPlay=zonePl[zi]?.active;
+      html+=`<div class="zone"><div class="zhd" onclick="tZ(${zi})">
+        <span class="ztitle">📌 ${zs}~${ze}번 구간</span>
+        <div style="display:flex;align-items:center;gap:5px">${zu?`<span style="font-size:9px;color:#ff6b6b;background:rgba(255,107,107,.08);padding:1px 5px;border-radius:6px">❌${zu}</span>`:''}<span style="font-size:10px;color:#5a2a2a">${zw.length}개</span></div>
+      </div><div class="zbody ${zOp?'op':''}">
+        <div class="player" id="pl-${zi}">
+          <div class="pl-lbl">🔊 구간 자동재생</div>
+          <div class="pl-jp">${zPlay?zw[zonePl[zi].idx]?.jp||'':''}</div>
+          <div class="pl-read">${zPlay?zw[zonePl[zi].idx]?.read||'':''}</div>
+          <div class="pl-ko">${zPlay?zw[zonePl[zi].idx]?.ko||'':''}</div>
+          <div class="pl-btns">
+            <button class="plb ${zPlay?'on':''}" onclick="playZone(${zi})">${zPlay?'⏹ 중지':'▶ 자동재생'}</button>
+            <button class="plb" onclick="playZone(${zi},0.65)">🐢 천천히</button>
+          </div>
+          <div class="pl-prog">${zPlay?(zonePl[zi].idx+1)+'/'+zw.length:''}</div>
+        </div>`;
+      zw.forEach(w=>{
+        const isRep=!!repTimers[w.id];
+        const sj=w.jp.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        html+=`<div class="wc">
+          <div class="wc-jp">${w.jp}</div>
+          <div class="wc-read">📢 ${w.read}</div>
+          <div class="wc-ko">${w.ko}</div>
+          <div class="wc-num">#${words.indexOf(words.find(x=>x.id===w.id))+1}</div>
+          <div class="wc-acts">
+            <button class="wa" onclick="speakJP('${sj}')">🔊 듣기</button>
+            <button class="wa2 ${isRep?'on':''}" onclick="toggleRep(${w.id})">${isRep?'⏹':'🔁'}</button>
+            <button class="wa3 ${w.unknown?'mk':''}" onclick="toggleUnknown(${w.id})">${w.unknown?'❌':'☑️'}</button>
+            <button class="wa4" onclick="delWord(${w.id})">🗑</button>
+          </div>
+        </div>`;
+      });
+      html+=`</div></div>`;
+    });
+    html+=`</div></div>`;
+  });
+  wrap.innerHTML=html;
+  document.getElementById('total-count').textContent=`총 ${words.length}개`;
+}
+
+function renderUnknown(){
+  const wrap=document.getElementById('unk-list');
+  const unk=words.filter(w=>w.unknown);
+  if(!unk.length){wrap.innerHTML=`<div class="empty"><span class="ei">🎉</span>모르는 단어가 없어요!</div>`;return}
+  let html=`<div style="font-size:12px;font-weight:600;color:#ff6b6b;margin-bottom:10px">❌ 모르는 단어 ${unk.length}개</div>`;
+  unk.forEach(w=>{
+    const sj=w.jp.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    html+=`<div class="uc">
+      <div class="uc-jp">${w.jp}</div>
+      <div class="uc-read">📢 ${w.read}</div>
+      <div class="uc-ko">${w.ko}</div>
+      <div class="uc-row">
+        <button class="ua" onclick="speakJP('${sj}')">🔊 듣기</button>
+        <button class="ua2" onclick="markKnown(${w.id})">✅ 외웠어요</button>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML=html;
+}
+
+function renderStats(){
+  const wrap=document.getElementById('stats-body');
+  const total=words.length,unk=words.filter(w=>w.unknown).length,known=total-unk;
+  const folders=Math.ceil(total/100)||0,zones=Math.ceil(total/10)||0;
+  const pct=total?Math.round(known/total*100):0;
+  let fh='';
+  for(let fi=0;fi<folders;fi++){
+    const fw=words.slice(fi*100,fi*100+100);
+    const fk=fw.filter(w=>!w.unknown).length,fp=Math.round(fk/fw.length*100);
+    fh+=`<div class="pr"><span>📁 ${fi+1}번 폴더</span><span>${fk}/${fw.length} (${fp}%)</span></div><div class="pb"><div class="pf" style="width:${fp}%"></div></div>`;
+  }
+  wrap.innerHTML=`<div class="sg">
+    <div class="sb"><div class="sl">총 단어</div><div class="sv">${total}</div><div class="ss">개</div></div>
+    <div class="sb"><div class="sl">외운 단어</div><div class="sv">${known}</div><div class="ss">${pct}%</div></div>
+    <div class="sb"><div class="sl">모르는 단어</div><div class="sv" style="color:#ff6b6b">${unk}</div><div class="ss">복습 필요</div></div>
+    <div class="sb"><div class="sl">폴더/구간</div><div class="sv">${folders}</div><div class="ss">${zones}구간</div></div>
+  </div>
+  <div class="pr"><span style="color:#ff8080;font-weight:600">전체 진도</span><span>${pct}%</span></div>
+  <div class="pb" style="height:10px;margin-bottom:18px"><div class="pf" style="width:${pct}%"></div></div>
+  ${folders?fh:''}`;
+}
+
+function tF(fi){openF[fi]=openF[fi]===false?true:false;renderFolders()}
+function tZ(zi){openZ[zi]=openZ[zi]===false?true:false;renderFolders()}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['words','unknown','stats'][i]===tab));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+tab).classList.add('on');
+  if(tab==='unknown')renderUnknown();
+  if(tab==='stats')renderStats();
+}
+
+function renderAll(){
+  renderFolders();
+  const idx=[...document.querySelectorAll('.tab')].findIndex(t=>t.classList.contains('on'));
+  if(idx===1)renderUnknown();if(idx===2)renderStats();
+}
+
+load();
+if(!getKey())document.getElementById('api-banner').classList.add('show');
+if(words.length>0){openF[0]=true;openZ[0]=true;}
+renderAll();
+</script>
+</body>
+</html>
