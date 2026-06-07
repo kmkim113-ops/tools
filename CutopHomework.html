@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="씨유에탑 숙제체크">
+<title>씨유에탑 숙제체크</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:rgba(0,0,0,0)}
+html,body{height:100%;background:#f5f4fb;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#1a1a2e}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding-bottom:80px;background:#fff}
+.hd{padding:14px 16px 10px;background:#fff;border-bottom:1px solid #ede9ff;position:sticky;top:0;z-index:20}
+.hd-top{display:flex;align-items:center;justify-content:space-between}
+.badge{font-size:10px;font-weight:700;background:#ff6b35;color:#fff;padding:3px 9px;border-radius:20px}
+.hd h1{font-size:17px;font-weight:700;color:#1a1a2e;margin-left:8px}
+.tabs{display:flex;border-bottom:1px solid #ede9ff;background:#fff;position:sticky;top:55px;z-index:19}
+.tab{flex:1;padding:9px 4px;text-align:center;font-size:10px;cursor:pointer;color:#aaa;border-bottom:2px solid transparent;font-weight:600}
+.tab.on{color:#ff6b35;border-bottom-color:#ff6b35}
+.tab-ic{display:block;font-size:16px;margin-bottom:1px}
+.sec{padding:12px;display:none}
+.sec.on{display:block}
+
+.card{background:#fff;border:1px solid #fde8de;border-radius:14px;padding:14px;margin-bottom:12px}
+.card-title{font-size:13px;font-weight:600;color:#ff6b35;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;color:#888;margin-bottom:4px;font-weight:500}
+.field input,.field textarea,.field select{width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus,.field textarea:focus{border-color:#ff6b35}
+.add-btn{width:100%;padding:12px;border-radius:12px;background:#ff6b35;border:none;color:#fff;font-size:14px;font-weight:700;cursor:pointer}
+.add-btn:active{background:#e05520}
+
+/* 학생 관리 */
+.student-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#fff3ee;border:1.5px solid #fde8de;color:#ff6b35;margin:3px}
+.student-chip span{cursor:pointer;opacity:.6;font-size:10px}
+
+/* 숙제 체크 */
+.class-filter{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.cf-chip{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #fde8de;background:#fff9f6;color:#aaa;transition:all .2s}
+.cf-chip.on{background:#ff6b35;color:#fff;border-color:#ff6b35}
+
+.hw-card{background:#fff;border:1px solid #fde8de;border-radius:12px;padding:13px;margin-bottom:8px}
+.hw-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.hw-title{font-size:13px;font-weight:600;color:#1a1a2e}
+.hw-date{font-size:11px;color:#aaa}
+.hw-class{font-size:11px;background:#fff3ee;color:#ff6b35;padding:2px 8px;border-radius:10px;font-weight:600}
+.hw-desc{font-size:12px;color:#666;margin-bottom:8px;padding:6px 10px;background:#fff9f6;border-radius:8px}
+.student-list{display:flex;flex-direction:column;gap:4px}
+.student-row{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#f8f7ff;transition:background .15s}
+.student-row:active{background:#eeedfe}
+.check-btn{width:24px;height:24px;border-radius:50%;border:2px solid #ddd;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;background:none;transition:all .2s}
+.check-btn.done{background:#4caf50;border-color:#4caf50;color:#fff}
+.check-btn.late{background:#ff9800;border-color:#ff9800;color:#fff}
+.check-btn.absent{background:#f44336;border-color:#f44336;color:#fff}
+.student-name{flex:1;font-size:13px;color:#1a1a2e;font-weight:500}
+.status-btns{display:flex;gap:4px}
+.sb{padding:4px 8px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;border:none;transition:all .2s}
+.sb-ok{background:#e8f5e9;color:#4caf50}
+.sb-ok.on{background:#4caf50;color:#fff}
+.sb-late{background:#fff3e0;color:#ff9800}
+.sb-late.on{background:#ff9800;color:#fff}
+.sb-no{background:#fce4ec;color:#f44336}
+.sb-no.on{background:#f44336;color:#fff}
+
+.hw-summary{display:flex;gap:8px;margin-top:8px;font-size:11px}
+.sum-ok{color:#4caf50;font-weight:600}
+.sum-late{color:#ff9800;font-weight:600}
+.sum-no{color:#f44336;font-weight:600}
+.sum-none{color:#aaa}
+
+/* 공유 */
+.share-preview{background:#fff9f6;border:1px solid #fde8de;border-radius:10px;padding:12px;margin:8px 0;font-size:12px;color:#444;line-height:1.8;white-space:pre-wrap;max-height:250px;overflow-y:auto}
+.kakao-btn{flex:1;padding:11px;border-radius:10px;background:#FEE500;border:none;color:#3A1D1D;font-size:13px;font-weight:700;cursor:pointer}
+.kakao-btn:active{background:#f0d800}
+.copy-btn{padding:11px 14px;border-radius:10px;background:#fff3ee;border:1px solid #fde8de;color:#ff6b35;font-size:13px;font-weight:600;cursor:pointer}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:12px}
+.stat-box{background:#fff9f6;border:1px solid #fde8de;border-radius:10px;padding:10px;text-align:center}
+.stat-label{font-size:9px;color:#aaa;font-weight:600}
+.stat-val{font-size:20px;font-weight:700;color:#1a1a2e;margin-top:2px}
+
+.empty{text-align:center;padding:36px 0;color:#bbb;font-size:12px}
+.empty-ic{font-size:36px;display:block;margin-bottom:8px}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(16px);background:#ff6b35;color:#fff;padding:8px 18px;border-radius:20px;font-size:12px;font-weight:600;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hd">
+    <div class="hd-top">
+      <div style="display:flex;align-items:center">
+        <span class="badge">씨유에탑</span>
+        <h1>숙제체크</h1>
+      </div>
+      <span style="font-size:11px;color:#aaa" id="today-lbl"></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('assign')"><span class="tab-ic">📝</span>숙제등록</div>
+    <div class="tab" onclick="switchTab('check')"><span class="tab-ic">✅</span>체크</div>
+    <div class="tab" onclick="switchTab('share')"><span class="tab-ic">📤</span>공유</div>
+    <div class="tab" onclick="switchTab('manage')"><span class="tab-ic">👥</span>학생관리</div>
+  </div>
+
+  <!-- 숙제 등록 -->
+  <div class="sec on" id="sec-assign">
+    <div class="card">
+      <div class="card-title">📝 숙제 등록</div>
+      <div class="field">
+        <label>반 선택</label>
+        <select id="a-class" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;outline:none"></select>
+      </div>
+      <div class="field">
+        <label>날짜</label>
+        <input type="date" id="a-date" />
+      </div>
+      <div class="field">
+        <label>숙제 내용</label>
+        <input type="text" id="a-title" placeholder="예: 교재 p.45~50 문제풀기" />
+      </div>
+      <div class="field">
+        <label>제출 기한</label>
+        <input type="date" id="a-due" />
+      </div>
+      <button class="add-btn" onclick="addHomework()">✅ 숙제 등록</button>
+    </div>
+  </div>
+
+  <!-- 체크 탭 -->
+  <div class="sec" id="sec-check">
+    <div class="class-filter" id="check-class-filter"></div>
+    <div id="hw-check-list"></div>
+  </div>
+
+  <!-- 공유 탭 -->
+  <div class="sec" id="sec-share">
+    <div class="card">
+      <div class="card-title">📤 학부모 카톡 공유</div>
+      <div class="field">
+        <label>반 선택</label>
+        <select id="s-class" style="width:100%;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;outline:none"></select>
+      </div>
+      <div class="field">
+        <label>기간</label>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="date" id="s-from" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:13px;outline:none" />
+          <span style="color:#aaa;font-size:12px">~</span>
+          <input type="date" id="s-to" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:13px;outline:none" />
+        </div>
+      </div>
+      <button class="add-btn" style="margin-bottom:10px;background:#ff6b35" onclick="buildHwShare()">📋 내용 불러오기</button>
+      <div id="hw-share-wrap" style="display:none">
+        <div class="share-preview" id="hw-share-text"></div>
+        <div style="display:flex;gap:8px">
+          <button class="kakao-btn" onclick="shareKakao()">💬 카톡으로 공유</button>
+          <button class="copy-btn" onclick="copyShare()">복사</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 학생 관리 -->
+  <div class="sec" id="sec-manage">
+    <div class="card">
+      <div class="card-title">👥 반 & 학생 관리</div>
+      <div class="field">
+        <label>반 추가</label>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-class-hw" placeholder="반 이름 (예: 중1반)" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addClassHw()" />
+          <button onclick="addClassHw()" style="background:#ff6b35;border:none;border-radius:10px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">추가</button>
+        </div>
+      </div>
+      <div id="class-list-manage" style="margin-bottom:16px"></div>
+
+      <div class="field">
+        <label>학생 추가</label>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <select id="student-class-sel" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;outline:none"></select>
+        </div>
+        <div style="display:flex;gap:8px">
+          <input type="text" id="new-student" placeholder="학생 이름" style="flex:1;padding:9px 12px;border-radius:10px;border:1.5px solid #fde8de;background:#fff9f6;color:#1a1a2e;font-size:14px;font-family:inherit;outline:none" onkeydown="if(event.key==='Enter')addStudent()" />
+          <button onclick="addStudent()" style="background:#ff6b35;border:none;border-radius:10px;padding:9px 16px;color:#fff;font-size:13px;font-weight:700;cursor:pointer">추가</button>
+        </div>
+      </div>
+      <div id="student-list-manage"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📊 전체 통계</div>
+      <div class="stat-grid" id="stats-grid"></div>
+      <div id="stats-detail"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+let homeworks=[], classes=[], students=[];
+let shareText='';
+let checkFilter='';
+
+function saveAll(){
+  try{
+    localStorage.setItem('hw_hws_v1',JSON.stringify(homeworks));
+    localStorage.setItem('hw_cls_v1',JSON.stringify(classes));
+    localStorage.setItem('hw_stu_v1',JSON.stringify(students));
+  }catch(e){}
+}
+function loadAll(){
+  try{homeworks=JSON.parse(localStorage.getItem('hw_hws_v1')||'[]')}catch(e){homeworks=[]}
+  try{classes=JSON.parse(localStorage.getItem('hw_cls_v1')||'["중1반","중2반","고1반"]')}catch(e){classes=["중1반","중2반","고1반"]}
+  try{students=JSON.parse(localStorage.getItem('hw_stu_v1')||'[]')}catch(e){students=[]}
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('on');
+  setTimeout(()=>t.classList.remove('on'),2500);
+}
+
+const today=new Date();
+const todayStr=today.toISOString().slice(0,10);
+document.getElementById('today-lbl').textContent=today.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+document.getElementById('a-date').value=todayStr;
+document.getElementById('a-due').value=todayStr;
+const ym=today.toISOString().slice(0,7);
+document.getElementById('s-from').value=ym+'-01';
+document.getElementById('s-to').value=new Date(today.getFullYear(),today.getMonth()+1,0).toISOString().slice(0,10);
+
+function renderAllSelects(){
+  ['a-class','s-class','student-class-sel'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const cur=el.value;
+    el.innerHTML=classes.map(c=>`<option value="${c}">${c}</option>`).join('');
+    if(cur&&classes.includes(cur))el.value=cur;
+  });
+}
+
+function renderClassManage(){
+  document.getElementById('class-list-manage').innerHTML=classes.map((c,i)=>`
+    <div style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;background:#fff3ee;border:1.5px solid #fde8de;color:#ff6b35;margin:3px">
+      ${c}<span onclick="delClass(${i})" style="cursor:pointer;opacity:.6;font-size:10px;margin-left:2px">✕</span>
+    </div>`).join('');
+}
+
+function renderStudentManage(){
+  const selClass=document.getElementById('student-class-sel')?.value||classes[0];
+  const classStudents=students.filter(s=>s.className===selClass);
+  document.getElementById('student-list-manage').innerHTML=classStudents.length
+    ?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">`+classStudents.map((s,i)=>`
+      <div style="display:inline-flex;align-items:center;gap:4px;padding:5px 12px;border-radius:20px;font-size:12px;background:#f8f7ff;border:1.5px solid #ede9ff;color:#534AB7;margin:2px">
+        ${s.name}<span onclick="delStudent('${s.id}')" style="cursor:pointer;opacity:.6;font-size:10px;margin-left:2px">✕</span>
+      </div>`).join('')+`</div>`
+    :`<div style="font-size:12px;color:#bbb;padding:8px 0">${selClass} 학생이 없어요</div>`;
+}
+
+function addClassHw(){
+  const inp=document.getElementById('new-class-hw');
+  const name=inp.value.trim();
+  if(!name){showToast('반 이름을 입력해주세요');return}
+  if(classes.includes(name)){showToast('이미 있는 반이에요');return}
+  classes.push(name);saveAll();
+  renderAllSelects();renderClassManage();renderStudentManage();
+  inp.value='';showToast(`✅ ${name} 추가!`);
+}
+
+function delClass(idx){
+  if(!confirm(`"${classes[idx]}" 반을 삭제할까요?`))return;
+  classes.splice(idx,1);saveAll();
+  renderAllSelects();renderClassManage();renderStudentManage();
+}
+
+function addStudent(){
+  const cls=document.getElementById('student-class-sel').value;
+  const name=document.getElementById('new-student').value.trim();
+  if(!cls){showToast('반을 선택해주세요');return}
+  if(!name){showToast('이름을 입력해주세요');return}
+  if(students.find(s=>s.className===cls&&s.name===name)){showToast('이미 있는 학생이에요');return}
+  students.push({id:Date.now()+'',className:cls,name});
+  saveAll();renderStudentManage();
+  document.getElementById('new-student').value='';
+  showToast(`✅ ${name} 추가!`);
+}
+
+function delStudent(id){
+  if(!confirm('학생을 삭제할까요?'))return;
+  students=students.filter(s=>s.id!==id);saveAll();renderStudentManage();
+}
+
+function addHomework(){
+  const cls=document.getElementById('a-class').value;
+  const date=document.getElementById('a-date').value;
+  const title=document.getElementById('a-title').value.trim();
+  const due=document.getElementById('a-due').value;
+  if(!cls){showToast('반을 선택해주세요');return}
+  if(!title){showToast('숙제 내용을 입력해주세요');return}
+  const classStudents=students.filter(s=>s.className===cls);
+  if(!classStudents.length){showToast(`${cls}에 학생이 없어요!\n학생관리 탭에서 먼저 추가해주세요`);return}
+  const checks={};
+  classStudents.forEach(s=>{checks[s.id]='none'});
+  homeworks.unshift({id:Date.now(),className:cls,date,title,due,checks,createdAt:new Date().toISOString()});
+  saveAll();
+  document.getElementById('a-title').value='';
+  showToast('✅ 숙제 등록됐어요!');
+  renderCheckList();
+}
+
+function setStatus(hwId,studentId,status){
+  const hw=homeworks.find(h=>h.id===hwId);
+  if(!hw)return;
+  hw.checks[studentId]=hw.checks[studentId]===status?'none':status;
+  saveAll();renderCheckList();renderStats();
+}
+
+function renderCheckFilter(){
+  const wrap=document.getElementById('check-class-filter');
+  wrap.innerHTML=`<div class="cf-chip ${!checkFilter?'on':''}" onclick="setCheckFilter('')">전체</div>`+
+    classes.map(c=>`<div class="cf-chip ${checkFilter===c?'on':''}" onclick="setCheckFilter('${c}')">${c}</div>`).join('');
+}
+
+function setCheckFilter(cls){checkFilter=cls;renderCheckFilter();renderCheckList();}
+
+function renderCheckList(){
+  renderCheckFilter();
+  const wrap=document.getElementById('hw-check-list');
+  let filtered=checkFilter?homeworks.filter(h=>h.className===checkFilter):homeworks;
+  filtered=[...filtered].sort((a,b)=>a.date<b.date?1:-1);
+  if(!filtered.length){wrap.innerHTML=`<div class="empty"><span class="empty-ic">✅</span>등록된 숙제가 없어요</div>`;return}
+  wrap.innerHTML=filtered.map(hw=>{
+    const classStudents=students.filter(s=>s.className===hw.className);
+    const okCnt=classStudents.filter(s=>hw.checks[s.id]==='ok').length;
+    const lateCnt=classStudents.filter(s=>hw.checks[s.id]==='late').length;
+    const noCnt=classStudents.filter(s=>hw.checks[s.id]==='no').length;
+    const noneCnt=classStudents.filter(s=>!hw.checks[s.id]||hw.checks[s.id]==='none').length;
+    return `<div class="hw-card">
+      <div class="hw-header">
+        <span class="hw-class">${hw.className}</span>
+        <span class="hw-date">등록: ${hw.date}${hw.due?' · 기한: '+hw.due:''}</span>
+      </div>
+      <div class="hw-title">📝 ${hw.title}</div>
+      <div class="hw-summary">
+        <span class="sum-ok">✅ ${okCnt}</span>
+        <span class="sum-late">⏰ ${lateCnt}</span>
+        <span class="sum-no">❌ ${noCnt}</span>
+        <span class="sum-none">○ ${noneCnt}</span>
+      </div>
+      <div class="student-list" style="margin-top:8px">
+        ${classStudents.map(s=>{
+          const st=hw.checks[s.id]||'none';
+          return `<div class="student-row">
+            <div class="student-name">${s.name}</div>
+            <div class="status-btns">
+              <button class="sb sb-ok ${st==='ok'?'on':''}" onclick="setStatus(${hw.id},'${s.id}','ok')">✅제출</button>
+              <button class="sb sb-late ${st==='late'?'on':''}" onclick="setStatus(${hw.id},'${s.id}','late')">⏰늦게</button>
+              <button class="sb sb-no ${st==='no'?'on':''}" onclick="setStatus(${hw.id},'${s.id}','no')">❌미제출</button>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function buildHwShare(){
+  const cls=document.getElementById('s-class').value;
+  const from=document.getElementById('s-from').value;
+  const to=document.getElementById('s-to').value;
+  if(!cls){showToast('반을 선택해주세요');return}
+  const filtered=homeworks.filter(h=>h.className===cls&&h.date>=from&&h.date<=to).sort((a,b)=>a.date>b.date?1:-1);
+  if(!filtered.length){showToast('해당 기간 숙제가 없어요');return}
+  const classStudents=students.filter(s=>s.className===cls);
+  const fromLabel=new Date(from.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  const toLabel=new Date(to.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric'});
+  let txt=`📝 씨유에탑 숙제 현황\n🏫 ${cls}\n📅 ${fromLabel} ~ ${toLabel}\n${'─'.repeat(20)}\n`;
+  filtered.forEach(hw=>{
+    const d=new Date(hw.date.replace(/-/g,'/')).toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+    txt+=`\n📌 ${d} — ${hw.title}\n`;
+    classStudents.forEach(s=>{
+      const st=hw.checks[s.id]||'none';
+      const icon=st==='ok'?'✅':st==='late'?'⏰':st==='no'?'❌':'○';
+      txt+=`  ${icon} ${s.name}\n`;
+    });
+  });
+  txt+=`\n${'─'.repeat(20)}\n씨유에탑`;
+  shareText=txt;
+  document.getElementById('hw-share-text').textContent=txt;
+  document.getElementById('hw-share-wrap').style.display='block';
+}
+
+function shareKakao(){
+  if(!shareText){showToast('먼저 내용을 불러오세요');return}
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(shareText).then(()=>showToast('📋 복사됐어요! 카톡에 붙여넣기 해주세요')).catch(()=>fallbackCopy());
+  } else fallbackCopy();
+}
+function copyShare(){
+  if(!shareText){showToast('먼저 내용을 불러오세요');return}
+  if(navigator.clipboard){navigator.clipboard.writeText(shareText).then(()=>showToast('✅ 복사됐어요!'))}
+  else fallbackCopy();
+}
+function fallbackCopy(){
+  const ta=document.createElement('textarea');ta.value=shareText;ta.style.position='fixed';ta.style.opacity='0';
+  document.body.appendChild(ta);ta.focus();ta.select();
+  try{document.execCommand('copy');showToast('📋 복사됐어요!');}catch(e){showToast('직접 선택해서 복사해주세요');}
+  document.body.removeChild(ta);
+}
+
+function renderStats(){
+  const totalHw=homeworks.length;
+  const totalOk=homeworks.reduce((s,h)=>s+Object.values(h.checks).filter(v=>v==='ok').length,0);
+  const totalNo=homeworks.reduce((s,h)=>s+Object.values(h.checks).filter(v=>v==='no').length,0);
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-box"><div class="stat-label">총 숙제</div><div class="stat-val">${totalHw}</div></div>
+    <div class="stat-box"><div class="stat-label">제출 ✅</div><div class="stat-val" style="color:#4caf50">${totalOk}</div></div>
+    <div class="stat-box"><div class="stat-label">미제출 ❌</div><div class="stat-val" style="color:#f44336">${totalNo}</div></div>`;
+}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',['assign','check','share','manage'][i]===tab));
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+tab).classList.add('on');
+  if(tab==='check'){renderCheckFilter();renderCheckList();}
+  if(tab==='manage'){renderClassManage();renderStudentManage();renderStats();}
+}
+
+loadAll();
+renderAllSelects();
+renderClassManage();
+renderStudentManage();
+renderCheckFilter();
+renderCheckList();
+renderStats();
+</script>
+</body>
+</html>
