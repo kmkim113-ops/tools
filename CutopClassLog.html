@@ -197,7 +197,7 @@ function save(){
 }
 function load(){
   try{logs=JSON.parse(localStorage.getItem('cl_logs_v1')||'[]')}catch(e){logs=[]}
-  try{classes=JSON.parse(localStorage.getItem('cl_classes_v1')||'["중1반","중2반","고1반"]')}catch(e){classes=["중1반","중2반","고1반"]}
+  try{classes=JSON.parse(localStorage.getItem('cl_classes_v1')||'["중1","중2","중3","고1","고2","고3"]')}catch(e){classes=["중1반","중2반","고1반"]}
 }
 
 function showToast(msg){
