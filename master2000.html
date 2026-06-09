@@ -21,6 +21,8 @@
       --border: #E5E7EB;
       --bg: #F9FAFB;
       --star: #F59E0B;
+      --danger: #EF4444;
+      --success: #10B981;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Noto Sans KR', 'Nunito', sans-serif; }
     body { background: var(--bg); color: var(--text-main); display: flex; justify-content: center; min-height: 100vh; }
@@ -47,11 +49,11 @@
     header p { font-size: 13px; color: rgba(255,255,255,0.8); }
 
     /* Navigation Tabs */
-    .tabs { display: flex; background: #fff; border-bottom: 1px solid var(--border); sticky: top; top: 0; z-index: 50; }
+    .tabs { display: flex; background: #fff; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 50; }
     .tab-btn { flex: 1; padding: 14px 0; text-align: center; border: none; background: none; font-size: 14px; font-weight: 500; color: var(--text-muted); cursor: pointer; border-bottom: 3px solid transparent; }
     .tab-btn.active { color: var(--primary); font-weight: 700; border-bottom-color: var(--primary); }
 
-    /* Range Bar UI (가로 스크롤) */
+    /* Range Bar UI (가로 스크롤, 10개 단위 분할) */
     .range-container {
       background: #fff;
       border-bottom: 1px solid var(--border);
@@ -95,7 +97,7 @@
 
     /* List Layout */
     .word-list { display: flex; flex-direction: column; gap: 10px; }
-    .word-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; transition: transform 0.2s; }
+    .word-item { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; }
     .word-item.known { opacity: 0.5; background: #F3F4F6; }
     .word-info { flex: 1; }
     .word-top { display: flex; align-items: baseline; gap: 6px; margin-bottom: 2px; }
@@ -111,36 +113,43 @@
     .btn-check { color: #D1D5DB; }
     .btn-check.active { color: #10B981; }
 
-    /* Flashcard Layout */
-    .flashcard-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 0; }
+    /* Flashcard Layout 보완 */
+    .flashcard-wrapper { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px 0; }
     .flashcard {
       width: 100%;
-      height: 280px;
+      height: 320px;
       background: #fff;
       border: 2px solid var(--border);
-      border-radius: 16px;
+      border-radius: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       position: relative;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.03);
       padding: 24px;
       text-align: center;
     }
-    .fc-counter { position: absolute; top: 14px; left: 16px; font-size: 12px; color: var(--text-muted); font-weight: 600; }
-    .fc-fav-pos { position: absolute; top: 10px; right: 12px; }
-    .fc-eng { font-size: 32px; font-weight: 800; color: var(--primary); font-family: 'Nunito', sans-serif; margin-bottom: 4px; }
-    .fc-pho { font-size: 14px; color: var(--text-muted); font-family: 'Nunito', sans-serif; margin-bottom: 24px; }
-    .fc-meaning-box { min-height: 40px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    .fc-meaning { font-size: 20px; font-weight: 700; color: #10B981; display: none; }
-    .fc-hint { font-size: 13px; color: var(--text-muted); background: var(--bg); padding: 4px 10px; border-radius: 12px; }
     
+    /* 요구 반영된 반복 재생 스피커 디자인 */
+    .fc-speaker-box { margin-bottom: 12px; z-index: 10; }
+    .btn-fc-audio { width: 44px; height: 44px; border-radius: 50%; background: var(--primary-light); color: var(--primary); border: none; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(37,99,235,0.1); }
+    
+    .fc-fav-pos { position: absolute; top: 16px; right: 16px; font-size: 24px; }
+    .fc-pos { font-size: 12px; background: var(--primary-light); color: var(--primary); padding: 2px 8px; border-radius: 4px; font-weight: bold; margin-bottom: 8px; }
+    .fc-eng { font-size: 30px; font-weight: 800; color: #111827; font-family: 'Nunito', sans-serif; margin-bottom: 4px; }
+    .fc-pho { font-size: 14px; color: var(--text-muted); font-family: 'Nunito', sans-serif; margin-bottom: 20px; }
+    .fc-meaning-box { min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+    .fc-meaning { font-size: 22px; font-weight: 700; color: var(--success); display: none; }
+    .fc-hint { font-size: 13px; color: var(--text-muted); }
+    .fc-info-text { font-size: 11px; color: #9CA3AF; margin-top: 12px; }
+    
+    /* 하단 버튼 피드백 반영 개편 */
     .fc-actions { width: 100%; display: flex; gap: 10px; margin-top: 16px; }
-    .fc-btn { flex: 1; padding: 12px 0; border: 1px solid var(--border); background: #fff; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
-    .fc-btn.prev { color: var(--text-muted); }
-    .fc-btn.next { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .fc-btn { flex: 1; padding: 14px 0; border: 1px solid var(--border); background: #fff; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .fc-btn.wrong { color: var(--danger); border-color: rgba(239,68,68,0.3); background: #FEF2F2; }
+    .fc-btn.known { color: #fff; background: var(--success); border-color: var(--success); }
 
     /* Quiz Layout */
     .quiz-container { display: flex; flex-direction: column; gap: 16px; flex: 1; }
@@ -149,8 +158,7 @@
     .quiz-word { font-size: 28px; font-weight: 800; color: var(--text-main); font-family: 'Nunito', sans-serif; margin-bottom: 4px; }
     .quiz-pho { font-size: 14px; color: var(--text-muted); font-family: 'Nunito', sans-serif; }
     .quiz-options { display: flex; flex-direction: column; gap: 10px; }
-    .option-btn { width: 100%; padding: 14px 16px; text-align: left; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; }
-    .option-btn:active { background: var(--bg); }
+    .option-btn { width: 100%; padding: 14px 16px; text-align: left; background: #fff; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; font-weight: 500; cursor: pointer; }
     .option-btn.correct { background: #D1FAE5; border-color: #10B981; color: #065F46; font-weight: 700; }
     .option-btn.wrong { background: #FEE2E2; border-color: #EF4444; color: #991B1B; }
     
@@ -158,7 +166,6 @@
     .result-score { font-size: 48px; font-weight: 800; color: var(--primary); font-family: 'Nunito', sans-serif; }
     .result-comment { font-size: 18px; font-weight: 700; color: var(--text-main); }
     .result-btn { width: 80%; padding: 12px 0; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
-
     .empty-msg { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 14px; }
   </style>
 </head>
@@ -176,15 +183,14 @@
       <button class="tab-btn" onclick="switchTab('quiz')">퀴즈모드</button>
     </div>
 
-    <div class="range-container" id="range-bar">
-      </div>
+    <div class="range-container" id="range-bar"></div>
 
     <div class="controls" id="list-controls">
       <div class="search-wrapper">
         <input type="text" class="search-input" id="search-box" placeholder="단어 또는 뜻 검색..." oninput="renderList()">
       </div>
       <div class="filter-bar">
-        <button class="filter-btn active" id="f-all" onclick="setFilter('all')">전체</button>
+        <button class="filter-btn active" id="f-all" onclick="setFilter('all')">전체보기</button>
         <button class="filter-btn" id="f-wrong" onclick="setFilter('wrong')">모름</button>
         <button class="filter-btn" id="f-fav" onclick="setFilter('fav')">⭐ 즐겨찾기</button>
       </div>
@@ -197,18 +203,26 @@
     <div class="view-panel" id="panel-card">
       <div class="flashcard-wrapper">
         <div class="flashcard" id="card-box" onclick="revealCard()">
-          <div class="fc-counter" id="fc-count">0 / 0</div>
+          
+          <div class="fc-speaker-box">
+            <button class="btn-fc-audio" id="fc-audio-btn" onclick="triggerCardTTS(event)">🔊</button>
+          </div>
+          
           <button class="icon-btn btn-fav fc-fav-pos" id="fc-fav-btn">★</button>
+          <div class="fc-pos" id="fc-partofspeech">n</div>
           <div class="fc-eng" id="fc-english">Word</div>
           <div class="fc-pho" id="fc-phonetic">[phonetic]</div>
+          
           <div class="fc-meaning-box">
             <div class="fc-meaning" id="fc-korean">뜻</div>
-            <div class="fc-hint" id="fc-hint-text">터치하여 뜻 확인 (🔊 자동 재생)</div>
+            <div class="fc-hint" id="fc-hint-text">💡 카드를 터치하면 뜻과 발음이 나옵니다.</div>
           </div>
+          <div class="fc-info-text" id="fc-count-swipe">(1 / 10) Swipe 좌우 이동 가능</div>
         </div>
+        
         <div class="fc-actions">
-          <button class="fc-btn prev" onclick="moveCard(-1)">이전</button>
-          <button class="fc-btn next" onclick="moveCard(1)">다음</button>
+          <button class="fc-btn wrong" onclick="markCardStatus('')">아직 모름 ❌</button>
+          <button class="fc-btn known" onclick="markCardStatus('known')">외웠음 ✓</button>
         </div>
       </div>
     </div>
@@ -226,7 +240,7 @@
         <div class="quiz-options" id="qz-options-box"></div>
       </div>
       <div class="result-view" id="quiz-result">
-        <div class="result-score" id="res-score">100 / 100</div>
+        <div class="result-score" id="res-score">100점</div>
         <div class="result-comment" id="res-comment">최고예요! 완벽합니다.</div>
         <button class="result-btn" onclick="startQuiz()">다시 도전하기</button>
       </div>
@@ -234,7 +248,7 @@
   </div>
 
   <script>
-    // Raw JSON injected via template backend execution rules
+    // Injected Data Pool (중복제거 및 불순물 정제 완료 상태)
     const rawWords = [
       {word:"audience",phonetic:"[ˈɔːdiəns]",meaning:"청중",pos:"n"},
       {word:"improve",phonetic:"[ɪmˈpruːv]",meaning:"향상시키다",pos:"v"},
@@ -261,7 +275,7 @@
       {word:"expense",phonetic:"[ɪkˈspens]",meaning:"비용",pos:"n"},
       {word:"comfort",phonetic:"[ˈkʌmfət]",meaning:"편안함",pos:"n"},
       {word:"average",phonetic:"[ˈævərɪdʒ]",meaning:"평균의",pos:"a"},
-      {word:"therefore",phonetic:"[ˈðeəfɔː]",meaning:"그러므로",ad:"ad"},
+      {word:"therefore",phonetic:"[ˈðeəfɔː]",meaning:"그러므로",pos:"ad"},
       {word:"stress",phonetic:"[stres]",meaning:"스트레스",pos:"n"},
       {word:"local",phonetic:"[ˈləʊkl]",meaning:"지역의",pos:"a"},
       {word:"ride",phonetic:"[raɪd]",meaning:"타다",pos:"v"},
@@ -273,7 +287,7 @@
       {word:"available",phonetic:"[əˈveɪləbl]",meaning:"이용 가능한",pos:"a"},
       {word:"object",phonetic:"[ˈɒbdʒɪkt]",meaning:"물건",pos:"n"},
       {word:"international",phonetic:"[ˌɪntəˈnæʃnəl]",meaning:"국제적인",pos:"a"},
-      {word:"ability",phonetic:"[ˈability]",meaning:"능력",pos:"n"},
+      {word:"ability",phonetic:"[ˈæbɪləti]",meaning:"능력",pos:"n"},
       {word:"encourage",phonetic:"[txt]",meaning:"격려하다",pos:"v"},
       {word:"contain",phonetic:"[kənˈteɪn]",meaning:"포함하다",pos:"v"},
       {word:"benefit",phonetic:"[ˈbenɪfɪt]",meaning:"이익",pos:"n"},
@@ -285,1973 +299,30 @@
       {word:"reduce",phonetic:"[rɪˈdjuːs]",meaning:"줄이다",pos:"v"},
       {word:"performance",phonetic:"[pəˈfɔːməns]",meaning:"공연",pos:"n"},
       {word:"decide",phonetic:"[dɪˈsaɪd]",meaning:"결정하다",pos:"v"},
-      {word:"level",phonetic:"[ˈlevl]",meaning:"수준",pos:"n"},
-      {word:"immediate",phonetic:"[ɪˈmiːdiət]",meaning:"즉각적인",pos:"a"},
-      {word:"demand",phonetic:"[dɪˈmɑːnd]",meaning:"요구하다",pos:"v"},
-      {word:"emotion",phonetic:"[ɪˈməʊʃn]",meaning:"감정",pos:"n"},
-      {word:"chemistry",phonetic:"[ˈkemɪstri]",meaning:"화학",pos:"n"},
-      {word:"essence",phonetic:"[ˈesns]",meaning:"본질",pos:"n"},
-      {word:"economic",phonetic:"[ˌiːkəˈnɒmɪk]",meaning:"경제의",pos:"a"},
-      {word:"issue",phonetic:"[ˈɪʃuː]",meaning:"주제",pos:"n"},
-      {word:"focus",phonetic:"[ˈfəʊkəs]",meaning:"집중하다",pos:"v"},
-      {word:"discover",phonetic:"[dɪˈskʌvə]",meaning:"발견하다",pos:"v"},
-      {word:"cell",phonetic:"[sel]",meaning:"세포",pos:"n"},
-      {word:"disappear",phonetic:"[ˌdɪsəˈpɪə]",meaning:"사라지다",pos:"v"},
-      {word:"career",phonetic:"[kəˈrɪə]",meaning:"경력",pos:"n"},
-      {word:"define",phonetic:"[define]",meaning:"정의하다",pos:"v"},
-      {word:"despite",phonetic:"[dɪˈspaɪt]",meaning:"~에도 불구하고",pos:"prep"},
-      {word:"aware",phonetic:"[əˈweə]",meaning:"알고 있는",pos:"a"},
-      {word:"contact",phonetic:"[ˈkɒntækt]",meaning:"접촉",pos:"n"},
-      {word:"fashion",phonetic:"[ˈfæʃn]",meaning:"유행",pos:"n"},
-      {word:"generate",phonetic:"[ˈdʒenəreɪt]",meaning:"만들어 내다",pos:"v"},
-      {word:"eventually",phonetic:"[ɪˈventʃuəli]",meaning:"결국",pos:"ad"},
-      {word:"complex",phonetic:"[ˈkɒmpleks]",meaning:"복잡한",pos:"a"},
-      {word:"background",phonetic:"[ˈbækɡraʊnd]",meaning:"배경",pos:"n"},
-      {word:"secure",phonetic:"[sɪˈkjʊə]",meaning:"안전한",pos:"a"},
-      {word:"package",phonetic:"[ˈpækɪdʒ]",meaning:"소포",pos:"n"},
-      {word:"approach",phonetic:"[əˈprəʊtʃ]",meaning:"접근하다",pos:"v"},
-      {word:"solution",phonetic:"[səˈluːʃn]",meaning:"해결책",pos:"n"},
-      {word:"occur",phonetic:"[əˈkɜː]",meaning:"발생하다",pos:"v"},
-      {word:"novel",phonetic:"[ˈnɒvl]",meaning:"소설",pos:"n"},
-      {word:"detail",phonetic:"[ˈdiːteɪl]",meaning:"세부 사항",pos:"n"},
-      {word:"profession",phonetic:"[prəˈfeʃn]",meaning:"직업",pos:"n"},
-      {word:"proud",phonetic:"[praʊd]",meaning:"자랑스러운",pos:"a"},
-      {word:"balance",phonetic:"[ˈbæləns]",meaning:"균형",pos:"n"},
-      {word:"birth",phonetic:"[bɜːθ]",meaning:"탄생",pos:"n"},
-      {word:"negative",phonetic:"[ˈneɡətɪv]",meaning:"부정적인",pos:"a"},
-      {word:"expert",phonetic:"[ˈekspɜːt]",meaning:"전문가",pos:"n"},
-      {word:"account",phonetic:"[əˈkaʊnt]",meaning:"설명",pos:"n"},
-      {word:"decrease",phonetic:"[dɪˈkriːs]",meaning:"감소하다",pos:"v"},
-      {word:"replace",phonetic:"[rɪˈreplace]",meaning:"대체하다",pos:"v"},
-      {word:"relieve",phonetic:"[rɪˈliːv]",meaning:"완화시키다",pos:"v"},
-      {word:"publish",phonetic:"[ˈpʌblɪʃ]",meaning:"출판하다",pos:"v"},
-      {word:"describe",phonetic:"[dɪˈskraɪb]",meaning:"묘사하다",pos:"v"},
-      {word:"due",phonetic:"[djuː]",meaning:"~ 때문에",pos:"a"},
-      {word:"congratulate",phonetic:"[kənˈɡrætʃuleɪt]",meaning:"축하하다",pos:"v"},
-      {word:"term",phonetic:"[tɜːm]",meaning:"용어",pos:"n"},
-      {word:"biology",phonetic:"[baɪˈɒlədʒi]",meaning:"생물학",pos:"n"},
-      {word:"equipment",phonetic:"[ɪˈkwɪpmənt]",meaning:"장비",pos:"n"},
-      {word:"recycle",phonetic:"[ˌriːˈsaɪkl]",meaning:"재활용하다",pos:"v"},
-      {word:"constant",phonetic:"[ˈkɒnstənt]",meaning:"끊임없는",pos:"a"},
-      {word:"desire",phonetic:"[dɪˈzaɪə]",meaning:"욕구",pos:"n"},
-      {word:"occasion",phonetic:"[əˈkeɪʒn]",meaning:"경우",pos:"n"},
-      {word:"follow",phonetic:"[ˈfɒləʊ]",meaning:"따르다",pos:"v"},
-      {word:"reflect",phonetic:"[rɪˈflekt]",meaning:"반사하다",pos:"v"},
-      {word:"exchange",phonetic:"[iksˈtʃeɪndʒ]",meaning:"교환하다",pos:"v"},
-      {word:"active",phonetic:"[ˈæktɪv]",meaning:"활동적인",pos:"a"},
-      {word:"dental",phonetic:"[ˈdentl]",meaning:"치과의",pos:"a"},
-      {word:"genius",phonetic:"[ˈdʒiːniəs]",meaning:"천재",pos:"n"},
-      {word:"frequent",phonetic:"[ˈfriːkwənt]",meaning:"빈번한",pos:"a"},
-      {word:"species",phonetic:"[ˈspiːʃiːz]",meaning:"종",pos:"n"},
-      {word:"compose",phonetic:"[kəmˈpəʊz]",meaning:"구성하다",pos:"v"},
-      {word:"politics",phonetic:"[ˈpɒlətɪks]",meaning:"정치",pos:"n"},
-      {word:"insist",phonetic:"[ɪnˈsɪst]",meaning:"주장하다",pos:"v"},
-      {word:"cause",phonetic:"[kɔːz]",meaning:"원인",pos:"n"},
-      {word:"athletic",phonetic:"[æθˈletɪk]",meaning:"운동의",pos:"a"},
-      {word:"habitat",phonetic:"[ˈhæbɪtæt]",meaning:"서식지",pos:"n"},
-      {word:"factor",phonetic:"[ˈfæktə]",meaning:"요인",pos:"n"},
-      {word:"steady",phonetic:"[ˈstedi]",meaning:"꾸준한",pos:"a"},
-      {word:"tend",phonetic:"[tend]",meaning:"~하는 경향이 있다",pos:"v"},
-      {word:"extreme",phonetic:"[ɪkˈstriːm]",meaning:"극단적인",pos:"a"},
-      {word:"mental",phonetic:"[ˈmentl]",meaning:"정신의",pos:"a"},
-      {word:"lonely",phonetic:"[ˈləʊnli]",meaning:"외로운",pos:"a"},
-      {word:"extend",phonetic:"[ɪkˈstend]",meaning:"연장하다",pos:"v"},
-      {word:"delight",phonetic:"[dɪˈlaɪt]",meaning:"기쁨",pos:"n"},
-      {word:"permit",phonetic:"[pəˈmɪt]",meaning:"허락하다",pos:"v"},
-      {word:"access",phonetic:"[ˈækses]",meaning:"접근",pos:"n"},
-      {word:"injure",phonetic:"[ˈɪndʒə]",meaning:"부상을 입히다",pos:"v"},
-      {word:"shadow",phonetic:"[ˈʃædəʊ]",meaning:"그림자",pos:"n"},
-      {word:"confident",phonetic:"[ˈkɒnfɪdənt]",meaning:"자신감 있는",pos:"a"},
-      {word:"firm",phonetic:"[fɜːm]",meaning:"회사",pos:"n"},
-      {word:"vary",phonetic:"[ˈveəri]",meaning:"다르다",pos:"v"},
-      {word:"lack",phonetic:"[læk]",meaning:"부족",pos:"n"},
-      {word:"disabled",phonetic:"[dɪsˈeɪbld]",meaning:"장애가 있는",pos:"a"},
-      {word:"threat",phonetic:"[θret]",meaning:"위협",pos:"n"},
-      {word:"response",phonetic:"[rɪˈspɒns]",meaning:"반응",pos:"n"},
-      {word:"electricity",phonetic:"[ɪˌlekˈtrɪsəti]",meaning:"전기",pos:"n"},
-      {word:"emphasize",phonetic:"[ˈemfəsaɪz]",meaning:"강조하다",pos:"v"},
-      {word:"announce",phonetic:"[əˈnaʊns]",meaning:"발표하다",pos:"v"},
-      {word:"allow",phonetic:"[əˈlaʊ]",meaning:"허락하다",pos:"v"},
-      {word:"signify",phonetic:"[ˈsɪɡnɪfaɪ]",meaning:"의미하다",pos:"v"},
-      {word:"concentrate",phonetic:"[ˈkɒnsntreɪt]",meaning:"집중하다",pos:"v"},
-      {word:"gradually",phonetic:"[ˈɡrædʒuəli]",meaning:"점차",pos:"ad"},
-      {word:"astronomy",phonetic:"[əˈstrɒnəmi]",meaning:"천문학",pos:"n"},
-      {word:"flood",phonetic:"[flʌd]",meaning:"홍수",pos:"n"},
-      {word:"victim",phonetic:"[ˈvɪktɪm]",meaning:"희생자",pos:"n"},
-      {word:"increase",phonetic:"[ɪnˈkriːs]",meaning:"증가하다",pos:"v"},
-      {word:"commerce",phonetic:"[ˈkɒmɜːs]",meaning:"상업",pos:"n"},
-      {word:"construct",phonetic:"[kənˈstrʌkt]",meaning:"건설하다",pos:"v"},
-      {word:"gene",phonetic:"[dʒiːn]",meaning:"유전자",pos:"n"},
-      {word:"movement",phonetic:"[ˈmuːvmənt]",meaning:"운동",pos:"n"},
-      {word:"fuel",phonetic:"[ˈfjuːəl]",meaning:"연료",pos:"n"},
-      {word:"pressure",phonetic:"[ˈpreʃə]",meaning:"압력",pos:"n"},
-      {word:"combine",phonetic:"[kəmˈbaɪn]",meaning:"결합하다",pos:"v"},
-      {word:"capable",phonetic:"[ˈkeɪpəbl]",meaning:"~할 능력이 있는",pos:"a"},
-      {word:"apologize",phonetic:"[əˈpɒlədʒaɪz]",meaning:"사과하다",pos:"v"},
-      {word:"dwindle",phonetic:"[ˈdwɪndl]",meaning:"줄어들다",pos:"v"},
-      {word:"predict",phonetic:"[dɪˈdrɪkt]",meaning:"예측하다",pos:"v"},
-      {word:"accompany",phonetic:"[əˈkʌmpəni]",meaning:"동반하다",pos:"v"},
-      {word:"frustrate",phonetic:"[frʌˈstreɪt]",meaning:"좌절시키다",pos:"v"},
-      {word:"entertain",phonetic:"[ˌentəˈteɪn]",meaning:"즐겁게 하다",pos:"v"},
-      {word:"sight",phonetic:"[saɪt]",meaning:"시력",pos:"n"},
-      {word:"manufacture",phonetic:"[ˌmænjuˈfæktʃə]",meaning:"제조하다",pos:"v"},
-      {word:"quantity",phonetic:"[ˈkwɒntəti]",meaning:"양",pos:"n"},
-      {word:"attempt",phonetic:"[əˈtempt]",meaning:"시도하다",pos:"v"},
-      {word:"resident",phonetic:"[ˈrezɪdənt]",meaning:"주민",pos:"n"},
-      {word:"assume",phonetic:"[əˈsjuːm]",meaning:"가정하다",pos:"v"},
-      {word:"feature",phonetic:"[ˈfiːtʃə]",meaning:"특징",pos:"n"},
-      {word:"instruction",phonetic:"[ɪnˈstrʌkʃn]",meaning:"지시",pos:"n"},
-      {word:"analyze",phonetic:"[ˈænəlaɪz]",meaning:"분석하다",pos:"v"},
-      {word:"confuse",phonetic:"[kənˈfjuːz]",meaning:"혼란스럽게 하다",pos:"v"},
-      {word:"electronic",phonetic:"[ˌelekˈtrɒnɪk]",meaning:"전자의",pos:"a"},
-      {word:"enable",phonetic:"[ɪˈneɪbl]",meaning:"가능하게 하다",pos:"v"},
-      {word:"stock",phonetic:"[stɒk]",meaning:"재고",pos:"n"},
-      {word:"personality",phonetic:"[ˌpɜːsəˈnæləti]",meaning:"성격",pos:"n"},
-      {word:"struggle",phonetic:"[ˈstruggle]",meaning:"투쟁하다",pos:"v"},
-      {word:"absorb",phonetic:"[əbˈzɔːb]",meaning:"흡수하다",pos:"v"},
-      {word:"donate",phonetic:"[dəʊˈneɪt]",meaning:"기부하다",pos:"v"},
-      {word:"indicate",phonetic:"[ˈɪndɪkeɪt]",meaning:"나타내다",pos:"v"},
-      {word:"variety",phonetic:"[vəˈraɪəti]",meaning:"다양성",pos:"n"},
-      {word:"advantage",phonetic:"[ədˈvɑːntɪdʒ]",meaning:"이점",pos:"n"},
-      {word:"incredible",phonetic:"[ɪnˈkredəbl]",meaning:"믿을 수 없는",pos:"a"},
-      {word:"conclude",phonetic:"[kənˈkluːd]",meaning:"결론을 내리다",pos:"v"},
-      {word:"labor",phonetic:"[ˈleɪbə]",meaning:"노동",pos:"n"},
-      {word:"heal",phonetic:"[hiːl]",meaning:"치유하다",pos:"v"},
-      {word:"interrupt",phonetic:"[ˌɪntəˈrʌpt]",meaning:"방해하다",pos:"v"},
-      {word:"criticize",phonetic:"[ˈkrɪtɪsaɪz]",meaning:"비판하다",pos:"v"},
-      {word:"claim",phonetic:"[kleɪm]",meaning:"주장하다",pos:"v"},
-      {word:"revolution",phonetic:"[ˌrevəˈluːʃn]",meaning:"혁명",pos:"n"},
-      {word:"moral",phonetic:"[ˈmɒrəl]",meaning:"도덕적인",pos:"a"},
-      {word:"creature",phonetic:"[ˈkriːtʃə]",meaning:"생명체",pos:"n"},
-      {word:"remark",phonetic:"[rɪˈmɑːk]",meaning:"발언",pos:"n"},
-      {word:"convince",phonetic:"[kənˈvɪns]",meaning:"확신시키다",pos:"v"},
-      {word:"tide",phonetic:"[taɪd]",meaning:"조수",pos:"n"},
-      {word:"discount",phonetic:"[ˈdɪskaʊnt]",meaning:"할인",pos:"n"},
-      {word:"efficient",phonetic:"[ɪˈfɪʃnt]",meaning:"효율적인",pos:"a"},
-      {word:"establish",phonetic:"[ɪˈstæblɪʃ]",meaning:"설립하다",pos:"v"},
-      {word:"stranger",phonetic:"[ˈstreɪndʒə]",meaning:"낯선 사람",pos:"n"},
-      {word:"assist",phonetic:"[əˈsɪst]",meaning:"돕다",pos:"v"},
-      {word:"reasonable",phonetic:"[ˈriːznəbl]",meaning:"합리적인",pos:"a"},
-      {word:"disaster",phonetic:"[dɪˈzɑːstə]",meaning:"재앙",pos:"n"},
-      {word:"terrific",phonetic:"[təˈrɪfɪk]",meaning:"훌륭한",pos:"a"},
-      {word:"obtain",phonetic:"[əbˈteɪn]",meaning:"얻다",pos:"v"},
-      {word:"embarrassed",phonetic:"[ɪmˈbærəst]",meaning:"당황한",pos:"a"},
-      {word:"clue",phonetic:"[kluː]",meaning:"단서",pos:"n"},
-      {word:"react",phonetic:"[riˈækt]",meaning:"반응하다",pos:"v"},
-      {word:"alarm",phonetic:"[əˈlɑːm]",meaning:"경보",pos:"n"},
-      {word:"engage",phonetic:"[ɪnˈɡeɪdʒ]",meaning:"종사하다",pos:"v"},
-      {word:"recall",phonetic:"[rɪˈcɔːl]",meaning:"기억해 내다",pos:"v"},
-      {word:"specific",phonetic:"[spəˈsɪfɪk]",meaning:"구체적인",pos:"a"},
-      {word:"deserve",phonetic:"[dɪˈzɜːv]",meaning:"~할 가치가 있다",pos:"v"},
-      {word:"violent",phonetic:"[ˈvaɪələnt]",meaning:"폭력적인",pos:"a"},
-      {word:"consider",phonetic:"[kənˈsɪdə]",meaning:"고려하다",pos:"v"},
-      {word:"treatment",phonetic:"[ˈtriːtmənt]",meaning:"치료",pos:"n"},
-      {word:"motivate",phonetic:"[ˈməʊtɪveɪt]",meaning:"동기를 부여하다",pos:"v"},
-      {word:"risk",phonetic:"[rɪsk]",meaning:"위험",pos:"n"},
-      {word:"fascinate",phonetic:"[ˈfæsɪneɪt]",meaning:"매료시키다",pos:"v"},
-      {word:"elder",phonetic:"[ˈeldə]",meaning:"나이가 더 많은",pos:"a"},
-      {word:"cancer",phonetic:"[ˈkænsə]",meaning:"암",pos:"n"},
-      {word:"depress",phonetic:"[dɪˈpres]",meaning:"우울하게 하다",pos:"v"},
-      {word:"qualify",phonetic:"[ˈkwɒlɪfaɪ]",meaning:"자격을 얻다",pos:"v"},
-      {word:"edge",phonetic:"[edʒ]",meaning:"가장자리",pos:"n"},
-      {word:"independent",phonetic:"[ˌɪndɪˈpendənt]",meaning:"독립적인",pos:"a"},
-      {word:"theory",phonetic:"[ˈθɪəri]",meaning:"이론",pos:"n"},
-      {word:"acquire",phonetic:"[əˈkwaɪə]",meaning:"획득하다",pos:"v"},
-      {word:"conscience",phonetic:"[ˈkɒnʃəns]",meaning:"양심",pos:"n"},
-      {word:"passion",phonetic:"[ˈpæʃn]",meaning:"열정",pos:"n"},
-      {word:"grain",phonetic:"[ɡreɪn]",meaning:"곡물",pos:"n"},
-      {word:"route",phonetic:"[ruːt]",meaning:"경로",pos:"n"},
-      {word:"severe",phonetic:"[sɪˈvɪə]",meaning:"심각한",pos:"a"},
-      {word:"interact",phonetic:"[ˌɪntərˈækt]",meaning:"상호작용하다",pos:"v"},
-      {word:"purchase",phonetic:"[ˈpɜːtʃəs]",meaning:"구매하다",pos:"v"},
-      {word:"observe",phonetic:"[əbˈzɜːv]",meaning:"관찰하다",pos:"v"},
-      {word:"meaningful",phonetic:"[ˈmiːnɪŋfl]",meaning:"의미 있는",pos:"a"},
-      {word:"decade",phonetic:"[ˈdekeɪd]",meaning:"10년",pos:"n"},
-      {word:"occupy",phonetic:"[ˈɒkjupaɪ]",meaning:"차지하다",pos:"v"},
-      {word:"psychology",phonetic:"[saɪˈkɒlədʒi]",meaning:"심리학",pos:"n"},
-      {word:"pose",phonetic:"[pəʊz]",meaning:"자세를 취하다",pos:"v"},
-      {word:"salary",phonetic:"[ˈsæləri]",meaning:"급여",pos:"n"},
-      {word:"brief",phonetic:"[briːf]",meaning:"짧은",pos:"a"},
-      {word:"import",phonetic:"[ˈɪmpɔːt]",meaning:"수입하다",pos:"v"},
-      {word:"weed",phonetic:"[wiːd]",meaning:"잡초",pos:"n"},
-      {word:"length",phonetic:"[leŋθ]",meaning:"길이",pos:"n"},
-      {word:"exhausted",phonetic:"[ɪɡˈzɔːstɪd]",meaning:"지친",pos:"a"},
-      {word:"typical",phonetic:"[ˈtɪpɪkl]",meaning:"전형적인",pos:"a"},
-      {word:"crime",phonetic:"[kraɪm]",meaning:"범죄",pos:"n"},
-      {word:"finance",phonetic:"[ˈfaɪnæns]",meaning:"재정",pos:"n"},
-      {word:"operation",phonetic:"[ˌɒpəˈreɪʃn]",meaning:"운영",pos:"n"},
-      {word:"rural",phonetic:"[ˈrʊərəl]",meaning:"시골의",pos:"a"},
-      {word:"approve",phonetic:"[əˈpruːv]",meaning:"승인하다",pos:"v"},
-      {word:"mere",phonetic:"[mɪə]",meaning:"단지 ~에 불과한",pos:"a"},
-      {word:"display",phonetic:"[dɪˈspleɪ]",meaning:"전시하다",pos:"v"},
-      {word:"seek",phonetic:"[siːk]",meaning:"찾다",pos:"v"},
-      {word:"mood",phonetic:"[muːd]",meaning:"기분",pos:"n"},
-      {word:"survival",phonetic:"[səˈvaɪvl]",meaning:"생존",pos:"n"},
-      {word:"leap",phonetic:"[liːp]",meaning:"뛰다",pos:"v"},
-      {word:"survey",phonetic:"[ˈsɜːveɪ]",meaning:"조사",pos:"n"},
-      {word:"surround",phonetic:"[səˈraʊnd]",meaning:"둘러싸다",pos:"v"},
-      {word:"series",phonetic:"[ˈsɪəriːz]",meaning:"연속",pos:"n"},
-      {word:"comment",phonetic:"[ˈkɒment]",meaning:"논평",pos:"n"},
-      {word:"awful",phonetic:"[ˈɔːfl]",meaning:"끔찍한",pos:"a"},
-      {word:"mechanic",phonetic:"[mɪˈkænɪk]",meaning:"정비사",pos:"n"},
-      {word:"absolute",phonetic:"[ˈæbsəluːt]",meaning:"절대적인",pos:"a"},
-      {word:"recover",phonetic:"[rɪˈkʌvə]",meaning:"회복하다",pos:"v"},
-      {word:"refer",phonetic:"[rɪˈfɜː]",meaning:"참조하다",pos:"v"},
-      {word:"committee",phonetic:"[kəˈmɪti]",meaning:"위원회",pos:"n"},
-      {word:"attach",phonetic:"[əˈtætʃ]",meaning:"첨부하다",pos:"v"},
-      {word:"wealth",phonetic:"[welθ]",meaning:"부",pos:"n"},
-      {word:"policy",phonetic:"[ˈpɒləsi]",meaning:"정책",pos:"n"},
-      {word:"plain",phonetic:"[pleɪn]",meaning:"명백한",pos:"a"},
-      {word:"arrange",phonetic:"[əˈreɪndʒ]",meaning:"배열하다",pos:"v"},
-      {word:"downtown",phonetic:"[ˌdaʊnˈtaʊn]",meaning:"시내의",pos:"a"},
-      {word:"reward",phonetic:"[rɪˈwɔːd]",meaning:"보상",pos:"n"},
-      {word:"journey",phonetic:"[ˈdʒɜːni]",meaning:"여정",pos:"n"},
-      {word:"mass",phonetic:"[mæs]",meaning:"덩어리",pos:"n"},
-      {word:"domestic",phonetic:"[dəˈmestɪk]",meaning:"국내의",pos:"a"},
-      {word:"enormous",phonetic:"[ɪˈnɔːməs]",meaning:"거대한",pos:"a"},
-      {word:"facility",phonetic:"[fəˈsɪləti]",meaning:"시설",pos:"n"},
-      {word:"accurate",phonetic:"[ˈækjərət]",meaning:"정확한",pos:"a"},
-      {word:"elementary",phonetic:"[ˌelɪˈmentri]",meaning:"초등의",pos:"a"},
-      {word:"gap",phonetic:"[ɡæp]",meaning:"격차",pos:"n"},
-      {word:"consult",phonetic:"[kənˈsʌlt]",meaning:"상담하다",pos:"v"},
-      {word:"except",phonetic:"[ɪkˈsept]",meaning:"~을 제외하고",pos:"prep"},
-      {word:"reveal",phonetic:"[rɪˈviːl]",meaning:"드러내다",pos:"v"},
-      {word:"produce",phonetic:"[prəˈdjuːs]",meaning:"생산하다",pos:"v"},
-      {word:"slight",phonetic:"[slaɪt]",meaning:"약간의",pos:"a"},
-      {word:"ethic",phonetic:"[ˈeθɪk]",meaning:"윤리",pos:"n"},
-      {word:"file",phonetic:"[faɪl]",meaning:"파일",pos:"n"},
-      {word:"admit",phonetic:"[ədˈmɪt]",meaning:"인정하다",pos:"v"},
-      {word:"device",phonetic:"[dɪˈvaɪs]",meaning:"장치",pos:"n"},
-      {word:"witness",phonetic:"[ˈwɪtnəs]",meaning:"목격자",pos:"n"},
-      {word:"breed",phonetic:"[briːd]",meaning:"번식하다",pos:"v"},
-      {word:"owe",phonetic:"[əʊ]",meaning:"빚지다",pos:"v"},
-      {word:"leisure",phonetic:"[ˈleɪʒə]",meaning:"여가",pos:"n"},
-      {word:"delay",phonetic:"[dɪˈleɪ]",meaning:"연기하다",pos:"v"},
-      {word:"previous",phonetic:"[ˈpriːviəs]",meaning:"이전의",pos:"a"},
-      {word:"remain",phonetic:"[rɪˈmeɪn]",meaning:"남아 있다",pos:"v"},
-      {word:"instant",phonetic:"[ˈɪnstənt]",meaning:"즉각적인",pos:"a"},
-      {word:"suppose",phonetic:"[səˈpəʊz]",meaning:"가정하다",pos:"v"},
-      {word:"urban",phonetic:"[ˈɜːbən]",meaning:"도시의",pos:"a"},
-      {word:"break",phonetic:"[breɪk]",meaning:"깨뜨리다",pos:"v"},
-      {word:"include",phonetic:"[ɪnˈkluːd]",meaning:"포함하다",pos:"v"},
-      {word:"muscle",phonetic:"[ˈmʌsl]",meaning:"근육",pos:"n"},
-      {word:"decorate",phonetic:"[ˈdekəreɪt]",meaning:"장식하다",pos:"v"},
-      {word:"label",phonetic:"[ˈleɪbl]",meaning:"라벨을 붙이다",pos:"v"},
-      {word:"horizon",phonetic:"[həˈraɪzn]",meaning:"지평선",pos:"n"},
-      {word:"slip",phonetic:"[slip]",meaning:"미끄러지다",pos:"v"},
-      {word:"spot",phonetic:"[spɒt]",meaning:"장소",pos:"n"},
-      {word:"unique",phonetic:"[juˈniːk]",meaning:"독특한",pos:"a"},
-      {word:"award",phonetic:"[əˈwɔːd]",meaning:"상",pos:"n"},
-      {word:"preserve",phonetic:"[prɪˈzɜːv]",meaning:"보존하다",pos:"v"},
-      {word:"target",phonetic:"[ˈtɑːɡɪt]",meaning:"목표",pos:"n"},
-      {word:"aspect",phonetic:"[ˈæspekt]",meaning:"측면",pos:"n"},
-      {word:"adopt",phonetic:"[əˈdɒpt]",meaning:"채택하다",pos:"v"},
-      {word:"unless",phonetic:"[ənˈles]",meaning:"~하지 않으면",pos:"conj"},
-      {word:"civilization",phonetic:"[ˌsɪvəlaɪˈzeɪʃn]",meaning:"문명",pos:"n"},
-      {word:"potential",phonetic:"[pəˈtenʃl]",meaning:"잠재적인",pos:"a"},
-      {word:"intend",phonetic:"[ɪnˈtend]",meaning:"의도하다",pos:"v"},
-      {word:"consequence",phonetic:"[ˈɒnsɪkwəns]",meaning:"결과",pos:"n"},
-      {word:"row",phonetic:"[rəʊ]",meaning:"열",pos:"n"},
-      {word:"underground",phonetic:"[ˌʌndəˈɡraʊnd]",meaning:"지하의",pos:"a"},
-      {word:"accomplish",phonetic:"[əˈkʌmplɪʃ]",meaning:"성취하다",pos:"v"},
-      {word:"scale",phonetic:"[skeɪl]",meaning:"규모",pos:"n"},
-      {word:"addict",phonetic:"[ˈædɪkt]",meaning:"중독자",pos:"n"},
-      {word:"secretary",phonetic:"[ˈsekrətəri]",meaning:"비서",pos:"n"},
-      {word:"possess",phonetic:"[pəˈzes]",meaning:"소유하다",pos:"v"},
-      {word:"memorize",phonetic:"[ˈmeməraɪz]",meaning:"암기하다",pos:"v"},
-      {word:"evident",phonetic:"[ˈevɪdənt]",meaning:"명백한",pos:"a"},
-      {word:"basis",phonetic:"[ˈbeɪsɪs]",meaning:"기초",pos:"n"},
-      {word:"disappoint",phonetic:"[ˌdɪsəˈpɔɪnt]",meaning:"실망시키다",pos:"v"},
-      {word:"realistic",phonetic:"[ˌriːəˈlɪstɪk]",meaning:"현실적인",pos:"a"},
-      {word:"substance",phonetic:"[ˈsʌbstəns]",meaning:"물질",pos:"n"},
-      {word:"region",phonetic:"[ˈriːdʒən]",meaning:"지역",pos:"n"},
-      {word:"identify",phonetic:"[aɪˈdentɪfaɪ]",meaning:"확인하다",pos:"v"},
-      {word:"principle",phonetic:"[ˈprɪnsəpl]",meaning:"원리",pos:"n"},
-      {word:"seldom",phonetic:"[ˈseldəm]",meaning:"좀처럼 ~않는",pos:"ad"},
-      {word:"automatic",phonetic:"[ˌɔːtəˈmætɪk]",meaning:"자동의",pos:"a"},
-      {word:"rise",phonetic:"[raɪz]",meaning:"오르다",pos:"v"},
-      {word:"artificial",phonetic:"[ˌɑːtɪˈfɪʃl]",meaning:"인공적인",pos:"a"},
-      {word:"differ",phonetic:"[ˈdɪfə]",meaning:"다르다",pos:"v"},
-      {word:"standard",phonetic:"[ˈstændəd]",meaning:"기준",pos:"n"},
-      {word:"encounter",phonetic:"[ɪnˈkʊntə]",meaning:"마주치다",pos:"v"},
-      {word:"request",phonetic:"[rɪˈkwest]",meaning:"요청하다",pos:"v"},
-      {word:"tremendous",phonetic:"[trəˈmendəs]",meaning:"엄청난",pos:"a"},
-      {word:"impact",phonetic:"[ˈɪmpækt]",meaning:"영향",pos:"n"},
-      {word:"guarantee",phonetic:"[ˌɡærənˈtiː]",meaning:"보장하다",pos:"v"},
-      {word:"permanent",phonetic:"[ˈpɜːmənənt]",meaning:"영구적인",pos:"a"},
-      {word:"cooperate",phonetic:"[kəuˈɒpəreɪt]",meaning:"협력하다",pos:"v"},
-      {word:"spread",phonetic:"[spred]",meaning:"퍼지다",pos:"v"},
-      {word:"vote",phonetic:"[vəʊt]",meaning:"투표하다",pos:"v"},
-      {word:"stink",phonetic:"[stɪŋk]",meaning:"악취가 나다",pos:"v"},
-      {word:"theme",phonetic:"[θiːm]",meaning:"주제",pos:"n"},
-      {word:"evaluate",phonetic:"[ɪˈvæljueɪt]",meaning:"평가하다",pos:"v"},
-      {word:"rid",phonetic:"[rɪd]",meaning:"제거하다",pos:"v"},
-      {word:"resist",phonetic:"[rɪˈzɪst]",meaning:"저항하다",pos:"v"},
-      {word:"emit",phonetic:"[ɪˈmɪt]",meaning:"방출하다",pos:"v"},
-      {word:"fulfill",phonetic:"[fʊlˈfɪl]",meaning:"이행하다",pos:"v"},
-      {word:"grant",phonetic:"[ɡrɑːnt]",meaning:"승인하다",pos:"v"},
-      {word:"physics",phonetic:"[ˈfɪzɪks]",meaning:"물리학",pos:"n"},
-      {word:"rely",phonetic:"[rɪˈlaɪ]",meaning:"의지하다",pos:"v"},
-      {word:"emergency",phonetic:"[iˈmɜːdʒənsi]",meaning:"비상 사태",pos:"n"},
-      {word:"application",phonetic:"[ˌæplɪˈkeɪʃn]",meaning:"지원",pos:"n"},
-      {word:"circumstance",phonetic:"[ˈsɜːkəmstəns]",meaning:"상황",pos:"n"},
-      {word:"annoy",phonetic:"[əˈnɔɪ]",meaning:"짜증나게 하다",pos:"v"},
-      {word:"organism",phonetic:"[ˈɔːɡənɪzəm]",meaning:"유기체",pos:"n"},
-      {word:"estimate",phonetic:"[ˈestɪmeɪt]",meaning:"추정하다",pos:"v"},
-      {word:"frighten",phonetic:"[ˈfraɪtn]",meaning:"겁나게 하다",pos:"v"},
-      {word:"refuse",phonetic:"[rɪˈfjuː]",meaning:"거절하다",pos:"v"},
-      {word:"persuade",phonetic:"[pəˈsweɪd]",meaning:"설득하다",pos:"v"},
-      {word:"entrance",phonetic:"[ˈentrəns]",meaning:"입구",pos:"n"},
-      {word:"suitable",phonetic:"[ˈsuːtəbl]",meaning:"적합한",pos:"a"},
-      {word:"location",phonetic:"[ləʊˈkeɪʃn]",meaning:"위치",pos:"n"},
-      {word:"resolve",phonetic:"[rɪˈzɒlv]",meaning:"해결하다",pos:"v"},
-      {word:"restrict",phonetic:"[rɪˈstrɪkt]",meaning:"제한하다",pos:"v"},
-      {word:"offer",phonetic:"[ˈɒfə]",meaning:"제공하다",pos:"v"},
-      {word:"rainforest",phonetic:"[ˈreɪnfɒrɪst]",meaning:"열대우림",pos:"n"},
-      {word:"perceive",phonetic:"[pəˈsiːv]",meaning:"인지하다",pos:"v"},
-      {word:"distribute",phonetic:"[dɪˈstrɪbjuːt]",meaning:"배포하다",pos:"v"},
-      {word:"adventure",phonetic:"[ədˈventʃə]",meaning:"모험",pos:"n"},
-      {word:"curve",phonetic:"[kɜːv]",meaning:"곡선",pos:"n"},
-      {word:"interpret",phonetic:"[ɪnˈtɜːprɪt]",meaning:"해석하다",pos:"v"},
-      {word:"hesitate",phonetic:"[ˈhezɪteɪt]",meaning:"망설이다",pos:"v"},
-      {word:"ray",phonetic:"[reɪ]",meaning:"광선",pos:"n"},
-      {word:"rank",phonetic:"[ræŋk]",meaning:"지위",pos:"n"},
-      {word:"identical",phonetic:"[aɪˈdentɪkl]",meaning:"동일한",pos:"a"},
-      {word:"investment",phonetic:"[ɪnˈvestmənt]",meaning:"투자",pos:"n"},
-      {word:"retire",phonetic:"[rɪˈtaɪ]",meaning:"은퇴하다",pos:"v"},
-      {word:"gather",phonetic:"[ˈɡæðə]",meaning:"모으다",pos:"v"},
-      {word:"appeal",phonetic:"[əˈpiːl]",meaning:"호소하다",pos:"v"},
-      {word:"cabin",phonetic:"[ˈkæbɪn]",meaning:"오두막",pos:"n"},
-      {word:"authority",phonetic:"[ɔːˈθɒrəti]",meaning:"권위",pos:"n"},
-      {word:"harm",phonetic:"[hɑːm]",meaning:"해를 끼치다",pos:"v"},
-      {word:"alternative",phonetic:"[ɔːlˈtɜːnətɪv]",meaning:"대안",pos:"n"},
-      {word:"envy",phonetic:"[ˈenvi]",meaning:"부러워하다",pos:"v"},
-      {word:"corporate",phonetic:"[ˈkɔːpərət]",meaning:"기업의",pos:"a"},
-      {word:"symphony",phonetic:"[ˈsɪmfəni]",meaning:"교향곡",pos:"n"},
-      {word:"recite",phonetic:"[rɪˈsaɪ]",meaning:"암송하다",pos:"v"},
-      {word:"slave",phonetic:"[sleɪv]",meaning:"노예",pos:"n"},
-      {word:"gear",phonetic:"[ɡɪə]",meaning:"장비",pos:"n"},
-      {word:"release",phonetic:"[rɪˈliːs]",meaning:"출시하다",pos:"v"},
-      {word:"autograph",phonetic:"[ˈɔːtəɡrɑːf]",meaning:"서명",pos:"n"},
-      {word:"innocence",phonetic:"[ˈɪnəsns]",meaning:"무죄",pos:"n"},
-      {word:"broad",phonetic:"[brɔːd]",meaning:"넓은",pos:"a"},
-      {word:"continue",phonetic:"[kənˈtɪnjuː]",meaning:"계속하다",pos:"v"},
-      {word:"rescue",phonetic:"[ˈreskjuː]",meaning:"구조하다",pos:"v"},
-      {word:"household",phonetic:"[ˈhaʊshəʊld]",meaning:"가정",pos:"n"},
-      {word:"ashamed",phonetic:"[əˈʃeɪmd]",meaning:"부끄러워하는",pos:"a"},
-      {word:"infant",phonetic:"[ˈɪnfənt]",meaning:"유아",pos:"n"},
-      {word:"extinct",phonetic:"[ɪkˈstɪŋkt]",meaning:"멸종된",pos:"a"},
-      {word:"treat",phonetic:"[triːt]",meaning:"다루다",pos:"v"},
-      {word:"dense",phonetic:"[dens]",meaning:"조밀한",pos:"a"},
-      {word:"whereas",phonetic:"[ˌweərˈæz]",meaning:"~한 반면에",pos:"conj"},
-      {word:"pure",phonetic:"[pjʊə]",meaning:"순수한",pos:"a"},
-      {word:"refund",phonetic:"[ˈriːfʌnd]",meaning:"환불",pos:"n"},
-      {word:"charity",phonetic:"[ˈtʃærəti]",meaning:"자선",pos:"n"},
-      {word:"calculate",phonetic:"[ˈkælkjuleɪt]",meaning:"계산하다",pos:"v"},
-      {word:"depend",phonetic:"[dɪˈpend]",meaning:"의존하다",pos:"v"},
-      {word:"ignorant",phonetic:"[ˈɪɡnərənt]",meaning:"무지한",pos:"a"},
-      {word:"receive",phonetic:"[rɪˈsiːv]",meaning:"받다",pos:"v"},
-      {word:"accept",phonetic:"[əkˈsept]",meaning:"받아들이다",pos:"v"},
-      {word:"institute",phonetic:"[ˈɪnstɪtjuːt]",meaning:"기관",pos:"n"},
-      {word:"lately",phonetic:"[ˈleɪtli]",meaning:"최근에",pos:"ad"},
-      {word:"expand",phonetic:"[ɪkˈspænd]",meaning:"확장하다",pos:"v"},
-      {word:"status",phonetic:"[ˈsteɪtəs]",meaning:"지위",pos:"n"},
-      {word:"genuine",phonetic:"[ˈdʒenjuɪn]",meaning:"진짜의",pos:"a"},
-      {word:"gravity",phonetic:"[ˈɡrævəti]",meaning:"중력",pos:"n"},
-      {word:"evolution",phonetic:"[ˌiːvəˈluːʃn]",meaning:"진화",pos:"n"},
-      {word:"commit",phonetic:"[kəˈmɪt]",meaning:"저지르다",pos:"v"},
-      {word:"concept",phonetic:"[ˈkɒncept]",meaning:"개념",pos:"n"},
-      {word:"tone",phonetic:"[təʊn]",meaning:"어조",pos:"n"},
-      {word:"isolate",phonetic:"[ˈaɪsəleɪt]",meaning:"고립시키다",pos:"v"},
-      {word:"compete",phonetic:"[compeet]",meaning:"경쟁하다",pos:"v"},
-      {word:"sensible",phonetic:"[ˈsensəbl]",meaning:"분별 있는",pos:"a"},
-      {word:"destination",phonetic:"[ˌdestɪˈneɪʃn]",meaning:"목적지",pos:"n"},
-      {word:"reproduce",phonetic:"[ˌriːprəˈdjuːs]",meaning:"복제하다",pos:"v"},
-      {word:"military",phonetic:"[ˈmɪlətri]",meaning:"군사의",pos:"a"},
-      {word:"logic",phonetic:"[ˈlɒdʒɪk]",meaning:"논리",pos:"n"},
-      {word:"sum",phonetic:"[sʌm]",meaning:"합계",pos:"n"},
-      {word:"swing",phonetic:"[swɪŋ]",meaning:"흔들리다",pos:"v"},
-      {word:"conserve",phonetic:"[kənˈsɜːv]",meaning:"보존하다",pos:"v"},
-      {word:"marriage",phonetic:"[ˈmærɪdʒ]",meaning:"결혼",pos:"n"},
-      {word:"hire",phonetic:"[ˈhaɪə]",meaning:"고용하다",pos:"v"},
-      {word:"invitation",phonetic:"[ˌɪnvɪˈteɪʃn]",meaning:"초대",pos:"n"},
-      {word:"descend",phonetic:"[dɪˈsend]",meaning:"내려가다",pos:"v"},
-      {word:"current",phonetic:"[ˈkʌrənt]",meaning:"현재의",pos:"a"},
-      {word:"component",phonetic:"[kəmˈpəʊnənt]",meaning:"구성 요소",pos:"n"},
-      {word:"precise",phonetic:"[prɪˈsaɪs]",meaning:"정확한",pos:"a"},
-      {word:"apparent",phonetic:"[əˈpærənt]",meaning:"명백한",pos:"a"},
-      {word:"poverty",phonetic:"[ˈpɒvəti]",meaning:"가난",pos:"n"},
-      {word:"sculpture",phonetic:"[ˈskʌlptʃə]",meaning:"조각품",pos:"n"},
-      {word:"trend",phonetic:"[trend]",meaning:"경향",pos:"n"},
-      {word:"leak",phonetic:"[liːk]",meaning:"새다",pos:"v"},
-      {word:"formal",phonetic:"[ˈfɔːml]",meaning:"공식적인",pos:"a"},
-      {word:"return",phonetic:"[rɪˈtɜːn]",meaning:"돌아가다",pos:"v"},
-      {word:"rite",phonetic:"[raɪt]",meaning:"의식",pos:"n"},
-      {word:"portion",phonetic:"[ˈpɔːʃn]",meaning:"부분",pos:"n"},
-      {word:"agriculture",phonetic:"[ˈæɡrɪkʌltʃə]",meaning:"농업",pos:"n"},
-      {word:"particle",phonetic:"[ˈpɑːtɪkl]",meaning:"입자",pos:"n"},
-      {word:"distinct",phonetic:"[dɪˈstɪŋkt]",meaning:"뚜렷한",pos:"a"},
-      {word:"departure",phonetic:"[dɪˈpɑːtʃə]",meaning:"출발",pos:"n"},
-      {word:"visual",phonetic:"[ˈvɪʒuəl]",meaning:"시각적인",pos:"a"},
-      {word:"cancel",phonetic:"[ˈkænsl]",meaning:"취소하다",pos:"v"},
-      {word:"surface",phonetic:"[ˈsɜːfɪs]",meaning:"표면",pos:"n"},
-      {word:"aim",phonetic:"[eɪm]",meaning:"목표",pos:"n"},
-      {word:"democracy",phonetic:"[dɪˈmɒkrəsi]",meaning:"민주주의",pos:"n"},
-      {word:"desperate",phonetic:"[ˈdespərət]",meaning:"필사적인",pos:"a"},
-      {word:"spare",phonetic:"[speə]",meaning:"여분의",pos:"a"},
-      {word:"companion",phonetic:"[kəmˈpæniən]",meaning:"동반자",pos:"n"},
-      {word:"awake",phonetic:"[əˈweɪk]",meaning:"깨어 있는",pos:"a"},
-      {word:"transfer",phonetic:"[trænsˈfɜː]",meaning:"이동하다",pos:"v"},
-      {word:"brilliant",phonetic:"[ˈbrɪliənt]",meaning:"훌륭한",pos:"a"},
-      {word:"remote",phonetic:"[rɪˈməʊt]",meaning:"도착하기 힘든",pos:"a"},
-      {word:"oppose",phonetic:"[əˈpəʊz]",meaning:"반대하다",pos:"v"},
-      {word:"eager",phonetic:"[ˈiːɡə]",meaning:"열망하는",pos:"a"},
-      {word:"legal",phonetic:"[ˈliːɡl]",meaning:"법적인",pos:"a"},
-      {word:"annual",phonetic:"[ˈænjuəl]",meaning:"매년의",pos:"a"},
-      {word:"faith",phonetic:"[feɪθ]",meaning:"신념",pos:"n"},
-      {word:"trap",phonetic:"[træp]",meaning:"함정",pos:"n"},
-      {word:"mature",phonetic:"[məˈtʃʊə]",meaning:"성숙한",pos:"a"},
-      {word:"universal",phonetic:"[ˌjuːnɪˈvɜːsl]",meaning:"보편적인",pos:"a"},
-      {word:"offend",phonetic:"[əˈfend]",meaning:"화나게 하다",pos:"v"},
-      {word:"demonstrate",phonetic:"[ˈdemənstreɪt]",meaning:"증명하다",pos:"v"},
-      {word:"vigor",phonetic:"[ˈvɪɡə]",meaning:"활력",pos:"n"},
-      {word:"arrive",phonetic:"[əˈaɪv]",meaning:"도착하다",pos:"v"},
-      {word:"minor",phonetic:"[ˈmaɪnə]",meaning:"소수의",pos:"a"},
-      {word:"shortage",phonetic:"[ˈʃɔːtɪdʒ]",meaning:"부족",pos:"n"},
-      {word:"organize",phonetic:"[ˈɔːɡənaɪz]",meaning:"조직하다",pos:"v"},
-      {word:"chief",phonetic:"[tʃiːf]",meaning:"최고의",pos:"a"},
-      {word:"pause",phonetic:"[pɔːz]",meaning:"멈추다",pos:"v"},
-      {word:"insight",phonetic:"[ˈɪnsaɪt]",meaning:"통찰력",pos:"n"},
-      {word:"duty",phonetic:"[ˈdjuːti]",meaning:"의무",pos:"n"},
-      {word:"option",phonetic:"[ˈɒpʃn]",meaning:"선택",pos:"n"},
-      {word:"transform",phonetic:"[trænsˈfɔːm]",meaning:"변형시키다",pos:"v"},
-      {word:"complicated",phonetic:"[ˈkɒmplɪkeɪtɪd]",meaning:"복잡한",pos:"a"},
-      {word:"generous",phonetic:"[ˈdʒenərəs]",meaning:"관대한",pos:"a"},
-      {word:"lecture",phonetic:"[ˈlektʃə]",meaning:"강의",pos:"n"},
-      {word:"laboratory",phonetic:"[ˈlæbrətɔːri]",meaning:"실험실",pos:"n"},
-      {word:"achieve",phonetic:"[əˈtʃiːv]",meaning:"성취하다",pos:"v"},
-      {word:"digest",phonetic:"[daɪˈdʒest]",meaning:"소화하다",pos:"v"},
-      {word:"prove",phonetic:"[pruːv]",meaning:"증명하다",pos:"v"},
-      {word:"civil",phonetic:"[ˈsɪvl]",meaning:"시민의",pos:"a"},
-      {word:"laundry",phonetic:"[ˈlɔːndri]",meaning:"세탁물",pos:"n"},
-      {word:"worship",phonetic:"[ˈwɜːʃɪp]",meaning:"예배하다",pos:"v"},
-      {word:"scarce",phonetic:"[skeəs]",meaning:"부족한",pos:"a"},
-      {word:"royal",phonetic:"[ˈrɔɪəl]",meaning:"왕실의",pos:"a"},
-      {word:"insure",phonetic:"[ɪnˈʃʊə]",meaning:"보장하다",pos:"v"},
-      {word:"surgery",phonetic:"[ˈsɜːdʒəri]",meaning:"수술",pos:"n"},
-      {word:"thrive",phonetic:"[θraɪv]",meaning:"번창하다",pos:"v"},
-      {word:"evil",phonetic:"[ˈiːvl]",meaning:"사악한",pos:"a"},
-      {word:"bet",phonetic:"[bet]",meaning:"돈을 걸다",pos:"v"},
-      {word:"assign",phonetic:"[əˈsaɪn]",meaning:"할당하다",pos:"v"},
-      {word:"client",phonetic:"[ˈklaɪənt]",meaning:"의뢰인",pos:"n"},
-      {word:"regulate",phonetic:"[ˈreɡjuleɪt]",meaning:"규제하다",pos:"v"},
-      {word:"ultimate",phonetic:"[ˈʌltɪmət]",meaning:"궁극적인",pos:"a"},
-      {word:"conversation",phonetic:"[ˌkɒnvəˈseɪʃn]",meaning:"대화",pos:"n"},
-      {word:"shelf",phonetic:"[ʃelf]",meaning:"선반",pos:"n"},
-      {word:"fancy",phonetic:"[ˈfænsi]",meaning:"화려한",pos:"a"},
-      {word:"ruin",phonetic:"[ˈruːɪn]",meaning:"파괴하다",pos:"v"},
-      {word:"afterward",phonetic:"[ˈɑːftəwəd]",meaning:"나중에",pos:"ad"},
-      {word:"utility",phonetic:"[juːˈtɪləti]",meaning:"유용성",pos:"n"},
-      {word:"discipline",phonetic:"[ˈdɪsəplɪn]",meaning:"규율",pos:"n"},
-      {word:"forbid",phonetic:"[fəˈbɪd]",meaning:"금지하다",pos:"v"},
-      {word:"prey",phonetic:"[preɪ]",meaning:"먹이",pos:"n"},
-      {word:"illustrate",phonetic:"[ˈɪləstreɪt]",meaning:"설명하다",pos:"v"},
-      {word:"abstract",phonetic:"[ˈæbstrækt]",meaning:"추상적인",pos:"a"},
-      {word:"prior",phonetic:"[ˈpraɪə]",meaning:"이전의",pos:"a"},
-      {word:"contemporary",phonetic:"[kənˈtemprəri]",meaning:"동시대의",pos:"a"},
-      {word:"necessity",phonetic:"[nəˈsesəti]",meaning:"필수품",pos:"n"},
-      {word:"coincidence",phonetic:"[kəʊˈɪnsɪdəns]",meaning:"우연의 일치",pos:"n"},
-      {word:"measure",phonetic:"[ˈmeʒə]",meaning:"측정하다",pos:"v"},
-      {word:"bless",phonetic:"[bles]",meaning:"축복하다",pos:"v"},
-      {word:"decline",phonetic:"[dɪˈclaɪn]",meaning:"감소하다",pos:"v"},
-      {word:"cottage",phonetic:"[ˈkɒtɪdʒ]",meaning:"오두막",pos:"n"},
-      {word:"tolerate",phonetic:"[ˈtɒləreɪt]",meaning:"용인하다",pos:"v"},
-      {word:"correct",phonetic:"[kəˈrekt]",meaning:"옳은",pos:"a"},
-      {word:"fuse",phonetic:"[fjuːz]",meaning:"융합되다",pos:"v"},
-      {word:"explain",phonetic:"[ɪkˈspleɪ]",meaning:"설명하다",pos:"v"},
-      {word:"defeat",phonetic:"[dɪˈfiːt]",meaning:"패배시키다",pos:"v"},
-      {word:"confirm",phonetic:"[kənˈfɜːm]",meaning:"확인하다",pos:"v"},
-      {word:"aside",phonetic:"[əˈsaɪd]",meaning:"옆에",pos:"ad"},
-      {word:"imitate",phonetic:"[ˈɪmɪteɪt]",meaning:"모방하다",pos:"v"},
-      {word:"yield",phonetic:"[jiːld]",meaning:"생산하다",pos:"v"},
-      {word:"execute",phonetic:"[ˈeksɪkjuːt]",meaning:"수행하다",pos:"v"},
-      {word:"propose",phonetic:"[prəˈpəʊz]",meaning:"제안하다",pos:"v"},
-      {word:"resort",phonetic:"[rɪˈzɔːt]",meaning:"의지하다",pos:"v"},
-      {word:"wreck",phonetic:"[rek]",meaning:"파괴하다",pos:"v"},
-      {word:"literally",phonetic:"[ˈlɪtərəli]",meaning:"말 그대로",pos:"ad"},
-      {word:"scholarship",phonetic:"[ˈskɒləʃɪp]",meaning:"장학금",pos:"n"},
-      {word:"tempt",phonetic:"[tempt]",meaning:"유혹하다",pos:"v"},
-      {word:"pupil",phonetic:"[ˈpjuːpl]",meaning:"학생",pos:"n"},
-      {word:"intellect",phonetic:"[ˈɪntəlekt]",meaning:"지성",pos:"n"},
-      {word:"inspire",phonetic:"[ɪnˈspaɪə]",meaning:"영감을 주다",pos:"v"},
-      {word:"suspect",phonetic:"[səˈspekt]",meaning:"의심하다",pos:"v"},
-      {word:"alien",phonetic:"[ˈeɪliən]",meaning:"외국의",pos:"a"},
-      {word:"prohibit",phonetic:"[prəˈhɪbɪt]",meaning:"금지하다",pos:"v"},
-      {word:"appropriate",phonetic:"[əˈprəʊpriət]",meaning:"적절한",pos:"a"},
-      {word:"install",phonetic:"[ɪnˈstɔːl]",meaning:"설치하다",pos:"v"},
-      {word:"spice",phonetic:"[spaɪs]",meaning:"양념",pos:"n"},
-      {word:"grab",phonetic:"[ɡræb]",meaning:"잡다",pos:"v"},
-      {word:"triumph",phonetic:"[ˈtraɪʌmf]",meaning:"승리",pos:"n"},
-      {word:"document",phonetic:"[ˈdɒkjumənt]",meaning:"문서",pos:"n"},
-      {word:"dine",phonetic:"[daɪn]",meaning:"식사하다",pos:"v"},
-      {word:"modest",phonetic:"[ˈmɒdɪst]",meaning:"겸손한",pos:"a"},
-      {word:"receipt",phonetic:"[rɪˈsiːt]",meaning:"영수증",pos:"n"},
-      {word:"address",phonetic:"[əˈdres]",meaning:"주소",pos:"n"},
-      {word:"inhabit",phonetic:"[ɪnˈhæbɪt]",meaning:"거주하다",pos:"v"},
-      {word:"conquer",phonetic:"[ˈkɒŋkə]",meaning:"정복하다",pos:"v"},
-      {word:"split",phonetic:"[splɪt]",meaning:"나누다",pos:"v"},
-      {word:"ensure",phonetic:"[ɪnˈʃʊə]",meaning:"보장하다",pos:"v"},
-      {word:"inner",phonetic:"[ˈɪnə]",meaning:"내부의",pos:"a"},
-      {word:"earthquake",phonetic:"[ˈɜːθkweɪk]",meaning:"지진",pos:"n"},
-      {word:"defect",phonetic:"[ˈdiːfekt]",meaning:"결점",pos:"n"},
-      {word:"trait",phonetic:"[treɪt]",meaning:"특성",pos:"n"},
-      {word:"virtual",phonetic:"[ˈvɜːtʃuəl]",meaning:"사실상의",pos:"a"},
-      {word:"appear",phonetic:"[əˈpɪə]",meaning:"나타나다",pos:"v"},
-      {word:"debate",phonetic:"[dɪˈbeɪt]",meaning:"토론",pos:"n"},
-      {word:"commute",phonetic:"[kəˈmjuːt]",meaning:"통근하다",pos:"v"},
-      {word:"abandon",phonetic:"[əˈbændən]",meaning:"버리다",pos:"v"},
-      {word:"contrary",phonetic:"[ˈkɒntrəri]",meaning:"반대의",pos:"a"},
-      {word:"enroll",phonetic:"[ɪnˈrəʊl]",meaning:"등록하다",pos:"v"},
-      {word:"supervise",phonetic:"[ˈsuːpəvaɪz]",meaning:"감독하다",pos:"v"},
-      {word:"compare",phonetic:"[kəmˈpeə]",meaning:"비교하다",pos:"v"},
-      {word:"prejudice",phonetic:"[ˈpredʒʊdɪs]",meaning:"편견",pos:"n"},
-      {word:"harsh",phonetic:"[hɑːʃ]",meaning:"가혹한",pos:"a"},
-      {word:"retail",phonetic:"[ˈriːteɪl]",meaning:"소매",pos:"n"},
-      {word:"priest",phonetic:"[priːst]",meaning:"성직자",pos:"n"},
-      {word:"seal",phonetic:"[siːl]",meaning:"밀봉하다",pos:"v"},
-      {word:"nurture",phonetic:"[ˈnɜːtʃə]",meaning:"양육하다",pos:"v"},
-      {word:"extraordinary",phonetic:"[ɪkˈstrɔːdnri]",meaning:"비범한",pos:"a"},
-      {word:"criteria",phonetic:"[kraɪˈtɪəriə]",meaning:"기준",pos:"n"},
-      {word:"contract",phonetic:"[ˈkɒntrækt]",meaning:"계약",pos:"n"},
-      {word:"drought",phonetic:"[draʊt]",meaning:"가뭄",pos:"n"},
-      {word:"modify",phonetic:"[ˈmɒdɪfaɪ]",meaning:"수정하다",pos:"v"},
-      {word:"impose",phonetic:"[ɪmˈpəʊz]",meaning:"부과하다",pos:"v"},
-      {word:"arise",phonetic:"[əˈraɪz]",meaning:"발생하다",pos:"v"},
-      {word:"nutrition",phonetic:"[njuˈtrɪʃn]",meaning:"영양",pos:"n"},
-      {word:"elegant",phonetic:"[ˈelɪɡənt]",meaning:"우아한",pos:"a"},
-      {word:"greed",phonetic:"[ɡriːd]",meaning:"탐욕",pos:"n"},
-      {word:"masterpiece",phonetic:"[ˈmɑːstəpiːs]",meaning:"걸작",pos:"n"},
-      {word:"register",phonetic:"[ˈredʒɪstə]",meaning:"등록하다",pos:"v"},
-      {word:"agency",phonetic:"[ˈeɪdʒənsi]",meaning:"대리점",pos:"n"},
-      {word:"nevertheless",phonetic:"[ˌnevəðəˈles]",meaning:"그럼에도 불구하고",pos:"ad"},
-      {word:"spill",phonetic:"[spɪl]",meaning:"쏟다",pos:"v"},
-      {word:"routine",phonetic:"[ruːˈtiːn]",meaning:"일상적인 일",pos:"n"},
-      {word:"adolescent",phonetic:"[ˌædəˈlesnt]",meaning:"청소년",pos:"n"},
-      {word:"conscious",phonetic:"[ˈcough]",meaning:"의식하는",pos:"a"},
-      {word:"deprive",phonetic:"[dɪˈpraɪv]",meaning:"박탈하다",pos:"v"},
-      {word:"general",phonetic:"[ˈdʒenrəl]",meaning:"일반적인",pos:"a"},
-      {word:"temporary",phonetic:"[ˈtemprəri]",meaning:"일시적인",pos:"a"},
-      {word:"glare",phonetic:"[ɡleə]",meaning:"노려보다",pos:"v"},
-      {word:"sensitive",phonetic:"[ˈsensətɪv]",meaning:"민감한",pos:"a"},
-      {word:"council",phonetic:"[ˈkaʊnsl]",meaning:"의회",pos:"n"},
-      {word:"swallow",phonetic:"[ˈswɒləʊ]",meaning:"삼키다",pos:"v"},
-      {word:"interfere",phonetic:"[ˌɪntəˈfɪə]",meaning:"방해하다",pos:"v"},
-      {word:"tragic",phonetic:"[ˈtrædʒɪk]",meaning:"비극적인",pos:"a"},
-      {word:"deny",phonetic:"[dɪˈnaɪ]",meaning:"부인하다",pos:"v"},
-      {word:"capture",phonetic:"[ˈkæptʃə]",meaning:"포획하다",pos:"v"},
-      {word:"arctic",phonetic:"[ˈɑːktɪk]",meaning:"북극의",pos:"a"},
-      {word:"associate",phonetic:"[əˈsəʊʃieɪt]",meaning:"연관시키다",pos:"v"},
-      {word:"usual",phonetic:"[ˈjuːʒuəl]",meaning:"보통의",pos:"a"},
-      {word:"scream",phonetic:"[skriːm]",meaning:"비명을 지르다",pos:"v"},
-      {word:"dilute",phonetic:"[daɪˈluːt]",meaning:"희석하다",pos:"v"},
-      {word:"tribe",phonetic:"[traɪb]",meaning:"부족",pos:"n"},
-      {word:"irritate",phonetic:"[ˈɪrɪteɪt]",meaning:"짜증나게 하다",pos:"v"},
-      {word:"statement",phonetic:"[ˈsteyi]",meaning:"성명서",pos:"n"},
-      {word:"warehouse",phonetic:"[ˈweəhaʊs]",meaning:"창고",pos:"n"},
-      {word:"dim",phonetic:"[dɪm]",meaning:"어둑한",pos:"a"},
-      {word:"prevail",phonetic:"[prɪˈveɪl]",meaning:"만연하다",pos:"v"},
-      {word:"cruel",phonetic:"[ˈkruːəl]",meaning:"잔인한",pos:"a"},
-      {word:"errand",phonetic:"[ˈerənd]",meaning:"심부름",pos:"n"},
-      {word:"tradition",phonetic:"[trəˈdɪʃn]",meaning:"전통",pos:"n"},
-      {word:"pedestrian",phonetic:"[pəˈdestriən]",meaning:"보행자",pos:"n"},
-      {word:"barrier",phonetic:"[ˈbæriə]",meaning:"장벽",pos:"n"},
-      {word:"fold",phonetic:"[fəʊld]",meaning:"접다",pos:"v"},
-      {word:"trial",phonetic:"[ˈtraɪəl]",meaning:"재판",pos:"n"},
-      {word:"figure",phonetic:"[ˈfɪɡə]",meaning:"수치",pos:"n"},
-      {word:"profound",phonetic:"[prəˈfaʊnd]",meaning:"심오한",pos:"a"},
-      {word:"glance",phonetic:"[glɑːns]",meaning:"흘긋 보다",pos:"v"},
-      {word:"distinguish",phonetic:"[dɪˈstɪŋɡwɪʃ]",meaning:"구별하다",pos:"v"},
-      {word:"welfare",phonetic:"[ˈwelfeər]",meaning:"복지",pos:"n"},
-      {word:"crew",phonetic:"[kruː]",meaning:"승무원",pos:"n"},
-      {word:"widespread",phonetic:"[ˈwaɪdspred]",meaning:"광범위한",pos:"a"},
-      {word:"adjust",phonetic:"[əˈdʒʌst]",meaning:"조절하다",pos:"v"},
-      {word:"realize",phonetic:"[ˈriːəlaɪz]",meaning:"깨닫다",pos:"v"},
-      {word:"peer",phonetic:"[pɪər]",meaning:"또래",pos:"n"},
-      {word:"progress",phonetic:"[ˈprəʊɡres]",meaning:"진보",pos:"n"},
-      {word:"infection",phonetic:"[ɪnˈfekʃn]",meaning:"감염",pos:"n"},
-      {word:"stiffen",phonetic:"[ˈstɪfn]",meaning:"단단해지다",pos:"v"},
-      {word:"reinforcement",phonetic:"[ˌriːɪnˈfɔːsmənt]",meaning:"강화",pos:"n"},
-      {word:"wonder",phonetic:"[ˈwʌndə]",meaning:"궁금해하다",pos:"v"},
-      {word:"drastic",phonetic:"[ˈdræstɪk]",meaning:"과감한",pos:"a"},
-      {word:"result",phonetic:"[rɪˈzʌlt]",meaning:"결과",pos:"n"},
-      {word:"protect",phonetic:"[prəˈtekt]",meaning:"보호하다",pos:"v"},
-      {word:"weapon",phonetic:"[ˈwepən]",meaning:"무기",pos:"n"},
-      {word:"germ",phonetic:"[dʒɜːm]",meaning:"세균",pos:"n"},
-      {word:"atom",phonetic:"[ˈætəm]",meaning:"원자",pos:"n"},
-      {word:"fade",phonetic:"[feɪd]",meaning:"흐려지다",pos:"v"},
-      {word:"pile",phonetic:"[paɪl]",meaning:"더미",pos:"n"},
-      {word:"endanger",phonetic:"[ɪnˈdeɪndʒə]",meaning:"위험에 빠뜨리다",pos:"v"},
-      {word:"renew",phonetic:"[rɪˈnjuː]",meaning:"갱신하다",pos:"v"},
-      {word:"enrich",phonetic:"[ɪnˈrɪtʃ]",meaning:"풍요롭게 하다",pos:"v"},
-      {word:"noble",phonetic:"[ˈnəʊbl]",meaning:"고귀한",pos:"a"},
-      {word:"shift",phonetic:"[ʃɪft]",meaning:"바꾸다",pos:"v"},
-      {word:"fame",phonetic:"[fame]",meaning:"명성",pos:"n"},
-      {word:"furthermore",phonetic:"[ˌfɜːðəˈmɔː]",meaning:"게다가",pos:"ad"},
-      {word:"debt",phonetic:"[det]",meaning:"빚",pos:"n"},
-      {word:"wholesale",phonetic:"[ˈhəʊlseɪl]",meaning:"도매의",pos:"a"},
-      {word:"ideal",phonetic:"[aɪˈdiːəl]",meaning:"이상적인",pos:"a"},
-      {word:"repair",phonetic:"[rɪˈpeə]",meaning:"수리하다",pos:"v"},
-      {word:"candidate",phonetic:"[ˈkændɪdət]",meaning:"후보자",pos:"n"},
-      {word:"ethnic",phonetic:"[ˈeθnɪk]",meaning:"민족의",pos:"a"},
-      {word:"command",phonetic:"[kəˈmɑːnd]",meaning:"명령하다",pos:"v"},
-      {word:"excess",phonetic:"[ɪkˈses]",meaning:"과잉",pos:"n"},
-      {word:"appliance",phonetic:"[əˈplaɪəns]",meaning:"가전제품",pos:"n"},
-      {word:"drift",phonetic:"[drɪft]",meaning:"표류하다",pos:"v"},
-      {word:"ecosystem",phonetic:"[ˈiːkəʊsɪstəm]",meaning:"생태계",pos:"n"},
-      {word:"oral",phonetic:"[ˈɔːrəl]",meaning:"구두의",pos:"a"},
-      {word:"representative",phonetic:"[ˌreprɪˈzentətɪv]",meaning:"대표자",pos:"n"},
-      {word:"crop",phonetic:"[krɒp]",meaning:"농작물",pos:"n"},
-      {word:"foretell",phonetic:"[fɔːˈtel]",meaning:"예언하다",pos:"v"},
-      {word:"strict",phonetic:"[strict]",meaning:"엄격한",pos:"a"},
-      {word:"avoid",phonetic:"[əˈvɔɪ]",meaning:"피하다",pos:"v"},
-      {word:"mislead",phonetic:"[ˌmɪsˈliːd]",meaning:"오도하다",pos:"v"},
-      {word:"beard",phonetic:"[bɪəd]",meaning:"수염",pos:"n"},
-      {word:"outstanding",phonetic:"[aʊtˈstændɪŋ]",meaning:"뛰어난",pos:"a"},
-      {word:"crush",phonetic:"[crush]",meaning:"으깨다",pos:"v"},
-      {word:"dedicate",phonetic:"[ˈdedɪkeɪt]",meaning:"바치다",pos:"v"},
-      {word:"perspective",phonetic:"[pəˈspektɪv]",meaning:"관점",pos:"n"},
-      {word:"sink",phonetic:"[sɪŋk]",meaning:"가라앉다",pos:"v"},
-      {word:"hardship",phonetic:"[ˈhɑːdʃɪp]",meaning:"고난",pos:"n"},
-      {word:"escape",phonetic:"[ɪˈskeɪp]",meaning:"탈출하다",pos:"v"},
-      {word:"initial",phonetic:"[initial]",meaning:"처음의",pos:"a"},
-      {word:"valid",phonetic:"[ˈvælɪd]",meaning:"유효한",pos:"a"},
-      {word:"destiny",phonetic:"[ˈdestəni]",meaning:"운명",pos:"n"},
-      {word:"dispose",phonetic:"[dɪˈspəʊz]",meaning:"배치하다",pos:"v"},
-      {word:"entire",phonetic:"[ɪnˈtaɪə]",meaning:"전체의",pos:"a"},
-      {word:"hydrogen",phonetic:"[ˈhaɪdrədʒən]",meaning:"수소",pos:"n"},
-      {word:"exist",phonetic:"[ɪɡˈzɪst]",meaning:"존재하다",pos:"v"},
-      {word:"optimal",phonetic:"[ˈɒptɪməl]",meaning:"최적의",pos:"a"},
-      {word:"haste",phonetic:"[heɪst]",meaning:"서두름",pos:"n"},
-      {word:"confront",phonetic:"[kənˈfrʌnt]",meaning:"직면하다",pos:"v"},
-      {word:"raft",phonetic:"[rɑːft]",meaning:"뗏목",pos:"n"},
-      {word:"temper",phonetic:"[ˈtempə]",meaning:"성질",pos:"n"},
-      {word:"primary",phonetic:"[ˈpraɪməri]",meaning:"주요한",pos:"a"},
-      {word:"scatter",phonetic:"[ˈskætə]",meaning:"흩뿌리다",pos:"v"},
-      {word:"ceiling",phonetic:"[ˈsiːlɪŋ]",meaning:"천장",pos:"n"},
-      {word:"unify",phonetic:"[ˈjuːnɪfaɪ]",meaning:"통합하다",pos:"v"},
-      {word:"dynasty",phonetic:"[ˈdɪnəsti]",meaning:"왕조",pos:"n"},
-      {word:"craft",phonetic:"[krɑːft]",meaning:"공예",pos:"n"},
-      {word:"bump",phonetic:"[bʌmp]",meaning:"부딪치다",pos:"v"},
-      {word:"minimal",phonetic:"[ˈmɪnɪməl]",meaning:"최소의",pos:"a"},
-      {word:"doom",phonetic:"[duːm]",meaning:"비운",pos:"n"},
-      {word:"cease",phonetic:"[siːs]",meaning:"중단되다",pos:"v"},
-      {word:"review",phonetic:"[rɪˈvjuː]",meaning:"검토하다",pos:"v"},
-      {word:"gamble",phonetic:"[ˈɡæmbl]",meaning:"도박하다",pos:"v"},
-      {word:"genre",phonetic:"[ˈʒɒnrə]",meaning:"장르",pos:"n"},
-      {word:"thread",phonetic:"[θred]",meaning:"실",pos:"n"},
-      {word:"soak",phonetic:"[səʊk]",meaning:"담그다",pos:"v"},
-      {word:"erase",phonetic:"[ɪˈreɪs]",meaning:"지우다",pos:"v"},
-      {word:"undoubtedly",phonetic:"[ʌnˈdaʊtɪdli]",meaning:"의심할 여지없이",pos:"ad"},
-      {word:"antique",phonetic:"[ænˈtiːk]",meaning:"골동품의",pos:"a"},
-      {word:"glacier",phonetic:"[ˈɡlæsiə]",meaning:"빙하",pos:"a"},
-      {word:"celebrity",phonetic:"[səˈlebrəti]",meaning:"유명인사",pos:"n"},
-      {word:"ingredient",phonetic:"[ɪnˈɡriːdiənt]",meaning:"재료",pos:"n"},
-      {word:"myth",phonetic:"[mɪθ]",meaning:"신화",pos:"n"},
-      {word:"dismiss",phonetic:"[dɪsˈmɪs]",meaning:"해고하다",pos:"v"},
-      {word:"incident",phonetic:"[ˈɪnsɪdənt]",meaning:"사건",pos:"n"},
-      {word:"vital",phonetic:"[ˈvaɪtl]",meaning:"필수적인",pos:"a"},
-      {word:"obvious",phonetic:"[ˈɒbviəs]",meaning:"명백한",pos:"a"},
-      {word:"graze",phonetic:"[ɡreɪz]",meaning:"풀을 뜯다",pos:"v"},
-      {word:"moderate",phonetic:"[ˈmɒdərət]",meaning:"적당한",pos:"a"},
-      {word:"strain",phonetic:"[streɪn]",meaning:"긴장",pos:"n"},
-      {word:"fur",phonetic:"[fɜː]",meaning:"모피",pos:"n"},
-      {word:"indifferent",phonetic:"[ɪnˈdɪfrənt]",meaning:"무관심한",pos:"a"},
-      {word:"session",phonetic:"[ˈseʃn]",meaning:"기간",pos:"n"},
-      {word:"profit",phonetic:"[ˈprɒfɪt]",meaning:"이익",pos:"n"},
-      {word:"budget",phonetic:"[ˈbʌdʒɪt]",meaning:"예산",pos:"n"},
-      {word:"fragile",phonetic:"[ˈfrædʒaɪl]",meaning:"부서지기 쉬운",pos:"a"},
-      {word:"urge",phonetic:"[ɜːd]",meaning:"촉구하다",pos:"v"},
-      {word:"flow",phonetic:"[fləʊ]",meaning:"흐르다",pos:"v"},
-      {word:"vague",phonetic:"[veɪɡ]",meaning:"모호한",pos:"a"},
-      {word:"disgrace",phonetic:"[dɪsˈɡreɪs]",meaning:"망신",pos:"n"},
-      {word:"editorial",phonetic:"[ˌedɪˈtɔːriəl]",meaning:"사설",pos:"n"},
-      {word:"fierce",phonetic:"[fɪəs]",meaning:"사나운",pos:"a"},
-      {word:"obstacle",phonetic:"[ˈɒbstəkl]",meaning:"장애물",pos:"n"},
-      {word:"ancestor",phonetic:"[ˈænsestə]",meaning:"조상",pos:"n"},
-      {word:"sphere",phonetic:"[sfɪə]",meaning:"구체",pos:"n"},
-      {word:"barter",phonetic:"[ˈbɑːtə]",meaning:"물물교환하다",pos:"v"},
-      {word:"crawl",phonetic:"[krɔːl]",meaning:"기어가다",pos:"v"},
-      {word:"rough",phonetic:"[rʌf]",meaning:"거친",pos:"a"},
-      {word:"investigate",phonetic:"[ɪnˈvestɪɡeɪt]",meaning:"조사하다",pos:"v"},
-      {word:"scratch",phonetic:"[skrætʃ]",meaning:"긁다",pos:"v"},
-      {word:"diabetes",phonetic:"[ˌdaɪəˈbiːtiːz]",meaning:"당뇨병",pos:"n"},
-      {word:"content",phonetic:"[ˈkɒntent]",meaning:"내용물",pos:"n"},
-      {word:"circular",phonetic:"[ˈsɜːkjələ]",meaning:"원형의",pos:"a"},
-      {word:"inherit",phonetic:"[ɪnˈherɪt]",meaning:"상속받다",pos:"v"},
-      {word:"congestion",phonetic:"[kənˈdʒestʃən]",meaning:"혼잡",pos:"n"},
-      {word:"constitute",phonetic:"[ˈkɒnstɪtjuːt]",meaning:"구성하다",pos:"v"},
-      {word:"chilly",phonetic:"[ˈtʃɪli]",meaning:"쌀쌀한",pos:"a"},
-      {word:"translate",phonetic:"[trænzˈleɪt]",meaning:"번역하다",pos:"v"},
-      {word:"fertile",phonetic:"[ˈfɜːtaɪl]",meaning:"비옥한",pos:"a"},
-      {word:"fossil",phonetic:"[ˈfɒsl]",meaning:"화석",pos:"n"},
-      {word:"opponent",phonetic:"[əˈpəʊnənt]",meaning:"상대",pos:"n"},
-      {word:"backward",phonetic:"[ˈbækwəd]",meaning:"뒤쪽으로",pos:"ad"},
-      {word:"refresh",phonetic:"[rɪˈfreʃ]",meaning:"생기를 되찾게 하다",pos:"v"},
-      {word:"glitter",phonetic:"[ˈglɪtə]",meaning:"반짝이다",pos:"v"},
-      {word:"protein",phonetic:"[ˈprəʊtiːn]",meaning:"단백질",pos:"n"},
-      {word:"form",phonetic:"[fɔːm]",meaning:"형태",pos:"n"},
-      {word:"rehearsal",phonetic:"[rɪˈhɜːsl]",meaning:"리허설",pos:"n"},
-      {word:"carve",phonetic:"[kɑːv]",meaning:"조각하다",pos:"v"},
-      {word:"decay",phonetic:"[dɪˈkeɪ]",meaning:"부패하다",pos:"v"},
-      {word:"abolish",phonetic:"[əˈbɒlɪʃ]",meaning:"폐지하다",pos:"v"},
-      {word:"gender",phonetic:"[ˈdʒendə]",meaning:"성별",pos:"n"},
-      {word:"assure",phonetic:"[əˈʃʊə]",meaning:"보장하다",pos:"v"},
-      {word:"present",phonetic:"[ˈpreznt]",meaning:"현재의",pos:"a"},
-      {word:"emperor",phonetic:"[ˈempərə]",meaning:"황제",pos:"n"},
-      {word:"chore",phonetic:"[tʃɔː]",meaning:"집안일",pos:"n"},
-      {word:"dwell",phonetic:"[dwel]",meaning:"거주하다",pos:"v"},
-      {word:"innovation",phonetic:"[ˌɪnəˈcustom]",meaning:"혁신",pos:"n"},
-      {word:"strive",phonetic:"[straɪv]",meaning:"노력하다",pos:"v"},
-      {word:"layer",phonetic:"[ˈleɪə]",meaning:"층",pos:"n"},
-      {word:"administer",phonetic:"[ədˈmɪnɪstə]",meaning:"관리하다",pos:"v"},
-      {word:"pottery",phonetic:"[ˈpɒtəri]",meaning:"도자기",pos:"n"},
-      {word:"exclaim",phonetic:"[ɪkˈskleɪm]",meaning:"외치다",pos:"v"},
-      {word:"scan",phonetic:"[skæn]",meaning:"정밀 검사하다",pos:"v"},
-      {word:"radiant",phonetic:"[ˈreɪdiənt]",meaning:"빛나는",pos:"a"},
-      {word:"imprint",phonetic:"[ɪmˈprɪnt]",meaning:"찍다",pos:"v"},
-      {word:"wage",phonetic:"[weɪd]",meaning:"임금",pos:"n"},
-      {word:"flavor",phonetic:"[ˈfleɪvə]",meaning:"맛",pos:"n"},
-      {word:"justify",phonetic:"[ˈjʌstɪfaɪ]",meaning:"정당화하다",pos:"v"},
-      {word:"property",phonetic:"[ˈprɒpəti]",meaning:"재산",pos:"n"},
-      {word:"tissue",phonetic:"[ˈtɪʃuː]",meaning:"조직",pos:"n"},
-      {word:"heritage",phonetic:"[ˈherɪtɪdʒ]",meaning:"유산",pos:"n"},
-      {word:"lord",phonetic:"[lɔːd]",meaning:"군주",pos:"n"},
-      {word:"substitute",phonetic:"[ˈsʌbstɪtjuːt]",meaning:"대체하다",pos:"v"},
-      {word:"asset",phonetic:"[ˈæset]",meaning:"자산",pos:"n"},
-      {word:"portray",phonetic:"[pɔːˈtreɪ]",meaning:"묘사하다",pos:"v"},
-      {word:"polish",phonetic:"[ˈpɒlɪʃ]",meaning:"닦다",pos:"v"},
-      {word:"subscribe",phonetic:"[səbˈskraɪb]",meaning:"구독하다",pos:"v"},
-      {word:"transmit",phonetic:"[trænzˈmɪt]",meaning:"전송하다",pos:"v"},
-      {word:"overwhelm",phonetic:"[ˌəʊvəˈwelm]",meaning:"압도하다",pos:"v"},
-      {word:"apply",phonetic:"[əˈplaɪ]",meaning:"지원하다",pos:"v"},
-      {word:"orbit",phonetic:"[ˈɔːbɪt]",meaning:"궤도",pos:"n"},
-      {word:"vicious",phonetic:"[ˈvɪʃəs]",meaning:"잔인한",pos:"a"},
-      {word:"merit",phonetic:"[ˈmerɪt]",meaning:"장점",pos:"n"},
-      {word:"eternal",phonetic:"[ɪˈtɜːnl]",meaning:"영원한",pos:"a"},
-      {word:"launch",phonetic:"[lɔːntʃ]",meaning:"출시하다",pos:"v"},
-      {word:"reception",phonetic:"[rɪˈsepʃn]",meaning:"접수처",pos:"n"},
-      {word:"shrug",phonetic:"[ʃrʌɡ]",meaning:"으쓱하다",pos:"v"},
-      {word:"accuse",phonetic:"[əˈkjuː]",meaning:"고발하다",pos:"v"},
-      {word:"enhance",phonetic:"[ɪnˈhɑːns]",meaning:"향상시키다",pos:"v"},
-      {word:"intimate",phonetic:"[ˈintɪmət]",meaning:"친밀한",pos:"a"},
-      {word:"cherish",phonetic:"[ˈtʃerɪʃ]",meaning:"소중히 여기다",pos:"v"},
-      {word:"conference",phonetic:"[ˈkɒnfərəns]",meaning:"회의",pos:"n"},
-      {word:"majesty",phonetic:"[ˈmædʒəsti]",meaning:"위엄",pos:"n"},
-      {word:"colleague",phonetic:"[ˈkɒliːɡ]",meaning:"동료",pos:"n"},
-      {word:"discard",phonetic:"[dɪˈskɑːd]",meaning:"버리다",pos:"v"},
-      {word:"copper",phonetic:"[ˈkɒpə]",meaning:"구리",pos:"n"},
-      {word:"shrink",phonetic:"[ʃrɪŋk]",meaning:"줄어들다",pos:"v"},
-      {word:"redical",phonetic:"[ˈrædɪkl]",meaning:"근본적인",pos:"a"},
-      {word:"therapy",phonetic:"[ˈθerəpi]",meaning:"치료",pos:"n"},
-      {word:"reverse",phonetic:"[rɪˈvɜːs]",meaning:"뒤바꾸다",pos:"v"},
-      {word:"famine",phonetic:"[ˈfæmɪn]",meaning:"기근",pos:"n"},
-      {word:"string",phonetic:"[strɪŋ]",meaning:"줄",pos:"n"},
-      {word:"loan",phonetic:"[ləʊn]",meaning:"대출",pos:"n"},
-      {word:"immune",phonetic:"[ɪˈmjuːn]",meaning:"면역성이 있는",pos:"a"},
-      {word:"subtle",phonetic:"[ˈsʌtl]",meaning:"미묘한",pos:"a"},
-      {word:"caution",phonetic:"[ˈkɔːʃn]",meaning:"주의",pos:"n"},
-      {word:"superior",phonetic:"[suːˈpɪəriə]",meaning:"우수한",pos:"a"},
-      {word:"depict",phonetic:"[dɪˈpɪkt]",meaning:"묘사하다",pos:"v"},
-      {word:"persist",phonetic:"[pəˈsɪst]",meaning:"지속되다",pos:"v"},
-      {word:"angle",phonetic:"[ˈæŋɡl]",meaning:"각도",pos:"n"},
-      {word:"bond",phonetic:"[ɒnd]",meaning:"유대",pos:"n"},
-      {word:"obedient",phonetic:"[əˈbiːdiənt]",meaning:"순종적인",pos:"a"},
-      {word:"raw",phonetic:"[rɔː]",meaning:"날것의",pos:"a"},
-      {word:"procedure",phonetic:"[prəˈsiːdʒə]",meaning:"절차",pos:"n"},
-      {word:"cope",phonetic:"[kəʊp]",meaning:"대처하다",pos:"v"},
-      {word:"cattle",phonetic:"[ˈkætl]",meaning:"소",pos:"n"},
-      {word:"pill",phonetic:"[pɪl]",meaning:"알약",pos:"n"},
-      {word:"wilderness",phonetic:"[ˈwɪldənəs]",meaning:"황야",pos:"n"},
-      {word:"strategy",phonetic:"[ˈstrætədʒi]",meaning:"전략",pos:"n"},
-      {word:"outcome",phonetic:"[ˈaʊtkʌm]",meaning:"결과",pos:"n"},
-      {word:"prefer",phonetic:"[prɪˈfɜː]",meaning:"선호하다",pos:"v"},
-      {word:"humiliation",phonetic:"[hjuːˌmɪliˈeɪʃn]",meaning:"굴욕",pos:"n"},
-      {word:"flush",phonetic:"[flʌʃ]",meaning:"붉어지다",pos:"v"},
-      {word:"ban",phonetic:"[bæn]",meaning:"금지하다",pos:"v"},
-      {word:"territory",phonetic:"[ˈterətri]",meaning:"영토",pos:"n"},
-      {word:"experience",phonetic:"[ɪkˈspɪəriəns]",meaning:"경험",pos:"n"},
-      {word:"category",phonetic:"[ˈcat]",meaning:"범주",pos:"n"},
-      {word:"alert",phonetic:"[əˈlɜːt]",meaning:"경계하는",pos:"a"},
-      {word:"astonish",phonetic:"[əˈstɒnɪʃ]",meaning:"놀라게 하다",pos:"v"},
-      {word:"architecture",phonetic:"[ˈɑːkɪtektʃə]",meaning:"건축",pos:"n"},
-      {word:"despair",phonetic:"[dɪˈspeə]",meaning:"절망",pos:"n"},
-      {word:"compact",phonetic:"[kəmˈpækt]",meaning:"소형의",pos:"a"},
-      {word:"omit",phonetic:"[əˈmɪt]",meaning:"생략하다",pos:"v"},
-      {word:"likewise",phonetic:"[ˈlaɪkwaɪz]",meaning:"마찬가지로",pos:"ad"},
-      {word:"hence",phonetic:"[hens]",meaning:"그러므로",pos:"ad"},
-      {word:"attract",phonetic:"[əˈtrækt]",meaning:"끌어당기다",pos:"v"},
-      {word:"funeral",phonetic:"[ˈfjuːnərəl]",meaning:"장례식",pos:"n"},
-      {word:"passage",phonetic:"[ˈpæsɪdʒ]",meaning:"통로",pos:"n"},
-      {word:"vessel",phonetic:"[ˈvesl]",meaning:"선박",pos:"n"},
-      {word:"fundamental",phonetic:"[ˌfʌndəˈmentl]",meaning:"근본적인",pos:"a"},
-      {word:"inflate",phonetic:"[infl]",meaning:"부풀리다",pos:"v"},
-      {word:"graduate",phonetic:"[ˈɡrædʒueɪt]",meaning:"졸업하다",pos:"v"},
-      {word:"loyal",phonetic:"[ˈlɔɪəl]",meaning:"충실한",pos:"a"},
-      {word:"humid",phonetic:"[ˈhjuːmɪd]",meaning:"습한",pos:"a"},
-      {word:"physician",phonetic:"[fɪˈzɪʃn]",meaning:"의사",pos:"n"},
-      {word:"pretend",phonetic:"[prɪˈtend]",meaning:"~인 척하다",pos:"v"},
-      {word:"marble",phonetic:"[ˈmɑːbl]",meaning:"대리석",pos:"n"},
-      {word:"restore",phonetic:"[rɪˈstɔː]",meaning:"회복시키다",pos:"v"},
-      {word:"joint",phonetic:"[dʒɔɪnt]",meaning:"관절",pos:"n"},
-      {word:"adequate",phonetic:"[ˈædɪkwət]",meaning:"적절한",pos:"a"},
-      {word:"panic",phonetic:"[ˈpænɪk]",meaning:"공황",pos:"n"},
-      {word:"optimistic",phonetic:"[ˌɒptɪˈmɪstɪk]",meaning:"낙관적인",pos:"a"},
-      {word:"murder",phonetic:"[ˈmɜːdə]",meaning:"살인",pos:"n"},
-      {word:"delicate",phonetic:"[ˈdelɪkət]",meaning:"섬세한",pos:"a"},
-      {word:"via",phonetic:"[ˈvaɪə]",meaning:"~을 거쳐",pos:"prep"},
-      {word:"classify",phonetic:"[ˈklæsɪfaɪ]",meaning:"분류하다",pos:"v"},
-      {word:"passive",phonetic:"[ˈpæsɪv]",meaning:"수동적인",pos:"a"},
-      {word:"prepare",phonetic:"[prɪˈpeə]",meaning:"준비하다",pos:"v"},
-      {word:"transaction",phonetic:"[trænˈzækʃn]",meaning:"거래",pos:"n"},
-      {word:"sufficient",phonetic:"[səˈfɪʃnt]",meaning:"충분한",pos:"a"},
-      {word:"stable",phonetic:"[ˈsteɪbl]",meaning:"안정된",pos:"a"},
-      {word:"concern",phonetic:"[kənˈsɜːn]",meaning:"우려",pos:"n"},
-      {word:"sympathy",phonetic:"[ˈsɪmpəθi]",meaning:"동정심",pos:"n"},
-      {word:"principal",phonetic:"[ˈprɪnsəpl]",meaning:"교장",pos:"n"},
-      {word:"by-product",phonetic:"[ˈbaɪˌprɒdʌkt]",meaning:"부산물",pos:"n"},
-      {word:"anxiety",phonetic:"[æŋˈzaɪəti]",meaning:"불안",pos:"n"},
-      {word:"edible",phonetic:"[ˈedəbl]",meaning:"먹을 수 있는",pos:"a"},
-      {word:"federal",phonetic:"[ˈfedərəl]",meaning:"연방의",pos:"a"},
-      {word:"suffer",phonetic:"[ˈsʌfə]",meaning:"고통받다",pos:"v"},
-      {word:"trivial",phonetic:"[ˈtrɪviəl]",meaning:"사소한",pos:"a"},
-      {word:"tablet",phonetic:"[ˈtæblət]",meaning:"정제",pos:"n"},
-      {word:"trade",phonetic:"[treɪd]",meaning:"무역",pos:"n"},
-      {word:"liquid",phonetic:"[ˈlɪkwɪd]",meaning:"액체",pos:"n"},
-      {word:"contend",phonetic:"[kənˈtend]",meaning:"주장하다",pos:"v"},
-      {word:"anticipate",phonetic:"[ænˈtɪsɪpeɪt]",meaning:"예상하다",pos:"v"},
-      {word:"outlook",phonetic:"[ˈaʊtlʊk]",meaning:"전망",pos:"n"},
-      {word:"desert",phonetic:"[ˈdezət]",meaning:"사막",pos:"n"},
-      {word:"infinite",phonetic:"[ˈɪnfɪnət]",meaning:"무한한",pos:"a"},
-      {word:"roam",phonetic:"[rəʊm]",meaning:"배회하다",pos:"v"},
-      {word:"decent",phonetic:"[ˈdiːsnt]",meaning:"제대로 된",pos:"a"},
-      {word:"behalf",phonetic:"[bɪˈhɑːf]",meaning:"이익",pos:"n"},
-      {word:"distortion",phonetic:"[dɪˈstɔːʃn]",meaning:"왜곡",pos:"n"},
-      {word:"bud",phonetic:"[bʌd]",meaning:"싹",pos:"n"},
-      {word:"symbolic",phonetic:"[sɪmˈbɒlɪk]",meaning:"상징적인",pos:"a"},
-      {word:"municipal",phonetic:"[mjuːˈnɪsɪpl]",meaning:"지방 자치제의",pos:"a"},
-      {word:"phenomenon",phonetic:"[fəˈnɒmɪnən]",meaning:"현상",pos:"n"},
-      {word:"devote",phonetic:"[dɪˈvəʊt]",meaning:"바치다",pos:"v"},
-      {word:"peasant",phonetic:"[ˈpeznt]",meaning:"농부",pos:"n"},
-      {word:"diminish",phonetic:"[dɪˈmɪnɪʃ]",meaning:"줄어들다",pos:"v"},
-      {word:"jealous",phonetic:"[ˈdʒeləs]",meaning:"질투하는",pos:"a"},
-      {word:"exclude",phonetic:"[ɪkˈskluːd]",meaning:"제외하다",pos:"v"},
-      {word:"flexible",phonetic:"[ˈfleksəbl]",meaning:"유연한",pos:"a"},
-      {word:"tenant",phonetic:"[ˈtenənt]",meaning:"세입자",pos:"n"},
-      {word:"worthwhile",phonetic:"[ˌwɜːθˈwaɪl]",meaning:"가치 있는",pos:"a"},
-      {word:"pavement",phonetic:"[ˈpeɪvmənt]",meaning:"인도",pos:"n"},
-      {word:"nominate",phonetic:"[ˈnɒmɪneɪt]",meaning:"지명하다",pos:"v"},
-      {word:"sacred",phonetic:"[ˈseɪkrɪd]",meaning:"신성한",pos:"a"},
-      {word:"gloom",phonetic:"[ɡluːm]",meaning:"어둠",pos:"n"},
-      {word:"superb",phonetic:"[suːˈpɜːb]",meaning:"최고의",pos:"a"},
-      {word:"diverse",phonetic:"[daɪˈvɜːs]",meaning:"다양한",pos:"a"},
-      {word:"mammal",phonetic:"[ˈmæml]",meaning:"포유류",pos:"n"},
-      {word:"control",phonetic:"[kənˈtrəʊl]",meaning:"통제하다",pos:"v"},
-      {word:"suspend",phonetic:"[səˈspend]",meaning:"매달다",pos:"v"},
-      {word:"distraction",phonetic:"[dɪˈstrækʃn]",meaning:"주의 산만",pos:"n"},
-      {word:"abrupt",phonetic:"[əˈbrʌpt]",meaning:"갑작스러운",pos:"a"},
-      {word:"iceberg",phonetic:"[ˈaɪsbɜːɡ]",meaning:"빙산",pos:"n"},
-      {word:"suggest",phonetic:"[səˈdʒest]",meaning:"제안하다",pos:"v"},
-      {word:"monetary",phonetic:"[ˈmʌnɪtri]",meaning:"통화의",pos:"a"},
-      {word:"refine",phonetic:"[rɪˈfaɪ]",meaning:"정제하다",pos:"v"},
-      {word:"internal",phonetic:"[ɪnˈtɜːnl]",meaning:"내부의",pos:"a"},
-      {word:"support",phonetic:"[səˈpɔːt]",meaning:"지지하다",pos:"v"},
-      {word:"dynamic",phonetic:"[daɪˈnæmɪk]",meaning:"역동적인",pos:"a"},
-      {word:"nerve",phonetic:"[nɜːv]",meaning:"신경",pos:"n"},
-      {word:"revise",phonetic:"[rɪˈvaɪ]",meaning:"수정하다",pos:"v"},
-      {word:"prompt",phonetic:"[prɒmpt]",meaning:"신속한",pos:"a"},
-      {word:"resent",phonetic:"[rɪˈzent]",meaning:"분개하다",pos:"v"},
-      {word:"weird",phonetic:"[wɪəd]",meaning:"기괴한",pos:"a"},
-      {word:"plot",phonetic:"[plɒt]",meaning:"음모",pos:"n"},
-      {word:"prescribe",phonetic:"[prɪˈskraɪb]",meaning:"처방하다",pos:"v"},
-      {word:"insult",phonetic:"[ɪnˈsʌlt]",meaning:"모욕하다",pos:"v"},
-      {word:"fate",phonetic:"[feɪt]",meaning:"운명",pos:"n"},
-      {word:"Atlantic",phonetic:"[ətˈlæntɪk]",meaning:"대서양",pos:"n"},
-      {word:"mutual",phonetic:"[ˈmjuːtʃuəl]",meaning:"상호 간의",pos:"a"},
-      {word:"supreme",phonetic:"[suːˈpriːm]",meaning:"최고의",pos:"a"},
-      {word:"booth",phonetic:"[buːθ]",meaning:"부스",pos:"n"},
-      {word:"trigger",phonetic:"[ˈtrɪɡə]",meaning:"유발하다",pos:"v"},
-      {word:"rod",phonetic:"[rɒd]",meaning:"막대기",pos:"n"},
-      {word:"gaze",phonetic:"[ɡeɪz]",meaning:"응시하다",pos:"v"},
-      {word:"martial",phonetic:"[ˈmɑːʃl]",meaning:"전쟁의",pos:"a"},
-      {word:"deliberate",phonetic:"[dɪˈbəreɪt]",meaning:"고의적인",pos:"a"},
-      {word:"collapse",phonetic:"[kəˈlæps]",meaning:"붕괴하다",pos:"v"},
-      {word:"partial",phonetic:"[ˈpɑːʃl]",meaning:"부분적인",pos:"a"},
-      {word:"pursue",phonetic:"[pəˈsjuː]",meaning:"추구하다",pos:"v"},
-      {word:"priceless",phonetic:"[ˈpraɪsləs]",meaning:"대단히 귀중한",pos:"a"},
-      {word:"erupt",phonetic:"[ɪˈrʌpt]",meaning:"분출하다",pos:"v"},
-      {word:"monologue",phonetic:"[ˈmɒnəlɒɡ]",meaning:"독백",pos:"n"},
-      {word:"paralysis",phonetic:"[pəˈræləsɪs]",meaning:"마비",pos:"n"},
-      {word:"complete",phonetic:"[kəmˈpliːt]",meaning:"완료하다",pos:"v"},
-      {word:"assessment",phonetic:"[əˈsesmənt]",meaning:"평가",pos:"n"},
-      {word:"complain",phonetic:"[kəmˈpleɪn]",meaning:"불평하다",pos:"v"},
-      {word:"vehicle",phonetic:"[ˈvɪəkl]",meaning:"차량",pos:"n"},
-      {word:"gain",phonetic:"[ɡeɪn]",meaning:"얻다",pos:"v"},
-      {word:"curriculum",phonetic:"[kəˈrɪkjələm]",meaning:"교육과정",pos:"n"},
-      {word:"force",phonetic:"[fɔːs]",meaning:"힘",pos:"v"},
-      {word:"masculine",phonetic:"[ˈmæskjəlɪn]",meaning:"남성적인",pos:"a"},
-      {word:"deck",phonetic:"[dek]",meaning:"갑판",pos:"n"},
-      {word:"race",phonetic:"[reɪs]",meaning:"경주",pos:"n"},
-      {word:"frown",phonetic:"[fraʊn]",meaning:"눈살을 찌푸리다",pos:"v"},
-      {word:"dictator",phonetic:"[ˌdɪkˈteɪtə]",meaning:"독재자",pos:"n"},
-      {word:"brochure",phonetic:"[brəʊˈʃʊə]",meaning:"안내서",pos:"n"},
-      {word:"crucial",phonetic:"[ˈkruːʃl]",meaning:"중대한",pos:"a"},
-      {word:"dominate",phonetic:"[ˈdɒmɪneɪt]",meaning:"지배하다",pos:"v"},
-      {word:"nest",phonetic:"[nest]",meaning:"둥지",pos:"n"},
-      {word:"astound",phonetic:"[əˈstaʊnd]",meaning:"놀라게 하다",pos:"v"},
-      {word:"context",phonetic:"[ˈkɒntekst]",meaning:"문맥",pos:"n"},
-      {word:"sew",phonetic:"[səʊ]",meaning:"바느질하다",pos:"v"},
-      {word:"psychologist",phonetic:"[saɪˈkɒlədʒɪst]",meaning:"심리학자",pos:"n"},
-      {word:"blueprint",phonetic:"[ˈbluːprɪnt]",meaning:"청사진",pos:"n"},
-      {word:"output",phonetic:"[ˈaʊtpʊt]",meaning:"생산량",pos:"n"},
-      {word:"cure",phonetic:"[kjʊə]",meaning:"치료하다",pos:"v"},
-      {word:"unemployed",phonetic:"[ˌʌnɪmˈplɔɪd]",meaning:"실직한",pos:"a"},
-      {word:"tease",phonetic:"[tiːz]",meaning:"놀리다",pos:"v"},
-      {word:"miserable",phonetic:"[ˈmɪzrəbl]",meaning:"비참한",pos:"a"},
-      {word:"abuse",phonetic:"[əˈbjuː]",meaning:"남용하다",pos:"v"},
-      {word:"breakdown",phonetic:"[ˈbreɪkdaʊn]",meaning:"고장",pos:"n"},
-      {word:"attribute",phonetic:"[əˈtrɪbjuːt]",meaning:"~의 탓으로 돌리다",pos:"v"},
-      {word:"aggressive",phonetic:"[əˈɡresɪv]",meaning:"공격적인",pos:"a"},
-      {word:"cheer",phonetic:"[tʃɪə]",meaning:"환호하다",pos:"v"},
-      {word:"disguise",phonetic:"[dɪsˈɡaɪz]",meaning:"변장하다",pos:"v"},
-      {word:"foster",phonetic:"[ˈfɒstə]",meaning:"육성하다",pos:"v"},
-      {word:"rear",phonetic:"[rɪə]",meaning:"뒤쪽의",pos:"a"},
-      {word:"rob",phonetic:"[rɒb]",meaning:"강탈하다",pos:"v"},
-      {word:"sprout",phonetic:"[spraʊt]",meaning:"싹이 트다",pos:"v"},
-      {word:"sermon",phonetic:"[ˈsɜːmən]",meaning:"설교",pos:"n"},
-      {word:"tin",phonetic:"[tɪn]",meaning:"주석",pos:"n"},
-      {word:"postpone",phonetic:"[pəˈspəʊn]",meaning:"연기하다",pos:"v"},
-      {word:"patient",phonetic:"[ˈpeɪʃnt]",meaning:"환자",pos:"n"},
-      {word:"workshop",phonetic:"[ˈwɜːkʃɒp]",meaning:"워크숍",pos:"n"},
-      {word:"reform",phonetic:"[rɪˈfۆam]",meaning:"개혁하다",pos:"v"},
-      {word:"devastate",phonetic:"[ˈdevəsteɪt]",meaning:"황폐화시키다",pos:"v"},
-      {word:"deliver",phonetic:"[dɪˈlɪvə]",meaning:"배달하다",pos:"v"},
-      {word:"recruit",phonetic:"[rɪˈkruː]",meaning:"모집하다",pos:"v"},
-      {word:"maintain",phonetic:"[meɪnˈteɪn]",meaning:"유지하다",pos:"v"},
-      {word:"affair",phonetic:"[əˈfeə]",meaning:"일",pos:"n"},
-      {word:"bay",phonetic:"[beɪ]",meaning:"만",pos:"n"},
-      {word:"stun",phonetic:"[stʌn]",meaning:"기절시키다",pos:"v"},
-      {word:"overlook",phonetic:"[ˌəʊvəˈlʊk]",meaning:"간과하다",pos:"v"},
-      {word:"nourish",phonetic:"[ˈnʌrɪʃ]",meaning:"영양분을 공급하다",pos:"v"},
-      {word:"particular",phonetic:"[pəˈtɪkjələ]",meaning:"특정한",pos:"a"},
-      {word:"bulletin",phonetic:"[ˈbʊlətɪn]",meaning:"게시",pos:"n"},
-      {word:"fluid",phonetic:"[ˈfluːɪd]",meaning:"유체",pos:"n"},
-      {word:"deal",phonetic:"[diːl]",meaning:"다루다",pos:"v"},
-      {word:"dawn",phonetic:"[dɔːn]",meaning:"새벽",pos:"n"},
-      {word:"reject",phonetic:"[rɪˈdʒekt]",meaning:"거절하다",pos:"v"},
-      {word:"convention",phonetic:"[con]",meaning:"관습",pos:"n"},
-      {word:"reap",phonetic:"[riːp]",meaning:"수확하다",pos:"v"},
-      {word:"remove",phonetic:"[rɪˈmuːv]",meaning:"제거하다",pos:"v"},
-      {word:"startle",phonetic:"[ˈstɑːtl]",meaning:"깜짝 놀라게 하다",pos:"v"},
-      {word:"characteristic",phonetic:"[ˌkærəktəˈrɪstɪk]",meaning:"특징적인",pos:"a"},
-      {word:"compensate",phonetic:"[ˈkɒmpenseɪt]",meaning:"보상하다",pos:"v"},
-      {word:"satisfy",phonetic:"[ˈætɪsfaɪ]",meaning:"만족시키다",pos:"v"},
-      {word:"tension",phonetic:"[ˈtenʃn]",meaning:"긴장",pos:"n"},
-      {word:"reign",phonetic:"[reɪn]",meaning:"통치하다",pos:"v"},
-      {word:"concrete",phonetic:"[ˈkɒŋkriːt]",meaning:"구체적인",pos:"a"},
-      {word:"racial",phonetic:"[ˈreɪʃl]",meaning:"인종의",pos:"a"},
-      {word:"rule",phonetic:"[ruːl]",meaning:"규칙",pos:"v"},
-      {word:"perseverance",phonetic:"[ˌpɜːsɪˈvɪərəns]",meaning:"인내",pos:"n"},
-      {word:"fatal",phonetic:"[ˈfeɪtl]",meaning:"치명적인",pos:"a"},
-      {word:"discourage",phonetic:"[dɪsˈkʌrɪdʒ]",meaning:"낙담시키다",pos:"v"},
-      {word:"lease",phonetic:"[liːs]",meaning:"임대하다",pos:"v"},
-      {word:"crack",phonetic:"[kræk]",meaning:"갈라진 틈",pos:"n"},
-      {word:"hostile",phonetic:"[ˈhɒstaɪl]",meaning:"적대적인",pos:"a"},
-      {word:"respect",phonetic:"[rɪˈspekt]",meaning:"존경하다",pos:"v"},
-      {word:"await",phonetic:"[əˈweɪt]",meaning:"기다리다",pos:"v"},
-      {word:"variable",phonetic:"[ˈveəriəbl]",meaning:"변수",pos:"a"},
-      {word:"invert",phonetic:"[ɪnˈvɜːt]",meaning:"뒤집다",pos:"v"},
-      {word:"prevent",phonetic:"[prɪˈvent]",meaning:"예방하다",pos:"v"},
-      {word:"dignity",phonetic:"[ˈdɪɡnəti]",meaning:"존엄",pos:"n"},
-      {word:"suppress",phonetic:"[səˈpres]",meaning:"억제하다",pos:"v"},
-      {word:"withdraw",phonetic:"[wɪðˈdrɔː]",meaning:"철회하다",pos:"v"},
-      {word:"core",phonetic:"[kɔː]",meaning:"핵심",pos:"n"},
-      {word:"bilingual",phonetic:"[ˌbaɪˈlɪŋɡwəl]",meaning:"이중 언어 사용자의",pos:"a"},
-      {word:"renowned",phonetic:"[rɪˈnaʊnd]",meaning:"명성 있는",pos:"a"},
-      {word:"mischief",phonetic:"[ˈmɪstʃɪf]",meaning:"장난",pos:"n"},
-      {word:"strike",phonetic:"[straɪk]",meaning:"치다",pos:"v"},
-      {word:"judge",phonetic:"[dʒʌdʒ]",meaning:"판사",pos:"n"},
-      {word:"adhere",phonetic:"[ədˈhɪə]",meaning:"고수하다",pos:"v"},
-      {word:"discriminate",phonetic:"[dɪˈskrɪmɪneɪt]",meaning:"차별하다",pos:"v"},
-      {word:"contribute",phonetic:"[kənˈtrɪbjuːt]",meaning:"기여하다",pos:"v"},
-      {word:"spear",phonetic:"[spɪər]",meaning:"창",pos:"n"},
-      {word:"exemplify",phonetic:"[ɪɡˈzemplɪfaɪ]",meaning:"예시하다",pos:"v"},
-      {word:"immigrate",phonetic:"[ˈɪmɪɡreɪt]",meaning:"이민 오다",pos:"v"},
-      {word:"animate",phonetic:"[ˈænɪmeɪt]",meaning:"생기를 불어넣다",pos:"v"},
-      {word:"notify",phonetic:"[ˈnəʊtɪfaɪ]",meaning:"통지하다",pos:"v"},
-      {word:"era",phonetic:"[ˈɪərə]",meaning:"시대",pos:"n"},
-      {word:"convert",phonetic:"[kənˈvɜːt]",meaning:"전환하다",pos:"v"},
-      {word:"range",phonetic:"[reɪndʒ]",meaning:"범위",pos:"n"},
-      {word:"supernatural",phonetic:"[ˌsuːpəˈnætʃrəl]",meaning:"초자연적인",pos:"a"},
-      {word:"choke",phonetic:"[tʃəʊk]",meaning:"질식시키다",pos:"v"},
-      {word:"meditate",phonetic:"[ˈmedɪteɪt]",meaning:"명상하다",pos:"v"},
-      {word:"gigantic",phonetic:"[dʒaɪˈɡæntɪk]",meaning:"거대한",pos:"a"},
-      {word:"tender",phonetic:"[ˈtender]",meaning:"부드러운",pos:"a"},
-      {word:"instinct",phonetic:"[ˈɪnstɪŋkt]",meaning:"본능",pos:"n"},
-      {word:"groom",phonetic:"[ɡruːm]",meaning:"신랑",pos:"n"},
-      {word:"peculiar",phonetic:"[pɪˈkjuːliə]",meaning:"특이한",pos:"a"},
-      {word:"evolve",phonetic:"[ɪˈvɒlv]",meaning:"진화하다",pos:"v"},
-      {word:"coherent",phonetic:"[kəʊˈhɪərənt]",meaning:"일관성 있는",pos:"a"},
-      {word:"chase",phonetic:"[tʃeɪs]",meaning:"쫓다",pos:"v"},
-      {word:"afflict",phonetic:"[əˈflɪkt]",meaning:"괴롭히다",pos:"v"},
-      {word:"intolerable",phonetic:"[ɪnˈtɒlərəbl]",meaning:"견딜 수 없는",pos:"a"},
-      {word:"folktale",phonetic:"[ˈfəʊkteɪl]",meaning:"민담",pos:"n"},
-      {word:"literate",phonetic:"[ˈlɪtərət]",meaning:"글을 읽고 쓸 줄 아는",pos:"a"},
-      {word:"fountain",phonetic:"[ˈfaʊntən]",meaning:"분수",pos:"n"},
-      {word:"simultaneously",phonetic:"[ˌsɪmlˈteɪniəsli]",meaning:"동시에",pos:"ad"},
-      {word:"mow",phonetic:"[məʊ]",meaning:"베다",pos:"v"},
-      {word:"sake",phonetic:"[sake]",meaning:"위함",pos:"n"},
-      {word:"promote",phonetic:"[prəˈmʊt]",meaning:"촉진하다",pos:"v"},
-      {word:"shallow",phonetic:"[ˈʃæləʊ]",meaning:"얕은",pos:"a"},
-      {word:"superstition",phonetic:"[ˌsuːpəˈstɪʃn]",meaning:"미신",pos:"n"},
-      {word:"prone",phonetic:"[prəʊn]",meaning:"~하기 쉬운",pos:"a"},
-      {word:"summit",phonetic:"[ˈsʌmɪt]",meaning:"정상",pos:"n"},
-      {word:"face",phonetic:"[feɪs]",meaning:"직면하다",pos:"v"},
-      {word:"dormitory",phonetic:"[ˈdɔːmɪtri]",meaning:"기숙사",pos:"n"},
-      {word:"overall",phonetic:"[ˌəʊvərˈɔːl]",meaning:"전반적인",pos:"a"},
-      {word:"alter",phonetic:"[ˈɔːltə]",meaning:"바꾸다",pos:"v"},
-      {word:"destroy",phonetic:"[dɪˈstrɔɪ]",meaning:"파괴하다",pos:"v"},
-      {word:"grasp",phonetic:"[ɡrɑːsp]",meaning:"움켜잡다",pos:"v"},
-      {word:"conduct",phonetic:"[kənˈdʌkt]",meaning:"수행하다",pos:"v"},
-      {word:"compliment",phonetic:"[ˈkɒmplɪmənt]",meaning:"칭찬",pos:"n"},
-      {word:"absurd",phonetic:"[əbˈsɜːd]",meaning:"터무니없는",pos:"a"},
-      {word:"troop",phonetic:"[truːp]",meaning:"군대",pos:"n"},
-      {word:"colony",phonetic:"[ˈkɒləni]",meaning:"식민지",pos:"n"},
-      {word:"durability",phonetic:"[ˌdjʊərəˈbɪləti]",meaning:"내구성",pos:"n"},
-      {word:"weep",phonetic:"[wiːp]",meaning:"울다",pos:"v"},
-      {word:"conceive",phonetic:"[kənˈsiːv]",meaning:"상상하다",pos:"v"},
-      {word:"bold",phonetic:"[bəʊld]",meaning:"대담한",pos:"a"},
-      {word:"compulsive",phonetic:"[kəmˈpʌlsɪv]",meaning:"강박적인",pos:"a"},
-      {word:"clinic",phonetic:"[ˈklɪnɪk]",meaning:"병원",pos:"n"},
-      {word:"wrestle",phonetic:"[ˈresl]",meaning:"레슬링하다",pos:"v"},
-      {word:"stain",phonetic:"[steɪn]",meaning:"얼룩",pos:"n"},
-      {word:"vow",phonetic:"[vaʊ]",meaning:"맹세",pos:"n"},
-      {word:"sensation",phonetic:"[senˈseɪʃn]",meaning:"감각",pos:"n"},
-      {word:"malnutrition",phonetic:"[ˌmælnjuˈtrɪʃn]",meaning:"영양실조",pos:"n"},
-      {word:"Confucian",phonetic:"[kənˈfjuːʃn]",meaning:"유교의",pos:"a"},
-      {word:"neutral",phonetic:"[ˈnjuːtrəl]",meaning:"중립적인",pos:"a"},
-      {word:"retreat",phonetic:"[rɪˈtriːt]",meaning:"후퇴하다",pos:"v"},
-      {word:"incentive",phonetic:"[ɪnˈsentɪv]",meaning:"인센티브",pos:"n"},
-      {word:"undergo",phonetic:"[ˌʌndəˈɡəʊ]",meaning:"겪다",pos:"v"},
-      {word:"float",phonetic:"[fləʊt]",meaning:"뜨다",pos:"v"},
-      {word:"banner",phonetic:"[ˈbænə]",meaning:"현수막",pos:"n"},
-      {word:"formula",phonetic:"[ˈfɔːmjələ]",meaning:"공식",pos:"n"},
-      {word:"applause",phonetic:"[əˈplɔːz]",meaning:"박수갈채",pos:"n"},
-      {word:"conceal",phonetic:"[kənˈsiːl]",meaning:"감추다",pos:"v"},
-      {word:"relate",phonetic:"[rɪˈleɪ]",meaning:"관련시키다",pos:"v"},
-      {word:"boast",phonetic:"[bəʊst]",meaning:"자랑하다",pos:"v"},
-      {word:"tendency",phonetic:"[ˈtendənsi]",meaning:"경향",pos:"n"},
-      {word:"manage",phonetic:"[ˈmænɪdʒ]",meaning:"관리하다",pos:"v"},
-      {word:"velocity",phonetic:"[vəˈlɒsəti]",meaning:"속도",pos:"n"},
-      {word:"reservoir",phonetic:"[ˈrezəvwɑː]",meaning:"저수지",pos:"n"},
-      {word:"crude",phonetic:"[kruːd]",meaning:"원유의",pos:"a"},
-      {word:"molecule",phonetic:"[ˈmɒlɪkjuːl]",meaning:"분자",pos:"n"},
-      {word:"boundary",phonetic:"[ˈbaʊndri]",meaning:"경계",pos:"n"},
-      {word:"rigid",phonetic:"[ˈrɪdʒɪd]",meaning:"엄격한",pos:"a"},
-      {word:"inferior",phonetic:"[ɪnˈfɪəriə]",meaning:"열등한",pos:"a"},
-      {word:"diagnose",phonetic:"[ˌdaɪəɡˈnəʊz]",meaning:"진단하다",pos:"v"},
-      {word:"adapt",phonetic:"[əˈdæpt]",meaning:"적응하다",pos:"v"},
-      {word:"prominent",phonetic:"[ˈprɒmɪnənt]",meaning:"저명한",pos:"a"},
-      {word:"weave",phonetic:"[wiːv]",meaning:"짜다",pos:"v"},
-      {word:"draft",phonetic:"[drɑːft]",meaning:"초안",pos:"n"},
-      {word:"spacious",phonetic:"[ˈspeɪʃəs]",meaning:"넓은",pos:"a"},
-      {word:"motive",phonetic:"[ˈməʊtɪv]",meaning:"동기",pos:"n"},
-      {word:"conform",phonetic:"[kənˈfɔːm]",meaning:"따르다",pos:"v"},
-      {word:"archeology",phonetic:"[ˌɑːkiˈɒlədʒi]",meaning:"고고학",pos:"n"},
-      {word:"dismay",phonetic:"[dɪsˈmeɪ]",meaning:"실망시키다",pos:"v"},
-      {word:"tame",phonetic:"[teɪm]",meaning:"길들이다",pos:"v"},
-      {word:"supplement",phonetic:"[ˈsʌplɪmənt]",meaning:"보충물",pos:"n"},
-      {word:"navigate",phonetic:"[ˈnævɪɡeɪt]",meaning:"항해하다",pos:"v"},
-      {word:"impulse",phonetic:"[ˈimpʌls]",meaning:"충동",pos:"n"},
-      {word:"accumulate",phonetic:"[əˈkjuːmjəleɪt]",meaning:"축적하다",pos:"v"},
-      {word:"borrow",phonetic:"[ˈbɒrəʊ]",meaning:"빌리다",pos:"v"},
-      {word:"trim",phonetic:"[trɪm]",meaning:"다듬다",pos:"v"},
-      {word:"attack",phonetic:"[əˈtæk]",meaning:"공격하다",pos:"v"},
-      {word:"embody",phonetic:"[ɪmˈɒdi]",meaning:"구현하다",pos:"v"},
-      {word:"utmost",phonetic:"[ˈʌtməʊst]",meaning:"최선의",pos:"a"},
-      {word:"confine",phonetic:"[kənˈfaɪ]",meaning:"국한하다",pos:"v"},
-      {word:"equity",phonetic:"[ˈekwəti]",meaning:"공정",pos:"n"},
-      {word:"violate",phonetic:"[ˈvaɪəleɪt]",meaning:"위반하다",pos:"v"},
-      {word:"tray",phonetic:"[treɪ]",meaning:"쟁반",pos:"n"},
-      {word:"ceremony",phonetic:"[ˈserəmə니]",meaning:"의식",pos:"n"},
-      {word:"dispatch",phonetic:"[dɪˈspætʃ]",meaning:"파견하다",pos:"v"},
-      {word:"proficient",phonetic:"[prəˈfɪʃnt]",meaning:"능숙한",pos:"a"},
-      {word:"intact",phonetic:"[ɪnˈtækt]",meaning:"온전한",pos:"a"},
-      {word:"ambitious",phonetic:"[æmˈbɪʃəs]",meaning:"야심 찬",pos:"a"},
-      {word:"consist",phonetic:"[kənˈsɪst]",meaning:"구성되다",pos:"v"},
-      {word:"attend",phonetic:"[əˈtend]",meaning:"참석하다",pos:"v"},
-      {word:"subtract",phonetic:"[səbˈtrækt]",meaning:"빼다",pos:"v"},
-      {word:"detect",phonetic:"[dɪˈtekt]",meaning:"감지하다",pos:"v"},
-      {word:"soar",phonetic:"[sɔː]",meaning:"치솟다",pos:"v"},
-      {word:"awkward",phonetic:"[ˈɔːkwəd]",meaning:"어색한",pos:"a"},
-      {word:"diameter",phonetic:"[daɪˈæmɪtə]",meaning:"지름",pos:"n"},
-      {word:"symptom",phonetic:"[ˈsɪmptəm]",meaning:"증상",pos:"n"},
-      {word:"blame",phonetic:"[bleɪm]",meaning:"비난하다",pos:"v"},
-      {word:"invent",phonetic:"[ɪnˈvent]",meaning:"발명하다",pos:"v"},
-      {word:"exhibit",phonetic:"[ɪɡˈzɪbɪt]",meaning:"전시하다",pos:"v"},
-      {word:"propriety",phonetic:"[prəˈpraɪəti]",meaning:"적절성",pos:"n"},
-      {word:"grind",phonetic:"[ɡraɪnd]",meaning:"갈다",pos:"v"},
-      {word:"closet",phonetic:"[ˈklɒzɪt]",meaning:"벽장",pos:"n"},
-      {word:"mock",phonetic:"[mɒk]",meaning:"조롱하다",pos:"v"},
-      {word:"disclose",phonetic:"[dɪsˈkləʊz]",meaning:"폭로하다",pos:"v"},
-      {word:"cost",phonetic:"[kɒst]",meaning:"비용이 들다",pos:"v"},
-      {word:"pledge",phonetic:"[pledʒ]",meaning:"약속하다",pos:"v"},
-      {word:"geology",phonetic:"[dʒiˈɒlədʒi]",meaning:"지질학",pos:"n"},
-      {word:"temperate",phonetic:"[ˈtempərət]",meaning:"온화한",pos:"a"},
-      {word:"expose",phonetic:"[ɪkˈspəʊz]",meaning:"노출시키다",pos:"v"},
-      {word:"earn",phonetic:"[ɜːn]",meaning:"벌다",pos:"v"},
-      {word:"anecdote",phonetic:"[ˈænɪkdəʊt]",meaning:"일화",pos:"n"},
-      {word:"feed",phonetic:"[fiːd]",meaning:"먹이를 주다",pos:"v"},
-      {word:"sophomore",phonetic:"[ˈsɒfəmɔː]",meaning:"2학년생",pos:"n"},
-      {word:"discharge",phonetic:"[dɪsˈtʃɑːd]",meaning:"방출하다",pos:"v"},
-      {word:"panel",phonetic:"[ˈpænl]",meaning:"패널",pos:"n"},
-      {word:"illusion",phonetic:"[ɪˈluːʒn]",meaning:"환상",pos:"n"},
-      {word:"remind",phonetic:"[rɪˈmaɪnd]",meaning:"상기시키다",pos:"v"},
-      {word:"undertake",phonetic:"[ˌʌndəˈteɪk]",meaning:"기수하다",pos:"v"},
-      {word:"thorough",phonetic:"[ˈθʌrə]",meaning:"철저한",pos:"a"},
-      {word:"damp",phonetic:"[dæmp]",meaning:"축축한",pos:"a"},
-      {word:"flourish",phonetic:"[ˈflʌrɪʃ]",meaning:"번창하다",pos:"v"},
-      {word:"possibility",phonetic:"[ˌpɒsəˈbɪləti]",meaning:"가능성",pos:"n"},
-      {word:"linguistic",phonetic:"[lɪŋˈɡwɪstɪk]",meaning:"언어의",pos:"a"},
-      {word:"explode",phonetic:"[ɪkˈspləʊd]",meaning:"폭발하다",pos:"v"},
-      {word:"script",phonetic:"[skrɪpt]",meaning:"대본",pos:"n"},
-      {word:"sole",phonetic:"[səʊl]",meaning:"유일한",pos:"a"},
-      {word:"discuss",phonetic:"[dɪˈskʌs]",meaning:"토론하다",pos:"v"},
-      {word:"sibling",phonetic:"[ˈsɪblɪŋ]",meaning:"형제자매",pos:"n"},
-      {word:"remedy",phonetic:"[ˈremədi]",meaning:"치료법",pos:"n"},
-      {word:"pillar",phonetic:"[ˈpɪlə]",meaning:"기둥",pos:"n"},
-      {word:"lay",phonetic:"[leɪ]",meaning:"놓다",pos:"v"},
-      {word:"swamp",phonetic:"[swamp]",meaning:"늪",pos:"n"},
-      {word:"cognitive",phonetic:"[ˈkɒɡnətɪv]",meaning:"인지의",pos:"a"},
-      {word:"expedition",phonetic:"[ˌekspəˈdɪʃn]",meaning:"탐험",pos:"n"},
-      {word:"motion",phonetic:"[ˈməʊʃn]",meaning:"운동",pos:"n"},
-      {word:"patent",phonetic:"[ˈpeɪtnt]",meaning:"특허",pos:"n"},
-      {word:"separate",phonetic:"[ˈseprət]",meaning:"분리하다",pos:"v"},
-      {word:"hinder",phonetic:"[ˈhɪndə]",meaning:"방해하다",pos:"v"},
-      {word:"revive",phonetic:"[rɪˈvaɪ]",meaning:"활기를 되찾다",pos:"v"},
-      {word:"abnormal",phonetic:"[æbˈnɔːml]",meaning:"비정상적인",pos:"a"},
-      {word:"consistent",phonetic:"[kənˈsɪstənt]",meaning:"일관된",pos:"a"},
-      {word:"factual",phonetic:"[ˈfæktʃuəl]",meaning:"사실에 기반한",pos:"a"},
-      {word:"regret",phonetic:"[rɪˈɡret]",meaning:"후회하다",pos:"v"},
-      {word:"corrupt",phonetic:"[kəˈrʌpt]",meaning:"부패한",pos:"a"},
-      {word:"virtue",phonetic:"[ˈvɜːtʃuː]",meaning:"미덕",pos:"n"},
-      {word:"deadline",phonetic:"[ˈdedlaɪn]",meaning:"마감일",pos:"n"},
-      {word:"revenue",phonetic:"[ˈrevənjuː]",meaning:"수익",pos:"n"},
-      {word:"submit",phonetic:"[səbˈmɪt]",meaning:"제출하다",pos:"v"},
-      {word:"divine",phonetic:"[dɪˈvaɪn]",meaning:"신성한",pos:"a"},
-      {word:"equator",phonetic:"[ɪˈkweɪtə]",meaning:"적도",pos:"n"},
-      {word:"regard",phonetic:"[rɪˈɡɑːd]",meaning:"간주하다",pos:"v"},
-      {word:"herd",phonetic:"[hɜːd]",meaning:"무게",pos:"n"},
-      {word:"gorgeous",phonetic:"[ˈɡɔːdʒəs]",meaning:"아주 멋진",pos:"a"},
-      {word:"locate",phonetic:"[ləʊˈkeɪt]",meaning:"위치를 찾아내다",pos:"v"},
-      {word:"controversy",phonetic:"[ˈkɒntrəvɜːsi]",meaning:"논란",pos:"n"},
-      {word:"upcoming",phonetic:"[ˈʌpˌkʌmɪŋ]",meaning:"다가오는",pos:"a"},
-      {word:"pulse",phonetic:"[pʌls]",meaning:"맥박",pos:"n"},
-      {word:"hygiene",phonetic:"[ˈhaɪdʒiːn]",meaning:"위생",pos:"n"},
-      {word:"carbon",phonetic:"[ˈcɑːbən]",meaning:"탄소",pos:"n"},
-      {word:"flattery",phonetic:"[ˈflætəri]",meaning:"아첨",pos:"n"},
-      {word:"external",phonetic:"[ɪkˈstɜːnl]",meaning:"외부의",pos:"a"},
-      {word:"rush",phonetic:"[rush]",meaning:"돌진하다",pos:"v"},
-      {word:"bounce",phonetic:"[baʊns]",meaning:"튀기다",pos:"v"},
-      {word:"imprison",phonetic:"[ɪmˈprɪzn]",meaning:"투옥하다",pos:"v"},
-      {word:"trace",phonetic:"[trace]",meaning:"추적하다",pos:"v"},
-      {word:"enlist",phonetic:"[ɪnˈlɪst]",meaning:"입대하다",pos:"v"},
-      {word:"contaminate",phonetic:"[kənˈtæmɪneɪt]",meaning:"오염시키다",pos:"v"},
-      {word:"allocate",phonetic:"[ˈæləkeɪt]",meaning:"할당하다",pos:"v"},
-      {word:"convenience",phonetic:"[kənˈviːniəns]",meaning:"편의",pos:"n"},
-      {word:"humble",phonetic:"[ˈhʌmbl]",meaning:"겸손한",pos:"a"},
-      {word:"acknowledge",phonetic:"[əkˈnɒlɪdʒ]",meaning:"인정하다",pos:"v"},
-      {word:"warrant",phonetic:"[ˈwɒrənt]",meaning:"보증하다",pos:"v"},
-      {word:"explore",phonetic:"[ɪkˈsplɔːr]",meaning:"탐험하다",pos:"v"},
-      {word:"halt",phonetic:"[hɔːlt]",meaning:"중단",pos:"n"},
-      {word:"stroke",phonetic:"[strəʊk]",meaning:"타격",pos:"n"},
-      {word:"ceramic",phonetic:"[səˈræmɪk]",meaning:"도자기의",pos:"a"},
-      {word:"subjective",phonetic:"[səbˈdʒektɪv]",meaning:"주관적인",pos:"a"},
-      {word:"license",phonetic:"[ˈlaɪsns]",meaning:"면허",pos:"n"},
-      {word:"reconciliation",phonetic:"[ˌrekənsɪliˈeɪʃn]",meaning:"화해",pos:"n"},
-      {word:"burglar",phonetic:"[ˈbɜːɡlə]",meaning:"강도",pos:"n"},
-      {word:"ponder",phonetic:"[ˈpɒndə]",meaning:"숙고하다",pos:"v"},
-      {word:"complement",phonetic:"[ˈkɒmplɪ메nt]",meaning:"보완하다",pos:"v"},
-      {word:"pierce",phonetic:"[pɪəs]",meaning:"뚫다",pos:"v"},
-      {word:"confess",phonetic:"[kənˈfes]",meaning:"고백하다",pos:"v"},
-      {word:"accord",phonetic:"[əˈcɔːd]",meaning:"일치하다",pos:"v"},
-      {word:"immense",phonetic:"[ɪˈmens]",meaning:"거대한",pos:"a"},
-      {word:"extract",phonetic:"[ɪkˈstrækt]",meaning:"추출하다",pos:"v"},
-      {word:"sewage",phonetic:"[ˈsuːɪdʒ]",meaning:"하수",pos:"n"},
-      {word:"casual",phonetic:"[ˈkæʒuəl]",meaning:"평상시의",pos:"a"},
-      {word:"emerge",phonetic:"[ɪˈmɜːdʒ]",meaning:"나타나다",pos:"v"},
-      {word:"derive",phonetic:"[dɪˈraɪ]",meaning:"유래하다",pos:"v"},
-      {word:"blade",phonetic:"[bleɪd]",meaning:"날",pos:"n"},
-      {word:"leftover",phonetic:"[ˈleftəʊvə]",meaning:"남은 음식",pos:"n"},
-      {word:"transplant",phonetic:"[trænsˈplɑːnt]",meaning:"이식하다",pos:"v"},
-      {word:"lottery",phonetic:"[ˈlɒtəri]",meaning:"복권",pos:"n"},
-      {word:"certificate",phonetic:"[səˈtɪfɪkət]",meaning:"증명서",pos:"n"},
-      {word:"oppress",phonetic:"[əˈpres]",meaning:"억압하다",pos:"v"},
-      {word:"embrace",phonetic:"[ɪmˈbreɪs]",meaning:"포옹하다",pos:"v"},
-      {word:"evaporate",phonetic:"[ɪˈvæpəreɪt]",meaning:"증발하다",pos:"v"},
-      {word:"plague",phonetic:"[pleɪɡ]",meaning:"전염병",pos:"n"},
-      {word:"depth",phonetic:"[depθ]",meaning:"깊이",pos:"n"},
-      {word:"deluxe",phonetic:"[dɪˈlʌks]",meaning:"호화로운",pos:"a"},
-      {word:"plea",phonetic:"[pliː]",meaning:"탄원",pos:"n"},
-      {word:"cluster",phonetic:"[ˈklʌstə]",meaning:"무더기",pos:"n"},
-      {word:"ultrasound",phonetic:"[ˈʌltrəsaʊnd]",meaning:"초음프",pos:"n"},
-      {word:"sour",phonetic:"[ˈsaʊə]",meaning:"신",pos:"a"},
-      {word:"repetitive",phonetic:"[rɪˈpetətɪv]",meaning:"반복적인",pos:"a"},
-      {word:"intelligence",phonetic:"[ɪnˈtelɪdʒəns]",meaning:"지능",pos:"n"},
-      {word:"lame",phonetic:"[leɪm]",meaning:"절뚝거리는",pos:"a"},
-      {word:"convey",phonetic:"[kənˈveɪ]",meaning:"전달하다",pos:"v"},
-      {word:"slice",phonetic:"[slaɪs]",meaning:"조각",pos:"n"},
-      {word:"warrior",phonetic:"[ˈwɒriə]",meaning:"전사",pos:"n"},
-      {word:"duplicate",phonetic:"[ˈdjuːplɪkeɪt]",meaning:"복사하다",pos:"v"},
-      {word:"swell",phonetic:"[swel]",meaning:"부풀다",pos:"v"},
-      {word:"cozy",phonetic:"[ˈkəʊzi]",meaning:"아늑한",pos:"a"},
-      {word:"altitude",phonetic:"[ˈæltɪtjuːd]",meaning:"고도",pos:"n"},
-      {word:"beverage",phonetic:"[ˈbevərɪdʒ]",meaning:"음료",pos:"n"},
-      {word:"arrogant",phonetic:"[ˈærəɡənt]",meaning:"오만한",pos:"a"},
-      {word:"auction",phonetic:"[ˈɔːkʃn]",meaning:"경매",pos:"n"},
-      {word:"glimpse",phonetic:"[glɪmps]",meaning:"흘긋 봄",pos:"n"},
-      {word:"blend",phonetic:"[blend]",meaning:"섞다",pos:"v"},
-      {word:"spoil",phonetic:"[spɔːɪl]",meaning:"망치다",pos:"v"},
-      {word:"exotic",phonetic:"[ɪgˈzɒtɪk]",meaning:"외국의",pos:"a"},
-      {word:"grief",phonetic:"[ɡriːf]",meaning:"슬픔",pos:"n"},
-      {word:"outbreak",phonetic:"[ˈaʊtbreɪk]",meaning:"발발",pos:"n"},
-      {word:"predominant",phonetic:"[prɪˈdɒmɪnənt]",meaning:"우세한",pos:"a"},
-      {word:"recommend",phonetic:"[ˌrekəˈmend]",meaning:"추천하다",pos:"v"},
-      {word:"vanish",phonetic:"[ˈvænɪʃ]",meaning:"사라지다",pos:"v"},
-      {word:"abundant",phonetic:"[əˈbʌndənt]",meaning:"풍부한",pos:"a"},
-      {word:"shrub",phonetic:"[ʃrʌb]",meaning:"관목",pos:"n"},
-      {word:"neglect",phonetic:"[nɪˈɡlekt]",meaning:"소홀히 하다",pos:"v"},
-      {word:"linger",phonetic:"[ˈlɪŋɡə]",meaning:"남아 있다",pos:"v"},
-      {word:"undo",phonetic:"[ʌnˈduː]",meaning:"원상태로 돌리다",pos:"v"},
-      {word:"pioneer",phonetic:"[ˌpaɪəˈnɪə]",meaning:"개척자",pos:"n"},
-      {word:"assert",phonetic:"[əˈsɜːt]",meaning:"주장하다",pos:"v"},
-      {word:"elaborate",phonetic:"[ɪˈlæbərət]",meaning:"정교한",pos:"a"},
-      {word:"maximize",phonetic:"[ˈmæksɪmaɪz]",meaning:"최대화하다",pos:"v"},
-      {word:"obsess",phonetic:"[əbˈses]",meaning:"강박관념을 갖다",pos:"v"},
-      {word:"suitor",phonetic:"[suːtər]",meaning:"구혼자",pos:"n"},
-      {word:"inevitable",phonetic:"[ɪnˈevɪtəbl]",meaning:"불가피한",pos:"a"},
-      {word:"retain",phonetic:"[rɪˈteɪn]",meaning:"유지하다",pos:"v"},
-      {word:"toss",phonetic:"[tɒs]",meaning:"던지다",pos:"v"},
-      {word:"rational",phonetic:"[ˈræʃnəl]",meaning:"합리적인",pos:"a"},
-      {word:"discreet",phonetic:"[dɪˈskriːt]",meaning:"신중한",pos:"a"},
-      {word:"machinery",phonetic:"[məˈʃiːnəri]",meaning:"기계류",pos:"n"},
-      {word:"buildup",phonetic:"[ˈbɪldʌp]",meaning:"축적",pos:"n"},
-      {word:"sacrifice",phonetic:"[ˈsæk rɪfaɪs]",meaning:"희생하다",pos:"v"},
-      {word:"auditorium",phonetic:"[ˌɔːdɪˈtɔːriəm]",meaning:"강당",pos:"n"},
-      {word:"feedback",phonetic:"[ˈfiːdbæk]",meaning:"피드백",pos:"n"},
-      {word:"radioactive",phonetic:"[ˌreɪdiəʊˈæktɪv]",meaning:"방사능의",pos:"a"},
-      {word:"expel",phonetic:"[ɪkˈspel]",meaning:"추방하다",pos:"v"},
-      {word:"shed",phonetic:"[ʃed]",meaning:"흘리다",pos:"v"},
-      {word:"metaphor",phonetic:"[ˈmetəfə]",meaning:"은유",pos:"n"},
-      {word:"sanitation",phonetic:"[ˌsænɪˈteɪʃn]",meaning:"위생",pos:"n"},
-      {word:"fluent",phonetic:"[ˈfluːənt]",meaning:"유창한",pos:"a"},
-      {word:"plow",phonetic:"[plaʊ]",meaning:"쟁기질하다",pos:"v"},
-      {word:"shield",phonetic:"[ʃiːld]",meaning:"방패",pos:"n"},
-      {word:"margin",phonetic:"[ˈmɑːdʒɪn]",meaning:"가장자리",pos:"n"},
-      {word:"attorney",phonetic:"[əˈtɜːni]",meaning:"변호사",pos:"n"},
-      {word:"metropolitan",phonetic:"[ˌmetrəˈpɒlɪtən]",meaning:"대도시의",pos:"a"},
-      {word:"dispense",phonetic:"[dɪˈspens]",meaning:"분배하다",pos:"v"},
-      {word:"interior",phonetic:"[ɪnˈtɪəriə]",meaning:"내부",pos:"n"},
-      {word:"record",phonetic:"[ˈrekɔːd]",meaning:"기록",pos:"n"},
-      {word:"prolong",phonetic:"[prəˈlɒŋ]",meaning:"연장하다",pos:"v"},
-      {word:"impair",phonetic:"[ɪmpair]",meaning:"손상시키다",pos:"v"},
-      {word:"induce",phonetic:"[ɪnˈdjuː]",meaning:"유도하다",pos:"v"},
-      {word:"bruise",phonetic:"[bruːz]",meaning:"멍",pos:"n"},
-      {word:"naive",phonetic:"[naɪˈiːv]",meaning:"순진한",pos:"a"},
-      {word:"ecology",phonetic:"[iˈkɒlədʒi]",meaning:"생태학",pos:"n"},
-      {word:"heredity",phonetic:"[həˈredəti]",meaning:"유전",pos:"n"},
-      {word:"fabric",phonetic:"[ˈfæbɪk]",meaning:"직물",pos:"n"},
-      {word:"pregnant",phonetic:"[ˈpreɡnənt]",meaning:"임신한",pos:"a"},
-      {word:"vibrate",phonetic:"[vaɪˈbreɪt]",meaning:"진동하다",pos:"v"},
-      {word:"epidemic",phonetic:"[ˌepɪˈdemɪk]",meaning:"유행병",pos:"a"},
-      {word:"versus",phonetic:"[ˈvɜːsəs]",meaning:"~대",pos:"prep"},
-      {word:"breathtaking",phonetic:"[ˈbreθteɪkɪŋ]",meaning:"숨이 막히는",pos:"a"},
-      {word:"settle",phonetic:"[ˈsetl]",meaning:"정착하다",pos:"v"},
-      {word:"overturn",phonetic:"[ˌəʊvəˈtɜːn]",meaning:"뒤집다",pos:"v"},
-      {word:"ornament",phonetic:"[ˈɔːnəmənt]",meaning:"장식품",pos:"n"},
-      {word:"conflict",phonetic:"[ˈcɒnflɪkt]",meaning:"갈등",pos:"n"},
-      {word:"probe",phonetic:"[prəʊb]",meaning:"조사하다",pos:"v"},
-      {word:"tuition",phonetic:"[tjuˈɪʃn]",meaning:"등록금",pos:"n"},
-      {word:"urgent",phonetic:"[ˈɜːdʒənt]",meaning:"긴급한",pos:"a"},
-      {word:"foundation",phonetic:"[faʊnˈdeɪʃn]",meaning:"기반",pos:"n"},
-      {word:"stimulate",phonetic:"[ˈstɪmjuleɪt]",meaning:"자극하다",pos:"v"},
-      {word:"ripe",phonetic:"[raɪp]",meaning:"익은",pos:"a"},
-      {word:"framework",phonetic:"[ˈfreɪmwɜːk]",meaning:"틀",pos:"n"},
-      {word:"precede",phonetic:"[prɪˈsiːd]",meaning:"앞서다",pos:"v"},
-      {word:"speculate",phonetic:"[ˈspekjuleɪt]",meaning:"추측하다",pos:"v"},
-      {word:"vapor",phonetic:"[ˈveɪpə]",meaning:"증기",pos:"n"},
-      {word:"wander",phonetic:"[ˈwɒndə]",meaning:"배회하다",pos:"v"},
-      {word:"implement",phonetic:"[ˈɪmplɪment]",meaning:"시행하다",pos:"v"},
-      {word:"quote",phonetic:"[kwəʊt]",meaning:"인용하다",pos:"v"},
-      {word:"vacant",phonetic:"[ˈveɪkənt]",meaning:"비어 있는",pos:"a"},
-      {word:"thrill",phonetic:"[θrɪl]",meaning:"스릴",pos:"n"},
-      {word:"memorial",phonetic:"[məˈmɔːriəl]",meaning:"기념비",pos:"n"},
-      {word:"proportion",phonetic:"[prəˈpɔːʃn]",meaning:"비율",pos:"n"},
-      {word:"inhale",phonetic:"[ɪnˈheɪl]",meaning:"숨을 들이쉬다",pos:"v"},
-      {word:"compound",phonetic:"[ˈkɒmpaʊnd]",meaning:"화합물",pos:"n"},
-      {word:"withstand",phonetic:"[wɪðˈstænd]",meaning:"견디다",pos:"v"},
-      {word:"literature",phonetic:"[ˈlɪtrətʃə]",meaning:"문학",pos:"n"},
-      {word:"loop",phonetic:"[luːp]",meaning:"고리",pos:"n"},
-      {word:"prospect",phonetic:"[ˈprɒspekt]",meaning:"전망",pos:"n"},
-      {word:"antibiotic",phonetic:"[ˌæntibaɪˈɒtɪk]",meaning:"항생제",pos:"n"},
-      {word:"overtake",phonetic:"[ˌəʊvəˈteɪk]",meaning:"추월하다",pos:"v"},
-      {word:"anonymous",phonetic:"[əˈnɒnɪməs]",meaning:"익명의",pos:"a"},
-      {word:"technical",phonetic:"[ˈteknɪkl]",meaning:"기술적인",pos:"a"},
-      {word:"collide",phonetic:"[kəˈlaɪd]",meaning:"충돌하다",pos:"v"},
-      {word:"anchor",phonetic:"[ˈæŋkə]",meaning:"닻",pos:"n"},
-      {word:"reference",phonetic:"[ˈrefrəns]",meaning:"참조",pos:"n"},
-      {word:"rust",phonetic:"[rʌst]",meaning:"녹",pos:"n"},
-      {word:"sprain",phonetic:"[spreɪn]",meaning:"삐다",pos:"v"},
-      {word:"sector",phonetic:"[ˈsektə]",meaning:"부문",pos:"n"},
-      {word:"gymnastics",phonetic:"[dʒɪmˈnæstɪks]",meaning:"체조",pos:"n"},
-      {word:"referee",phonetic:"[ˌrefəˈriː]",meaning:"심판",pos:"n"},
-      {word:"sequence",phonetic:"[ˈsiːkwəns]",meaning:"순서",pos:"n"},
-      {word:"solitary",phonetic:"[ˈsɒlətri]",meaning:"고독한",pos:"a"},
-      {word:"boost",phonetic:"[buːst]",meaning:"촉진하다",pos:"v"},
-      {word:"orchard",phonetic:"[ˈɔːtʃəd]",meaning:"과수원",pos:"n"},
-      {word:"gross",phonetic:"[ɡrəʊs]",meaning:"총합의",pos:"a"},
-      {word:"stool",phonetic:"[stuːl]",meaning:"의자",pos:"n"},
-      {word:"bury",phonetic:"[ˈberi]",meaning:"묻다",pos:"v"},
-      {word:"paste",phonetic:"[paste]",meaning:"풀",pos:"n"},
-      {word:"fad",phonetic:"[fæd]",meaning:"유행",pos:"n"},
-      {word:"preoccupation",phonetic:"[priːˌɒkjuˈpeɪʃn]",meaning:"집착",pos:"n"},
-      {word:"compassion",phonetic:"[kəmˈpæʃn]",meaning:"동정심",pos:"n"},
-      {word:"disrupt",phonetic:"[dɪsˈrʌpt]",meaning:"방해하다",pos:"v"},
-      {word:"provoke",phonetic:"[prəˈvəʊk]",meaning:"유발하다",pos:"v"},
-      {word:"resemble",phonetic:"[rɪˈzembl]",meaning:"닮다",pos:"v"},
-      {word:"wicked",phonetic:"[ˈwɪkɪd]",meaning:"사악한",pos:"a"},
-      {word:"cue",phonetic:"[kjuː]",meaning:"신호",pos:"n"},
-      {word:"last",phonetic:"[lɑːst]",meaning:"지속되다",pos:"v"},
-      {word:"beloved",phonetic:"[bɪˈlʌvɪd]",meaning:"사랑받는",pos:"a"},
-      {word:"reed",phonetic:"[riːd]",meaning:"갈대",pos:"n"},
-      {word:"yeast",phonetic:"[jiːst]",meaning:"효모",pos:"n"},
-      {word:"tariff",phonetic:"[ˈtærɪf]",meaning:"관세",pos:"n"},
-      {word:"fortress",phonetic:"[ˈfɔːtrəs]",meaning:"요새",pos:"n"},
-      {word:"vacuum",phonetic:"[ˈvækjuəm]",meaning:"진공",pos:"n"},
-      {word:"simulate",phonetic:"[ˈsɪmjuleɪt]",meaning:"모방하다",pos:"v"},
-      {word:"skyscraper",phonetic:"[ˈskaɪskreɪpə]",meaning:"마천루",pos:"n"},
-      {word:"migrate",phonetic:"[maɪˈɡreɪt]",meaning:"이동하다",pos:"v"},
-      {word:"hypothesis",phonetic:"[haɪˈpɒθəsɪs]",meaning:"가설",pos:"n"},
-      {word:"spectacle",phonetic:"[ˈspektəkl]",meaning:"광경",pos:"n"},
-      {word:"inquire",phonetic:"[ɪnˈkwaɪə]",meaning:"문의하다",pos:"v"},
-      {word:"integration",phonetic:"[ˌɪntɪˈɡreɪʃn]",meaning:"통합",pos:"n"},
-      {word:"affirm",phonetic:"[əˈfɜːm]",meaning:"단언하다",pos:"v"},
-      {word:"spade",phonetic:"[speade]",meaning:"삽",pos:"n"},
-      {word:"lyric",phonetic:"[ˈlɪrɪk]",meaning:"서정시의",pos:"a"},
-      {word:"mole",phonetic:"[məʊl]",meaning:"두더지",pos:"n"},
-      {word:"surplus",phonetic:"[ˈsɜːpləs]",meaning:"과잉",pos:"n"},
-      {word:"divide",phonetic:"[dɪˈvaɪ]",meaning:"나누다",pos:"v"},
-      {word:"inborn",phonetic:"[ˌɪnˈbɔːn]",meaning:"타고난",pos:"a"},
-      {word:"overlap",phonetic:"[ˌəʊvəˈlæp]",meaning:"겹치다",pos:"v"},
-      {word:"fatigue",phonetic:"[fəˈtiːɡ]",meaning:"피로",pos:"n"},
-      {word:"clone",phonetic:"[kləʊn]",meaning:"복제하다",pos:"v"},
-      {word:"peel",phonetic:"[piːl]",meaning:"껍질을 벗기다",pos:"v"},
-      {word:"ease",phonetic:"[iːz]",meaning:"편안함",pos:"n"},
-      {word:"overcome",phonetic:"[ˌəʊvəˈkʌm]",meaning:"극복하다",pos:"v"},
-      {word:"fund",phonetic:"[fʌnd]",meaning:"자금",pos:"n"},
-      {word:"bias",phonetic:"[ˈbaɪəs]",meaning:"편견",pos:"n"},
-      {word:"vaccine",phonetic:"[ˈvæksiːn]",meaning:"백신",pos:"n"},
-      {word:"tread",phonetic:"[tred]",meaning:"밟다",pos:"v"},
-      {word:"vomit",phonetic:"[ˈvɒmɪt]",meaning:"구토하다",pos:"v"},
-      {word:"prophecy",phonetic:"[ˈɒfəsi]",meaning:"예언",pos:"n"},
-      {word:"correspond",phonetic:"[ˌkɒrəˈspɒnd]",meaning:"일치하다",pos:"v"},
-      {word:"cling",phonetic:"[klɪŋ]",meaning:"매달리다",pos:"v"},
-      {word:"mutation",phonetic:"[mjuːˈteɪʃn]",meaning:"돌연변이",pos:"n"},
-      {word:"obscure",phonetic:"[əbˈskjʊə]",meaning:"모호한",pos:"a"},
-      {word:"tyrant",phonetic:"[ˈtaɪrənt]",meaning:"폭군",pos:"n"},
-      {word:"odd",phonetic:"[ɒd]",meaning:"이상한",pos:"a"},
-      {word:"garment",phonetic:"[ˈɡɑːmənt]",meaning:"의복",pos:"n"},
-      {word:"aid",phonetic:"[eɪd]",meaning:"도움",pos:"n"},
-      {word:"manipulate",phonetic:"[məˈnɪpjuleɪt]",meaning:"조작하다",pos:"v"},
-      {word:"keen",phonetic:"[kiːn]",meaning:"열정적인",pos:"a"},
-      {word:"vertical",phonetic:"[ˈvɜːtɪkl]",meaning:"수직의",pos:"a"},
-      {word:"originate",phonetic:"[əˈrɪdʒɪneɪt]",meaning:"유래하다",pos:"v"},
-      {word:"reputation",phonetic:"[ˌrepjuˈteɪʃn]",meaning:"평판",pos:"n"},
-      {word:"measurement",phonetic:"[ˈmeʒəmənt]",meaning:"측정",pos:"n"},
-      {word:"experiment",phonetic:"[ɪkˈsperɪmənt]",meaning:"실험",pos:"n"},
-      {word:"spontaneous",phonetic:"[spɒnˈteɪniəs]",meaning:"자발적인",pos:"a"},
-      {word:"interchange",phonetic:"[ˌɪntəˈtʃeɪndʒ]",meaning:"교환하다",pos:"v"},
-      {word:"bundle",phonetic:"[ˈbʌndl]",meaning:"묶음",pos:"n"},
-      {word:"constrict",phonetic:"[kənˈstrɪkt]",meaning:"수축시키다",pos:"v"},
-      {word:"insert",phonetic:"[ɪnˈsɜːt]",meaning:"삽입하다",pos:"v"},
-      {word:"flour",phonetic:"[ˈflaʊə]",meaning:"밀가루",pos:"n"},
-      {word:"restrain",phonetic:"[rɪˈstreɪn]",meaning:"억제하다",pos:"v"},
-      {word:"intriguing",phonetic:"[ɪnˈtriːɡɪŋ]",meaning:"흥미로운",pos:"a"},
-      {word:"enclose",phonetic:"[ɪnˈkləʊz]",meaning:"동봉하다",pos:"v"},
-      {word:"patriot",phonetic:"[ˈpeɪtriət]",meaning:"애국자",pos:"n"},
-      {word:"pasture",phonetic:"[ˈpɑːstʃə]",meaning:"목초지",pos:"n"},
-      {word:"appetite",phonetic:"[ˈæpɪtaɪt]",meaning:"식욕",pos:"n"},
-      {word:"curse",phonetic:"[kɜːs]",meaning:"저주하다",pos:"v"},
-      {word:"deed",phonetic:"[diːd]",meaning:"행위",pos:"n"},
-      {word:"grill",phonetic:"[ɡrɪll]",meaning:"석쇠에 굽다",pos:"v"},
-      {word:"comprehend",phonetic:"[ˌkɒmprɪˈhend]",meaning:"이해하다",pos:"v"},
-      {word:"skinny",phonetic:"[ˈskɪni]",meaning:"말라깽이의",pos:"a"},
-      {word:"mentor",phonetic:"[ˈmentɔː]",meaning:"멘토",pos:"n"},
-      {word:"nasty",phonetic:"[ˈnɑːsti]",meaning:"불쾌한",pos:"a"},
-      {word:"plunge",phonetic:"[plʌndʒ]",meaning:"뛰어들다",pos:"v"},
-      {word:"vivid",phonetic:"[ˈvɪvɪd]",meaning:"생생한",pos:"a"},
-      {word:"flaw",phonetic:"[flɔː]",meaning:"결점",pos:"n"},
-      {word:"crust",phonetic:"[krʌst]",meaning:"빵 껍질",pos:"n"},
-      {word:"testify",phonetic:"[ˈtestɪfaɪ]",meaning:"증언하다",pos:"v"},
-      {word:"emigrate",phonetic:"[ˈemɪɡreɪt]",meaning:"이민 가다",pos:"v"},
-      {word:"adverse",phonetic:"[ˈædvɜːs]",meaning:"부정적인",pos:"a"},
-      {word:"censorship",phonetic:"[ˈsensəʃɪp]",meaning:"검열",pos:"n"},
-      {word:"canal",phonetic:"[kəˈnæl]",meaning:"운하",pos:"n"},
-      {word:"forehead",phonetic:"[ˈfɔːhed]",meaning:"이마",pos:"n"},
-      {word:"appreciate",phonetic:"[əˈpriːʃieɪt]",meaning:"감사하다",pos:"v"},
-      {word:"allergy",phonetic:"[ˈælədʒi]",meaning:"알레르기",pos:"n"},
-      {word:"superficial",phonetic:"[ˌsuːpəˈfɪʃl]",meaning:"피상적인",pos:"a"},
-      {word:"advance",phonetic:"[ədˈvɑːns]",meaning:"전진하다",pos:"v"},
-      {word:"feminine",phonetic:"[ˈfemənɪn]",meaning:"여성적인",pos:"a"},
-      {word:"underlying",phonetic:"[ˌʌndəˈlaɪɪŋ]",meaning:"기저의",pos:"a"},
-      {word:"endeavor",phonetic:"[ɪnˈdevə]",meaning:"노력하다",pos:"v"},
-      {word:"segregation",phonetic:"[ˌseɡrɪˈɡeɪʃn]",meaning:"분리",pos:"n"},
-      {word:"irrigation",phonetic:"[ˌɪrɪˈɡeɪʃn]",meaning:"관개",pos:"n"},
-      {word:"drowsy",phonetic:"[ˈdraʊzi]",meaning:"졸리는",pos:"a"},
-      {word:"outgoing",phonetic:"[ˈaʊtɡəʊɪŋ]",meaning:"외향적인",pos:"a"},
-      {word:"refuge",phonetic:"[ˈrefjuːdʒ]",meaning:"피난처",pos:"n"},
-      {word:"academic",phonetic:"[ˌækəˈdemɪk]",meaning:"학업의",pos:"a"},
-      {word:"norm",phonetic:"[nɔːm]",meaning:"규범",pos:"n"},
-      {word:"swear",phonetic:"[sweə]",meaning:"맹세하다",pos:"v"},
-      {word:"verbal",phonetic:"[ˈvɜːbl]",meaning:"말의",pos:"a"},
-      {word:"consecutive",phonetic:"[con]",meaning:"연속적인",pos:"a"},
-      {word:"stem",phonetic:"[stem]",meaning:"줄기",pos:"n"},
-      {word:"erect",phonetic:"[ɪˈrekt]",meaning:"세우다",pos:"v"},
-      {word:"liberate",phonetic:"[ˈlɪbəreɪt]",meaning:"해방시키다",pos:"v"},
-      {word:"contemplate",phonetic:"[ˈkɒntəmpleɪt]",meaning:"숙고하다",pos:"v"},
-      {word:"chronic",phonetic:"[ˈkrɒnɪk]",meaning:"만성적인",pos:"a"},
-      {word:"carriage",phonetic:"[ˈkærɪdʒ]",meaning:"마차",pos:"n"},
-      {word:"intense",phonetic:"[ɪnˈtens]",meaning:"강렬한",pos:"a"},
-      {word:"govern",phonetic:"[ˈɡʌvn]",meaning:"통치하다",pos:"v"},
-      {word:"inspect",phonetic:"[ɪnˈspekt]",meaning:"검사하다",pos:"v"},
-      {word:"dramatic",phonetic:"[drəˈmætɪk]",meaning:"극적인",pos:"a"},
-      {word:"steep",phonetic:"[stiːp]",meaning:"가파른",pos:"a"},
-      {word:"feast",phonetic:"[fiːst]",meaning:"연회",pos:"n"},
-      {word:"commemorate",phonetic:"[kəˈmeməreɪt]",meaning:"기념하다",pos:"v"},
-      {word:"shatter",phonetic:"[ˈʃætə]",meaning:"산산이 부서지다",pos:"v"},
-      {word:"toxic",phonetic:"[ˈtɒksɪk]",meaning:"독성의",pos:"a"},
-      {word:"exaggerate",phonetic:"[ɪɡˈzædʒəreɪt]",meaning:"과장하다",pos:"v"},
-      {word:"propaganda",phonetic:"[ˌprɒpəˈɡændə]",meaning:"선전",pos:"n"},
-      {word:"random",phonetic:"[ˈrændəm]",meaning:"무작위의",pos:"a"},
-      {word:"primitive",phonetic:"[ˈprɪmətɪv]",meaning:"원시의",pos:"a"},
-      {word:"stare",phonetic:"[steər]",meaning:"응시하다",pos:"v"},
-      {word:"cemetery",phonetic:"[ˈseməteri]",meaning:"공동묘지",pos:"n"},
-      {word:"compress",phonetic:"[kəmˈpres]",meaning:"압축하다",pos:"v"},
-      {word:"designate",phonetic:"[ˈdezɪɡneɪt]",meaning:"지정하다",pos:"v"},
-      {word:"multitask",phonetic:"[ˌmʌltiˈtɑːsk]",meaning:"다중 작업을 하다",pos:"v"},
-      {word:"vulnerable",phonetic:"[ˈvʌlnərəbl]",meaning:"취약한",pos:"a"},
-      {word:"attain",phonetic:"[ˈæteɪn]",meaning:"달성하다",pos:"v"},
-      {word:"implication",phonetic:"[ˌɪmplɪˈkeɪʃn]",meaning:"영향",pos:"n"},
-      {word:"alley",phonetic:"[ˈæli]",meaning:"골목",pos:"n"},
-      {word:"transition",phonetic:"[trænˈzɪʃn]",meaning:"전환",pos:"n"},
-      {word:"executive",phonetic:"[ɪɡˈzekjətɪv]",meaning:"경영진",pos:"n"},
-      {word:"mention",phonetic:"[ˈmenʃn]",meaning:"언급하다",pos:"v"},
-      {word:"microscope",phonetic:"[ˈmaɪkrəskəʊp]",meaning:"현미경",pos:"n"},
-      {word:"retarded",phonetic:"[rɪˈtɑːdɪd]",meaning:"발달이 지체된",pos:"a"},
-      {word:"innate",phonetic:"[ɪˈneɪt]",meaning:"타고난",pos:"a"},
-      {word:"shiver",phonetic:"[ˈʃɪvə]",meaning:"떨다",pos:"v"},
-      {word:"chaos",phonetic:"[ˈkeɪɒs]",meaning:"혼돈",pos:"n"},
-      {word:"index",phonetic:"[ˈɪndeks]",meaning:"색인",pos:"n"},
-      {word:"compel",phonetic:"[kəmˈpel]",meaning:"강요하다",pos:"v"},
-      {word:"authentic",phonetic:"[ɔːˈθentɪk]",meaning:"진짜의",pos:"a"},
-      {word:"numerous",phonetic:"[ˈnjuːmərəs]",meaning:"수많은",pos:"a"},
-      {word:"belonging",phonetic:"[bɪˈlɒŋɪŋ]",meaning:"소유물",pos:"n"},
-      {word:"incline",phonetic:"[ɪnˈlaɪn]",meaning:"마음을 기울어지게 하다",pos:"v"},
-      {word:"stretch",phonetic:"[stretʃ]",meaning:"늘이다",pos:"v"},
-      {word:"outlaw",phonetic:"[ˈaʊtlɔː]",meaning:"무법자",pos:"n"},
-      {word:"privilege",phonetic:"[ˈprɪvəlɪdʒ]",meaning:"특권",pos:"n"},
-      {word:"upset",phonetic:"[ʌpˈset]",meaning:"속상하게 하다",pos:"v"},
-      {word:"deficient",phonetic:"[dɪˈfɪʃnt]",meaning:"부족한",pos:"a"},
-      {word:"seize",phonetic:"[seɪz]",meaning:"잡다",pos:"v"},
-      {word:"savage",phonetic:"[ˈsævɪdʒ]",meaning:"야만적인",pos:"a"},
-      {word:"orphan",phonetic:"[ˈɔːfn]",meaning:"고아",pos:"n"},
-      {word:"coordinate",phonetic:"[kəʊˈɔːdɪneɪt]",meaning:"조정하다",pos:"v"},
-      {word:"preview",phonetic:"[ˈpriːvjuː]",meaning:"시사회",pos:"n"},
-      {word:"equivalent",phonetic:"[ɪˈkwɪvələnt]",meaning:"동등한",pos:"a"},
-      {word:"shelter",phonetic:"[ˈʃeltə]",meaning:"피난처",pos:"n"},
-      {word:"throughout",phonetic:"[θruːˈaʊt]",meaning:"~ 도처에",pos:"prep"},
-      {word:"nuisance",phonetic:"[ˈnjuːsns]",meaning:"골칫거리",pos:"n"},
-      {word:"squeeze",phonetic:"[skwiːz]",meaning:"짜내다",pos:"v"},
-      {word:"breakthrough",phonetic:"[ˈbreɪkθruː]",meaning:"돌파구",pos:"n"},
-      {word:"consent",phonetic:"[kənˈsent]",meaning:"동의하다",pos:"v"},
-      {word:"province",phonetic:"[ˈprɒvɪns]",meaning:"지방",pos:"n"},
-      {word:"negotiate",phonetic:"[nɪˈɡəʊʃieɪt]",meaning:"협상하다",pos:"v"},
-      {word:"screw",phonetic:"[skruː]",meaning:"나사",pos:"n"},
-      {word:"surrender",phonetic:"[səˈrendə]",meaning:"항복하다",pos:"v"},
-      {word:"tremble",phonetic:"[ˈtrembl]",meaning:"떨다",pos:"v"},
-      {word:"paradox",phonetic:"[ˈpærədɒks]",meaning:"역설",pos:"n"},
-      {word:"admire",phonetic:"[ədˈmaɪə]",meaning:"존경하다",pos:"v"},
-      {word:"profile",phonetic:"[ˈprəʊfaɪl]",meaning:"프로필",pos:"n"},
-      {word:"slaughter",phonetic:"[ˈslɔːtə]",meaning:"도살하다",pos:"v"},
-      {word:"philosophy",phonetic:"[fəˈlɒsəfi]",meaning:"철학",pos:"n"},
-      {word:"enterprise",phonetic:"[ˈentəpraɪz]",meaning:"기업",pos:"n"},
-      {word:"magnitude",phonetic:"[ˈmæɡnɪtjuːd]",meaning:"규모",pos:"n"},
-      {word:"successive",phonetic:"[səkˈsesɪv]",meaning:"연속적인",pos:"a"},
-      {word:"recipe",phonetic:"[ˈresəpi]",meaning:"요리법",pos:"n"},
-      {word:"correlation",phonetic:"[ˌɒrəˈleɪʃn]",meaning:"상관관계",pos:"n"},
-      {word:"surpass",phonetic:"[səˈpɑːs]",meaning:"능가하다",pos:"v"},
-      {word:"deplete",phonetic:"[dɪˈpliː]",meaning:"고갈시키다",pos:"v"},
-      {word:"aesthetics",phonetic:"[iːsˈθetɪks]",meaning:"미학",pos:"n"},
-      {word:"starvation",phonetic:"[stɑːˈveɪʃn]",meaning:"기아",pos:"n"},
-      {word:"deceive",phonetic:"[dɪˈsiːv]",meaning:"속이다",pos:"v"},
-      {word:"summon",phonetic:"[ˈsʌmən]",meaning:"소환하다",pos:"v"},
-      {word:"sweep",phonetic:"[sweep]",meaning:"쓸다",pos:"v"},
-      {word:"earnest",phonetic:"[ˈɜːnɪst]",meaning:"진지한",pos:"a"},
-      {word:"blunt",phonetic:"[blʌnt]",meaning:"무딘",pos:"a"},
-      {word:"amplify",phonetic:"[ˈæmplɪfaɪ]",meaning:"증폭시키다",pos:"v"},
-      {word:"ballot",phonetic:"[ˈbælət]",meaning:"투표용지",pos:"n"},
-      {word:"afford",phonetic:"[əˈfɔːd]",meaning:"~할 여유가 있다",pos:"v"},
-      {word:"falsify",phonetic:"[ˈfɔːlsɪfaɪ]",meaning:"위조하다",pos:"v"},
-      {word:"passerby",phonetic:"[ˌpɑːsəˈbaɪ]",meaning:"행인",pos:"n"},
-      {word:"paddle",phonetic:"[ˈpædl]",meaning:"노를 젓다",pos:"v"},
-      {word:"sprint",phonetic:"[sprint]",meaning:"단거리 경주하다",pos:"v"},
-      {word:"contradict",phonetic:"[ˌkɒntrəˈdɪkt]",meaning:"모순되다",pos:"v"},
-      {word:"burst",phonetic:"[burst]",meaning:"터지다",pos:"v"},
-      {word:"psychic",phonetic:"[ˈsaɪkɪk]",meaning:"초자연적인",pos:"a"},
-      {word:"collaborate",phonetic:"[kəˈlæbəreɪt]",meaning:"협력하다",pos:"v"},
-      {word:"timber",phonetic:"[ˈtɪmbə]",meaning:"목재",pos:"n"},
-      {word:"boil",phonetic:"[bɔːɪl]",meaning:"끓다",pos:"v"},
-      {word:"stance",phonetic:"[stɑːns]",meaning:"태도",pos:"n"},
-      {word:"blow",phonetic:"[bləʊ]",meaning:"불다",pos:"v"},
-      {word:"acquaintance",phonetic:"[e k weɪn tens]",meaning:"지인",pos:"n"},
-      {word:"division",phonetic:"[dɪˈvɪʒn]",meaning:"분할",pos:"n"},
-      {word:"tense",phonetic:"[tense]",meaning:"긴장된",pos:"a"},
-      {word:"cast",phonetic:"[kɑːst]",meaning:"던지다",pos:"v"},
-      {word:"tribute",phonetic:"[ˈtrɪbjuːt]",meaning:"헌사",pos:"n"},
-      {word:"assemble",phonetic:"[əˈsembl]",meaning:"조립하다",pos:"v"},
-      {word:"shred",phonetic:"[shred]",meaning:"자르다",pos:"v"},
-      {word:"narrative",phonetic:"[ˈnærətɪv]",meaning:"이야기",pos:"n"},
-      {word:"cosmetic",phonetic:"[kɒzˈmetɪk]",meaning:"화장품",pos:"n"},
-      {word:"temperament",phonetic:"[ˈtemprəmənt]",meaning:"기질",pos:"n"},
-      {word:"affection",phonetic:"[əˈfekʃn]",meaning:"애정",pos:"n"},
-      {word:"sophisticated",phonetic:"[səˈfɪstɪkeɪtɪd]",meaning:"정교한",pos:"a"},
-      {word:"artery",phonetic:"[ˈɑːtəri]",meaning:"동맥",pos:"n"},
-      {word:"spike",phonetic:"[spaɪk]",meaning:"못",pos:"n"},
-      {word:"handle",phonetic:"[ˈhændl]",meaning:"다루다",pos:"v"},
-      {word:"sneak",phonetic:"[sniːk]",meaning:"몰래 움직이다",pos:"v"},
-      {word:"harass",phonetic:"[ˈhærəs]",meaning:"괴롭히다",pos:"v"},
-      {word:"unpredictable",phonetic:"[ˌʌnprɪˈdɪktəbl]",meaning:"예측할 수 없는",pos:"a"},
-      {word:"inherent",phonetic:"[ɪnˈhɪərənt]",meaning:"내재된",pos:"a"},
-      {word:"rent",phonetic:"[rent]",meaning:"임대료",pos:"n"},
-      {word:"steer",phonetic:"[stɪə]",meaning:"조종하다",pos:"v"},
-      {word:"bid",phonetic:"[bɪd]",meaning:"입찰하다",pos:"v"},
-      {word:"compost",phonetic:"[ˈkɒmpɒst]",meaning:"퇴비",pos:"n"},
-      {word:"enlightenment",phonetic:"[ɪnˈlaɪtnmənt]",meaning:"계몽",pos:"n"},
-      {word:"veteran",phonetic:"[ˈvetərən]",meaning:"베테랑",pos:"n"},
-      {word:"trail",phonetic:"[treɪl]",meaning:"오솔길",pos:"n"},
-      {word:"statesman",phonetic:"[ˈsteɪtsmən]",meaning:"정치가",pos:"n"},
-      {word:"perish",phonetic:"[ˈperɪʃ]",meaning:"소멸하다",pos:"v"},
-      {word:"decode",phonetic:"[ˌdiːˈkəʊd]",meaning:"해독하다",pos:"v"},
-      {word:"obstruct",phonetic:"[əbˈstrʌkt]",meaning:"방해하다",pos:"v"},
-      {word:"fellow",phonetic:"[ˈfeləʊ]",meaning:"동료",pos:"n"},
-      {word:"mandate",phonetic:"[ˈmændeɪt]",meaning:"권한",pos:"n"},
-      {word:"vocation",phonetic:"[vəʊˈkeɪʃn]",meaning:"천직",pos:"n"},
-      {word:"connotation",phonetic:"[ˌkɒnəˈteɪʃn]",meaning:"함축",pos:"n"},
-      {word:"gracious",phonetic:"[ˈɡreɪʃəs]",meaning:"자애로운",pos:"a"},
-      {word:"vegetarian",phonetic:"[ˌvedʒəˈteəriən]",meaning:"채식주의자",pos:"n"},
-      {word:"inseparable",phonetic:"[ɪnˈseprəbl]",meaning:"분리할 수 없는",pos:"a"},
-      {word:"aspire",phonetic:"[əˈspaɪə]",meaning:"열망하다",pos:"v"},
-      {word:"domain",phonetic:"[dəʊˈmeɪn]",meaning:"영역",pos:"n"},
-      {word:"oval",phonetic:"[ˈəʊvl]",meaning:"타원형의",pos:"a"},
-      {word:"patrol",phonetic:"[pəˈtrəʊl]",meaning:"순찰하다",pos:"v"},
-      {word:"stereotype",phonetic:"[ˈsteriətaɪp]",meaning:"고정관념",pos:"n"},
-      {word:"accelerate",phonetic:"[əkˈseləreɪt]",meaning:"가속화하다",pos:"v"},
-      {word:"heatstroke",phonetic:"[ˈhiːtstrəʊk]",meaning:"일사병",pos:"n"},
-      {word:"elastic",phonetic:"[ɪˈlæstɪk]",meaning:"탄력 있는",pos:"a"},
-      {word:"unearth",phonetic:"[ʌnˈɜːθ]",meaning:"발굴하다",pos:"v"},
-      {word:"counterpart",phonetic:"[ˈkaʊntəpɑːt]",meaning:"상대방",pos:"n"},
-      {word:"latter",phonetic:"[ˈlætə]",meaning:"후자의",pos:"a"},
-      {word:"disturb",phonetic:"[dɪˈstɜːb]",meaning:"방해하다",pos:"v"},
-      {word:"wail",phonetic:"[wail]",meaning:"울부짖다",pos:"v"},
-      {word:"hemisphere",phonetic:"[ˈhemɪsfɪə]",meaning:"반구",pos:"n"},
-      {word:"recur",phonetic:"[rɪˈkɜː]",meaning:"재발하다",pos:"v"},
-      {word:"mimic",phonetic:"[ˈmɪmɪk]",meaning:"모방하다",pos:"v"},
-      {word:"mortgage",phonetic:"[ˈmɔːɡɪdʒ]",meaning:"담보 대출",pos:"n"},
-      {word:"crisis",phonetic:"[ˈkraɪsɪs]",meaning:"위기",pos:"n"},
-      {word:"stubborn",phonetic:"[ˈstub]",meaning:"고집 센",pos:"a"},
-      {word:"stride",phonetic:"[stride]",meaning:"성큼성큼 걷다",pos:"v"},
-      {word:"applicant",phonetic:"[ˈæplɪkənt]",meaning:"지원자",pos:"n"},
-      {word:"shudder",phonetic:"[ˈʃʌdə]",meaning:"떨다",pos:"v"},
-      {word:"illuminate",phonetic:"[ɪˈluːmɪneɪt]",meaning:"비추다",pos:"v"},
-      {word:"hollow",phonetic:"[ˈhɒləʊ]",meaning:"속이 빈",pos:"a"},
-      {word:"structural",phonetic:"[ˈstrʌktʃərəl]",meaning:"구조적인",pos:"a"},
-      {word:"inject",phonetic:"[ɪnˈdʒekt]",meaning:"주사하다",pos:"v"},
-      {word:"disprove",phonetic:"[ˌdɪsˈpruːv]",meaning:"논박하다",pos:"v"},
-      {word:"regime",phonetic:"[reɪˈʒiːm]",meaning:"정권",pos:"n"},
-      {word:"foremost",phonetic:"[ˈfɔːməʊst]",meaning:"가장 중요한",pos:"a"},
-      {word:"underprivileged",phonetic:"[ˌʌndəˈprɪvəlɪdʒd]",meaning:"소외계층의",pos:"a"},
-      {word:"meanwhile",phonetic:"[ˈmiːnwaɪl]",meaning:"한편",pos:"ad"},
-      {word:"precaution",phonetic:"[prɪˈkɔːʃn]",meaning:"예방책",pos:"n"},
-      {word:"rebel",phonetic:"[ˈrebl]",meaning:"반역자",pos:"n"},
-      {word:"incorporate",phonetic:"[ɪnˈkɔːpəreɪt]",meaning:"포함하다",pos:"v"},
-      {word:"sway",phonetic:"[sway]",meaning:"흔들리다",pos:"v"},
-      {word:"terminate",phonetic:"[ˈtɜːmɪneɪt]",meaning:"종료하다",pos:"v"},
-      {word:"obligation",phonetic:"[ˌɒblɪˈɡeɪʃn]",meaning:"의무",pos:"n"},
-      {word:"morale",phonetic:"[məˈrɑːl]",meaning:"사기",pos:"n"},
-      {word:"torture",phonetic:"[ˈtɔːtʃə]",meaning:"고문하다",pos:"v"},
-      {word:"lure",phonetic:"[ljʊə]",meaning:"유혹하다",pos:"v"},
-      {word:"pest",phonetic:"[pest]",meaning:"해충",pos:"n"},
-      {word:"examine",phonetic:"[ɪcompute]",meaning:"조사하다",pos:"v"},
-      {word:"suicide",phonetic:"[ˈsuːɪsaɪ]",meaning:"자살",pos:"n"},
-      {word:"entrust",phonetic:"[ɪnˈtrʌst]",meaning:"위탁하다",pos:"v"},
-      {word:"compromise",phonetic:"[ˈkɒmprəmaɪz]",meaning:"타협하다",pos:"v"},
-      {word:"religious",phonetic:"[rɪˈlɪdʒəs]",meaning:"종교적인",pos:"a"},
-      {word:"subdue",phonetic:"[səbˈdjuː]",meaning:"진압하다",pos:"v"},
-      {word:"latitude",phonetic:"[ˈlætɪtjuːd]",meaning:"위도",pos:"n"},
-      {word:"painkiller",phonetic:"[ˈpeɪnkɪlə]",meaning:"진통제",pos:"n"},
-      {word:"burden",phonetic:"[ˈbɜːdn]",meaning:"부담",pos:"n"},
-      {word:"maternal",phonetic:"[məˈtɜːnl]",meaning:"어머니의",pos:"a"},
-      {word:"recess",phonetic:"[rɪˈses]",meaning:"휴식",pos:"n"},
-      {word:"theft",phonetic:"[θeft]",meaning:"절도",pos:"n"},
-      {word:"folklore",phonetic:"[ˈfəʊklɔː]",meaning:"민속",pos:"n"},
-      {word:"autonomy",phonetic:"[ɔːˈɒnəmi]",meaning:"자율성",pos:"n"},
-      {word:"amend",phonetic:"[əˈmend]",meaning:"개정하다",pos:"v"},
-      {word:"marine",phonetic:"[məˈriːn]",meaning:"해양의",pos:"a"},
-      {word:"preliminary",phonetic:"[prɪˈlɪmɪnəri]",meaning:"예비의",pos:"a"},
-      {word:"mourn",phonetic:"[mɔːn]",meaning:"애도하다",pos:"v"},
-      {word:"outfit",phonetic:"[ˈaʊtfɪt]",meaning:"의상",pos:"n"},
-      {word:"exploit",phonetic:"[ɪkˈsplɔɪ]",meaning:"착취하다",pos:"v"},
-      {word:"pharmacy",phonetic:"[ˈfɑːməsi]",meaning:"약국",pos:"n"},
-      {word:"evoke",phonetic:"[ɪˈvəʊk]",meaning:"유발하다",pos:"v"},
-      {word:"friction",phonetic:"[ˈfrɪkʃn]",meaning:"마찰",pos:"n"},
-      {word:"patch",phonetic:"[pætʃ]",meaning:"조각",pos:"n"},
-      {word:"prestigious",phonetic:"[presˈtɪdʒəs]",meaning:"명성 있는",pos:"a"},
-      {word:"vast",phonetic:"[vɑːst]",meaning:"방대한",pos:"a"},
-      {word:"snatch",phonetic:"[snætʃ]",meaning:"잡아채다",pos:"v"},
-      {word:"paradigm",phonetic:"[ˈpærədaɪm]",meaning:"패러다임",pos:"n"},
-      {word:"anthropology",phonetic:"[ˌænθrəˈpɒlədʒi]",meaning:"인류학",pos:"n"},
-      {word:"fiber",phonetic:"[ˈfaɪbə]",meaning:"섬유",pos:"n"},
-      {word:"outline",phonetic:"[ˈaʊtlaɪn]",meaning:"개요",pos:"n"},
-      {word:"premature",phonetic:"[ˌpriːməˈtʃʊə]",meaning:"조숙한",pos:"a"},
-      {word:"charge",phonetic:"[tʃɑːdʒ]",meaning:"요금",pos:"n"},
-      {word:"transport",phonetic:"[trænˈspɔːt]",meaning:"운송하다",pos:"v"},
-      {word:"altruism",phonetic:"[ˈæltruɪzəm]",meaning:"이타주의",pos:"n"},
-      {word:"spectator",phonetic:"[spekˈteɪtə]",meaning:"관객",pos:"n"},
-      {word:"defend",phonetic:"[dɪˈfend]",meaning:"방어하다",pos:"v"},
-      {word:"analogy",phonetic:"[əˈnælədʒi]",meaning:"유추",pos:"n"},
-      {word:"pollute",phonetic:"[pəˈluːt]",meaning:"오염시키다",pos:"v"},
-      {word:"insomnia",phonetic:"[ɪnˈsɒmniə]",meaning:"불면증",pos:"n"},
-      {word:"intermediate",phonetic:"[ˌɪntəˈmiːdiət]",meaning:"중간의",pos:"a"},
-      {word:"easygoing",phonetic:"[ˌiːziˈɡəʊɪŋ]",meaning:"느긋한",pos:"a"},
-      {word:"rapid",phonetic:"[ˈræpɪd]",meaning:"빠른",pos:"a"},
-      {word:"medieval",phonetic:"[ˌmediˈiːvl]",meaning:"중세의",pos:"a"},
-      {word:"irony",phonetic:"[ˈaɪrəni]",meaning:"아이러니",pos:"n"},
-      {word:"fraud",phonetic:"[frɔːd]",meaning:"사기",pos:"n"},
-      {word:"sturdy",phonetic:"[ˈstɜːdi]",meaning:"튼튼한",pos:"a"},
-      {word:"adorable",phonetic:"[əˈdɔːrəbl]",meaning:"사랑스러운",pos:"a"},
-      {word:"complacent",phonetic:"[kəmˈpleɪsnt]",meaning:"자기만족의",pos:"a"},
-      {word:"imperial",phonetic:"[ɪmˈpɪəriəl]",meaning:"제국의",pos:"a"},
-      {word:"incurable",phonetic:"[ɪnˈkjʊərəbl]",meaning:"치유할 수 없는",pos:"a"},
-      {word:"venture",phonetic:"[ˈventʃə]",meaning:"모험하다",pos:"v"},
-      {word:"meadow",phonetic:"[ˈmedəʊ]",meaning:"목초지",pos:"n"},
-      {word:"parallel",phonetic:"[ˈpærəlel]",meaning:"평행한",pos:"a"},
-      {word:"populate",phonetic:"[ˈpɒpjuleɪt]",meaning:"거주하다",pos:"v"},
-      {word:"manifest",phonetic:"[ˈmænɪfest]",meaning:"명백히 하다",pos:"v"},
-      {word:"duration",phonetic:"[djuˈreɪʃn]",meaning:"지속 기간",pos:"n"},
-      {word:"slogan",phonetic:"[ˈsləʊɡən]",meaning:"슬로건",pos:"n"},
-      {word:"composure",phonetic:"[kəmˈpəʊʒə]",meaning:"침착함",pos:"n"},
-      {word:"primate",phonetic:"[ˈpraɪmeɪt]",meaning:"영장류",pos:"n"},
-      {word:"patron",phonetic:"[ˈpeɪtrən]",meaning:"후원자",pos:"n"},
-      {word:"deflect",phonetic:"[dɪˈflekt]",meaning:"방향을 바꾸다",pos:"v"},
-      {word:"indulge",phonetic:"[ɪnˈdʌldʒ]",meaning:"마음껏 하다",pos:"v"},
-      {word:"endure",phonetic:"[ɪnˈdjʊə]",meaning:"견디다",pos:"v"},
-      {word:"explicit",phonetic:"[ɪkˈsplɪsɪt]",meaning:"명백한",pos:"a"},
-      {word:"frugal",phonetic:"[ˈfruːɡl]",meaning:"검소한",pos:"a"},
-      {word:"terrain",phonetic:"[təˈreɪn]",meaning:"지형",pos:"n"},
-      {word:"crispy",phonetic:"[ˈkrɪspi]",meaning:"바삭바삭한",pos:"a"},
-      {word:"rejoice",phonetic:"[rɪˈdʒɔɪs]",meaning:"기뻐하다",pos:"v"},
-      {word:"humanity",phonetic:"[hjuːˈmænəti]",meaning:"인류",pos:"n"},
-      {word:"clumsy",phonetic:"[ˈklʌmzi]",meaning:"어설픈",pos:"a"},
-      {word:"revenge",phonetic:"[rɪˈvendʒ]",meaning:"복수",pos:"n"},
-      {word:"mortal",phonetic:"[ˈmɔːtl]",meaning:"치명적인",pos:"a"},
-      {word:"statistical",phonetic:"[stəˈtɪstɪkl]",meaning:"통계적인",pos:"a"},
-      {word:"sarcastic",phonetic:"[sɑːˈkæstɪk]",meaning:"비꼬는",pos:"a"},
-      {word:"toll",phonetic:"[təʊl]",meaning:"통행료",pos:"n"},
-      {word:"stimulus",phonetic:"[ˈstɪmjuləs]",meaning:"자극",pos:"n"},
-      {word:"warfare",phonetic:"[ˈwɔːfeə]",meaning:"전쟁",pos:"n"},
-      {word:"rubbish",phonetic:"[ˈrʌbɪʃ]",meaning:"쓰레기",pos:"n"},
-      {word:"spouse",phonetic:"[spaʊs]",meaning:"배우자",pos:"n"},
-      {word:"approximate",phonetic:"[əˈprɒksɪmət]",meaning:"대략의",pos:"a"},
-      {word:"textile",phonetic:"[ˈtekstaɪl]",meaning:"직물",pos:"n"},
-      {word:"lurk",phonetic:"[lɜːk]",meaning:"숨어 있다",pos:"v"},
-      {word:"subsequent",phonetic:"[ˈsub]",meaning:"그 다음의",pos:"a"},
-      {word:"registration",phonetic:"[ˌredʒɪˈstreɪʃn]",meaning:"등록",pos:"n"},
-      {word:"comprise",phonetic:"[kəmˈpraɪz]",meaning:"구성되다",pos:"v"},
-      {word:"border",phonetic:"[ˈbɔːdə]",meaning:"국경",pos:"n"},
-      {word:"poise",phonetic:"[pɔɪz]",meaning:"균형을 잡다",pos:"v"},
-      {word:"drain",phonetic:"[drain]",meaning:"배수하다",pos:"v"},
-      {word:"disciple",phonetic:"[dɪˈsaɪpl]",meaning:"제자",pos:"n"},
-      {word:"withhold",phonetic:"[wɪðˈhəʊld]",meaning:"보류하다",pos:"v"},
-      {word:"countless",phonetic:"[ˈkaʊntləs]",meaning:"무수한",pos:"a"},
-      {word:"condense",phonetic:"[kənˈdens]",meaning:"압축하다",pos:"v"},
-      {word:"post",phonetic:"[post]",meaning:"우편",pos:"n"},
-      {word:"verdict",phonetic:"[ˈvɜːdɪt]",meaning:"판결",pos:"n"},
-      {word:"collective",phonetic:"[kəˈlektɪv]",meaning:"집단의",pos:"a"},
-      {word:"compatible",phonetic:"[kəmˈpætəbl]",meaning:"호환 가능한",pos:"a"},
-      {word:"relevant",phonetic:"[ˈreləvənt]",meaning:"관련 있는",pos:"a"},
-      {word:"frontier",phonetic:"[ˈfrʌntɪə]",meaning:"국경",pos:"n"},
-      {word:"outburst",phonetic:"[ˈaʊtbɜːst]",meaning:"폭발",pos:"n"},
-      {word:"apparatus",phonetic:"[ˌæpəˈreɪtəs]",meaning:"장치",pos:"n"},
-      {word:"gust",phonetic:"[ɡʌst]",meaning:"돌풍",pos:"n"},
-      {word:"stall",phonetic:"[stɔːl]",meaning:"가판대",pos:"n"},
-      {word:"hail",phonetic:"[hail]",meaning:"우박",pos:"n"},
-      {word:"scope",phonetic:"[skəʊp]",meaning:"범위",pos:"n"},
-      {word:"predator",phonetic:"[ˈpredətə]",meaning:"포식자",pos:"n"},
-      {word:"bribe",phonetic:"[braɪb]",meaning:"뇌물",pos:"n"},
-      {word:"sustain",phonetic:"[səˈsteɪn]",meaning:"유지하다",pos:"v"},
-      {word:"perspiration",phonetic:"[ˌpɜːspəˈreɪʃn]",meaning:"땀",pos:"n"},
-      {word:"nursery",phonetic:"[ˈnɜːsəri]",meaning:"탁아소",pos:"n"},
-      {word:"dilemma",phonetic:"[daɪˈlemə]",meaning:"딜레마",pos:"n"},
-      {word:"valiant",phonetic:"[ˈvæliənt]",meaning:"용감한",pos:"a"},
-      {word:"static",phonetic:"[ˈstætɪk]",meaning:"정적인",pos:"a"},
-      {word:"retention",phonetic:"[rɪˈtenʃn]",meaning:"보유",pos:"n"},
-      {word:"counteract",phonetic:"[ˌkaʊntərˈækt]",meaning:"대응하다",pos:"v"},
-      {word:"vanity",phonetic:"[ˈvænəti]",meaning:"허영심",pos:"n"},
-      {word:"render",phonetic:"[ˈrendə]",meaning:"~하게 만들다",pos:"v"},
-      {word:"firsthand",phonetic:"[ˌfɜːstˈhænd]",meaning:"직접적인",pos:"a"},
-      {word:"posture",phonetic:"[ˈpɒstʃə]",meaning:"자세",pos:"n"},
-      {word:"juggle",phonetic:"[ˈdʒʌɡl]",meaning:"저글링하다",pos:"v"},
-      {word:"bother",phonetic:"[ˈbɒðə]",meaning:"괴롭히다",pos:"v"},
-      {word:"distress",phonetic:"[dɪˈstres]",meaning:"고통",pos:"n"},
-      {word:"obesity",phonetic:"[əʊˈbiːsə티]",meaning:"비만",pos:"n"},
-      {word:"indispensable",phonetic:"[ˌɪndɪˈspensəbl]",meaning:"필수적인",pos:"a"},
-      {word:"outdated",phonetic:"[ˌaʊtˈdeɪtɪd]",meaning:"구식의",pos:"a"},
-      {word:"discourse",phonetic:"[ˈdɪskɔːs]",meaning:"담론",pos:"n"},
-      {word:"ascent",phonetic:"[əˈsent]",meaning:"상승",pos:"n"},
-      {word:"janitor",phonetic:"[ˈdʒænɪtə]",meaning:"수공업자",pos:"n"},
-      {word:"notion",phonetic:"[ˈnəʊʃn]",meaning:"개념",pos:"n"},
-      {word:"cultivate",phonetic:"[ˈ|ʌltɪveɪt]",meaning:"경작하다",pos:"v"},
-      {word:"oversee",phonetic:"[ˌəʊvəˈsiː]",meaning:"감독하다",pos:"v"},
-      {word:"clarify",phonetic:"[ˈklærəfaɪ]",meaning:"명확하게 하다",pos:"v"},
-      {word:"currency",phonetic:"[ˈkʌrənsi]",meaning:"통화",pos:"n"},
-      {word:"advocate",phonetic:"[ˈædvəkət]",meaning:"옹호하다",pos:"v"},
-      {word:"interveone",phonetic:"[ˌɪntəˈviːn]",meaning:"개입하다",pos:"v"},
-      {word:"solvent",phonetic:"[ˈsɒlvənt]",meaning:"용제",pos:"n"},
-      {word:"disgust",phonetic:"[dɪsˈɡʌst]",meaning:"혐오감",pos:"n"},
-      {word:"blush",phonetic:"[blʌʃ]",meaning:"얼굴이 붉어지다",pos:"v"},
-      {word:"creep",phonetic:"[kriːp]",meaning:"기어가다",pos:"v"},
-      {word:"cuisine",phonetic:"[kwɪˈziːn]",meaning:"요리",pos:"n"},
-      {word:"contagious",phonetic:"[kənˈteɪdʒəs]",meaning:"전염성의",pos:"a"},
-      {word:"dare",phonetic:"[deə]",meaning:"감히 ~하다",pos:"v"},
-      {word:"nomad",phonetic:"[ˈnəʊmæd]",meaning:"유목민",pos:"n"},
-      {word:"fragment",phonetic:"[ˈfræɡmənt]",meaning:"파편",pos:"n"},
-      {word:"deterioration",phonetic:"[dɪˌtɪəriəˈreɪʃn]",meaning:"악화",pos:"n"},
-      {word:"encircle",phonetic:"[ɪnˈsɜːkl]",둘러싸다:"",pos:"v"},
-      {word:"itch",phonetic:"[ɪtʃ]",meaning:"가렵다",pos:"v"},
-      {word:"appoint",phonetic:"[əˈpɔɪnt]",meaning:"임명하다",pos:"v"},
-      {word:"dissolve",phonetic:"[dɪˈzɒlv]",meaning:"용해되다",pos:"v"},
-      {word:"constraint",phonetic:"[kənˈstreɪnt]",meaning:"제약",pos:"n"},
-      {word:"declare",phonetic:"[dɪˈkleə]",meaning:"선언하다",pos:"v"},
-      {word:"scheme",phonetic:"[skiːm]",meaning:"계획",pos:"n"},
-      {word:"fling",phonetic:"[flɪŋ]",meaning:"던지다",pos:"v"},
-      {word:"brisk",phonetic:"[brɪsk]",meaning:"활기찬",pos:"a"},
-      {word:"exile",phonetic:"[ˈeksaɪl]",meaning:"망명",pos:"n"},
-      {word:"spur",phonetic:"[spɜː]",meaning:"자극하다",pos:"v"},
-      {word:"delude",phonetic:"[dɪˈluːd]",meaning:"속이다",pos:"v"},
-      {word:"underneath",phonetic:"[ˌʌndəˈniːθ]",meaning:"~의 아래에",pos:"prep"},
-      {word:"dehydrate",phonetic:"[ˌdiːhaɪˈdreɪt]",meaning:"탈수하다",pos:"v"},
-      {word:"publicity",phonetic:"[pʌbˈlɪsəti]",meaning:"홍보",pos:"n"},
-      {word:"deviation",phonetic:"[ˌdiːviˈeɪʃn]",meaning:"일탈",pos:"n"},
-      {word:"unanimous",phonetic:"[juˈnænɪməs]",meaning:"만장일치의",pos:"a"},
-      {word:"metabolism",phonetic:"[məˈtæbəlɪzəm]",meaning:"신진대사",pos:"n"},
-      {word:"discern",phonetic:"[dɪˈsɜːn]",meaning:"식별하다",pos:"v"},
-      {word:"weigh",phonetic:"[weɪ]",meaning:"무게를 달다",pos:"v"},
-      {word:"whisper",phonetic:"[ˈwɪspə]",meaning:"속삭이다",pos:"v"},
-      {word:"wrench",phonetic:"[rentʃ]",meaning:"렌치",pos:"n"},
-      {word:"realm",phonetic:"[relm]",meaning:"영역",pos:"n"},
-      {word:"rectangular",phonetic:"[rekˈtæŋɡjələ]",meaning:"직사각형의",pos:"a"},
-      {word:"exert",phonetic:"[ɪɡˈzɜːt]",meaning:"발휘하다",pos:"v"},
-      {word:"delegate",phonetic:"[ˈdelɪɡət]",meaning:"대표",pos:"n"},
-      {word:"asthma",phonetic:"[ˈæsmə]",meaning:"천식",pos:"n"},
-      {word:"retort",phonetic:"[rɪˈtɔːt]",meaning:"말대꾸하다",pos:"v"},
-      {word:"punctual",phonetic:"[ˈpʌŋktʃuəl]",meaning:"시간을 엄수하는",pos:"a"},
-      {word:"catastrophe",phonetic:"[kəˈtæstrəfi]",meaning:"대재앙",pos:"n"},
-      {word:"elect",phonetic:"[ɪˈlekt]",meaning:"선출하다",pos:"v"},
-      {word:"headquarters",phonetic:"[ˌhedˈkwɔːtəz]",meaning:"본부",pos:"n"},
-      {word:"degrade",phonetic:"[dɪˈɡreɪd]",meaning:"비하하다",pos:"v"},
-      {word:"aviate",phonetic:"[ˈeɪvieɪt]",meaning:"비행하다",pos:"v"},
-      {word:"pinch",phonetic:"[pɪntʃ]",meaning:"꼬집다",pos:"v"},
-      {word:"empathize",phonetic:"[ˈempəθaɪz]",meaning:"공감하다",pos:"v"},
-      {word:"thorn",phonetic:"[θɔːn]",meaning:"가시",pos:"n"},
-      {word:"arbitrary",phonetic:"[ˈɑːbɪtrəri]",meaning:"임의적인",pos:"a"},
-      {word:"renovate",phonetic:"[ˈrenəveɪt]",meaning:"개조하다",pos:"v"},
-      {word:"interval",phonetic:"[ˈɪntəvl]",meaning:"간격",pos:"a"},
-      {word:"expertise",phonetic:"[ˌekspɜːˈtiːz]",meaning:"전문 지식",pos:"n"},
-      {word:"console",phonetic:"[kənˈsəʊl]",meaning:"위로하다",pos:"v"},
-      {word:"bulk",phonetic:"[bulk]",meaning:"대량",pos:"n"},
-      {word:"flee",phonetic:"[fliː]",meaning:"달아나다",pos:"v"},
-      {word:"coexist",phonetic:"[ˌkəʊɪɡˈzɪst]",meaning:"공존하다",pos:"v"},
-      {word:"manuscript",phonetic:"[ˈmænjuskrɪpt]",meaning:"원고",pos:"n"},
-      {word:"segment",phonetic:"[ˈseɡmənt]",meaning:"부분",pos:"n"},
-      {word:"cripple",phonetic:"[ˈkrɪpl]",meaning:"지체 장애인",pos:"n"},
-      {word:"tactics",phonetic:"[ˈtæktɪks]",meaning:"전술",pos:"n"},
-      {word:"dispute",phonetic:"[dɪˈspjuː]",meaning:"논쟁",pos:"n"},
-      {word:"verify",phonetic:"[ˈverɪfaɪ]",meaning:"확인하다",pos:"v"},
-      {word:"estate",phonetic:"[ɪˈsteɪt]",meaning:"부동산",pos:"n"},
-      {word:"despise",phonetic:"[dɪˈspaɪz]",meaning:"경멸하다",pos:"v"},
-      {word:"stack",phonetic:"[stæk]",meaning:"무더기",pos:"n"},
-      {word:"drawback",phonetic:"[ˈdrɔːbæk]",meaning:"결점",pos:"n"},
-      {word:"engross",phonetic:"[ɪnˈɡrəʊs]",meaning:"몰두시키다",pos:"v"},
-      {word:"reprove",phonetic:"[rɪˈpruːv]",meaning:"책망하다",pos:"v"},
-      {word:"hospitality",phonetic:"[ˌhɒspɪˈtæləti]",meaning:"환대",pos:"n"},
-      {word:"dread",phonetic:"[dred]",meaning:"두려워하다",pos:"v"},
-      {word:"cynical",phonetic:"[ˈsɪnɪkl]",meaning:"냉소적인",pos:"a"},
-      {word:"displace",phonetic:"[dɪsˈpleɪ]",meaning:"대체하다",pos:"v"},
-      {word:"alienate",phonetic:"[ˈeɪliəneɪt]",meaning:"소외시키다",pos:"v"},
-      {word:"brutal",phonetic:"[ˈbruːtl]",meaning:"잔혹한",pos:"a"},
-      {word:"dimension",phonetic:"[daɪˈmenʃn]",meaning:"차원",pos:"n"},
-      {word:"innermost",phonetic:"[ˈɪnəməʊst]",meaning:"가장 안쪽의",pos:"a"},
-      {word:"hazardous",phonetic:"[ˈhæzədəs]",meaning:"위험한",pos:"a"},
-      {word:"accommodate",phonetic:"[əˈkɒmədeɪt]",meaning:"수용하다",pos:"v"},
-      {word:"predecessor",phonetic:"[ˈpriːdɪsesə]",meaning:"전임자",pos:"n"},
-      {word:"subordinate",phonetic:"[səˈbɔːdɪnət]",meaning:"부하",pos:"n"},
-      {word:"furnish",phonetic:"[ˈfɜːnɪʃ]",meaning:"공급하다",pos:"v"},
-      {word:"fume",phonetic:"[fjuːm]",meaning:"연기",pos:"n"},
-      {word:"skull",phonetic:"[skʌl]",meaning:"두개골",pos:"n"},
-      {word:"detergent",phonetic:"[dɪˈtɜːdʒənt]",meaning:"세제",pos:"n"},
-      {word:"barrel",phonetic:"[ˈbærəl]",meaning:"배럴",pos:"n"},
-      {word:"proclaim",phonetic:"[prəˈkleɪm]",meaning:"선언하다",pos:"v"},
-      {word:"staple",phonetic:"[ˈsteɪpl]",meaning:"주요한",pos:"a"},
-      {word:"dispersal",phonetic:"[dɪˈspɜːsl]",meaning:"분산",pos:"n"},
-      {word:"eloquent",phonetic:"[ˈeləkwənt]",meaning:"웅변의",pos:"a"},
-      {word:"rash",phonetic:"[ræʃ]",meaning:"경솔한",pos:"a"},
-      {word:"bypass",phonetic:"[ˈbaɪpɑːs]",meaning:"우회하다",pos:"v"},
-      {word:"prehistoric",phonetic:"[ˌpriːhɪˈstɒrɪk]",meaning:"선사 시대의",pos:"a"},
-      {word:"linear",phonetic:"[ˈlɪniə]",meaning:"선의",pos:"a"},
-      {word:"quest",phonetic:"[kwest]",meaning:"탐구",pos:"n"},
-      {word:"summarize",phonetic:"[ˈsʌməraɪz]",meaning:"요약하다",pos:"v"},
-      {word:"perpetual",phonetic:"[pəˈpetʃuəl]",meaning:"영구적인",pos:"a"},
-      {word:"melancholy",phonetic:"[ˈmelənkɒli]",meaning:"우울감",pos:"n"},
-      {word:"tact",phonetic:"[tækt]",meaning:"요령",pos:"n"},
-      {word:"landslide",phonetic:"[ˈlændslaɪd]",meaning:"산사태",pos:"n"},
-      {word:"eligible",phonetic:"[ˈelɪdʒəbl]",meaning:"자격이 있는",pos:"a"},
-      {word:"burnout",phonetic:"[ˈbɜːnaʊt]",meaning:"번아웃",pos:"n"},
-      {word:"simplicity",phonetic:"[sɪˈm|lɪsəti]",meaning:"단순함",pos:"n"},
-      {word:"hierarchy",phonetic:"[ˈhaɪərɑːki]",meaning:"계층",pos:"n"},
-      {word:"eject",phonetic:"[ɪˈdʒekt]",meaning:"배출하다",pos:"v"},
-      {word:"reside",phonetic:"[rɪˈzaɪ]",meaning:"거주하다",pos:"v"},
-      {word:"monotonous",phonetic:"[məˈnɒtənəs]",meaning:"단조로운",pos:"a"},
-      {word:"legacy",phonetic:"[ˈleɡəsi]",meaning:"유산",pos:"n"},
-      {word:"legitimate",phonetic:"[lɪˈdʒɪtɪmət]",meaning:"합법적인",pos:"a"},
-      {word:"shuffle",phonetic:"[ˈʃʌfl]",meaning:"합치다",pos:"v"},
-      {word:"plausible",phonetic:"[ˈplɔːzəbl]",meaning:"그럴듯한",pos:"a"},
-      {word:"offspring",phonetic:"[ˈɒfsprɪŋ]",meaning:"자식",pos:"n"},
-      {word:"demolish",phonetic:"[dɪˈmɒlɪʃ]",meaning:"철거하다",pos:"v"},
-      {word:"yearn",phonetic:"[jɜːn]",meaning:"갈망하다",pos:"v"},
-      {word:"reckon",phonetic:"[ˈrekən]",meaning:"생각하다",pos:"v"},
-      {word:"defy",phonetic:"[dɪˈfaɪ]",meaning:"반대하다",pos:"v"},
-      {word:"tackle",phonetic:"[ˈtækl]",meaning:"다루다",pos:"v"},
-      {word:"conviction",phonetic:"[kənˈvɪkʃn]",meaning:"확신",pos:"n"},
-      {word:"extrinsic",phonetic:"[ekˈstrɪnsɪk]",meaning:"외적인",pos:"a"},
-      {word:"stout",phonetic:"[staʊt]",meaning:"통통한",pos:"a"},
-      {word:"moan",phonetic:"[məʊn]",meaning:"신음하다",pos:"v"},
-      {word:"sentiment",phonetic:"[ˈsentɪmənt]",meaning:"정서",pos:"n"},
-      {word:"endow",phonetic:"[ɪnˈdaʊ]",meaning:"기부하다",pos:"v"},
-      {word:"merchandise",phonetic:"[ˈmɜːtʃəndaɪs]",meaning:"물품",pos:"n"},
-      {word:"respectively",phonetic:"[rɪˈspektɪvli]",meaning:"각각",pos:"ad"},
-      {word:"entail",phonetic:"[ɪnˈteɪl]",meaning:"수반하다",pos:"v"},
-      {word:"merge",phonetic:"[mɜːdʒ]",meaning:"합병하다",pos:"v"},
-      {word:"frantic",phonetic:"[ˈfræntɪk]",meaning:"광란의",pos:"a"},
-      {word:"detest",phonetic:"[dɪˈtest]",meaning:"혐오하다",pos:"v"},
-      {word:"enchant",phonetic:"[ɪnˈtʃɑːnt]",meaning:"매료시키다",pos:"v"},
-      {word:"dusk",phonetic:"[dʌsk]",meaning:"황혼",pos:"n"},
-      {word:"equate",phonetic:"[ɪˈkweɪt]",meaning:"동등시하다",pos:"v"},
-      {word:"reptile",phonetic:"[ˈreptaɪl]",meaning:"파충류",pos:"n"},
-      {word:"auditory",phonetic:"[ˈɔːdɪtri]",meaning:"청각의",pos:"a"},
-      {word:"thrust",phonetic:"[θrʌst]",meaning:"밀치다",pos:"v"},
-      {word:"feat",phonetic:"[fiːt]",meaning:"업적",pos:"n"},
-      {word:"inference",phonetic:"[ˈɪnfərəns]",meaning:"추론",pos:"n"},
-      {word:"cosmopolitan",phonetic:"[ˌkɒzməˈpɒlɪtən]",meaning:"세계적인",pos:"a"},
-      {word:"antagonist",phonetic:"[ænˈtæɡənɪst]",meaning:"적대자",pos:"n"},
-      {word:"erosion",phonetic:"[ɪˈrəʊʒn]",meaning:"침식",pos:"n"},
-      {word:"secondhand",phonetic:"[ˌsekəndˈhænd]",meaning:"중고의",pos:"a"},
-      {word:"detach",phonetic:"[dɪˈtætʃ]",meaning:"분리하다",pos:"v"},
-      {word:"creed",phonetic:"[kriːd]",meaning:"신조",pos:"n"},
-      {word:"misplace",phonetic:"[ˌmɪsˈpleɪs]",meaning:"잘못 두다",pos:"v"},
-      {word:"missionary",phonetic:"[ˈmɪʃənri]",meaning:"선교사",pos:"n"},
-      {word:"multiple",phonetic:"[ˈmʌltɪpl]",meaning:"다수의",pos:"a"},
-      {word:"embed",phonetic:"[ɪmˈbed]",meaning:"박아 넣다",pos:"v"},
-      {word:"propel",phonetic:"[prəˈpel]",meaning:"추진하다",pos:"v"},
-      {word:"refraction",phonetic:"[rɪˈfrækʃn]",meaning:"굴절",pos:"n"},
-      {word:"utensil",phonetic:"[juːˈtensl]",meaning:"기구",pos:"n"},
-      {word:"hybrid",phonetic:"[ˈhaɪbrɪd]",meaning:"잡종",pos:"n"},
-      {word:"radius",phonetic:"[ˈreɪdiəs]",meaning:"반지름",pos:"n"},
-      {word:"scrutiny",phonetic:"[ˈskruːtəni]",meaning:"정밀 조사",pos:"n"},
-      {word:"penetrate",phonetic:"[ˈpenətreɪt]",meaning:"관통하다",pos:"v"},
-      {word:"reckless",phonetic:"[ˈrekləs]",meaning:"무모한",pos:"a"},
-      {word:"kidnap",phonetic:"[ˈkɪdnæp]",meaning:"납치하다",pos:"v"},
-      {word:"grumble",phonetic:"[ˈɡstruct]",meaning:"불평하다",pos:"v"},
-      {word:"insane",phonetic:"[ɪnˈseɪn]",meaning:"정신 나간",pos:"a"},
-      {word:"outset",phonetic:"[ˈaʊtset]",meaning:"시작",pos:"n"},
-      {word:"peril",phonetic:"[ˈperəl]",meaning:"위험",pos:"n"},
-      {word:"synthetic",phonetic:"[sɪnˈθetɪk]",meaning:"합성의",pos:"a"},
-      {word:"pitfall",phonetic:"[ˈpitfall]",meaning:"함정",pos:"n"},
-      {word:"intrude",phonetic:"[ɪnˈtruːd]",meaning:"침범하다",pos:"v"},
-      {word:"notable",phonetic:"[ˈnəʊtəbl]",meaning:"주목할 만한",pos:"a"},
-      {word:"landfill",phonetic:"[ˈlændfɪl]",meaning:"매립지",pos:"n"},
-      {word:"productive",phonetic:"[prədʌktɪv]",meaning:"생산적인",pos:"a"},
-      {word:"liability",phonetic:"[ˌlaɪəˈbɪləti]",meaning:"부채",pos:"n"},
-      {word:"uncover",phonetic:"[ʌnˈkʌvə]",meaning:"드러내다",pos:"v"},
-      {word:"limb",phonetic:"[lɪm]",meaning:"팔다리",pos:"n"},
-      {word:"rage",phonetic:"[reɪdʒ]",meaning:"분노",pos:"n"},
-      {word:"grudge",phonetic:"[grudge]",meaning:"원한",pos:"n"},
-      {word:"counterattack",phonetic:"[ˈkaʊntərətæk]",meaning:"반격",pos:"n"},
-      {word:"pollination",phonetic:"[ˌpɒləˈneɪʃn]",meaning:"수분",pos:"n"},
-      {word:"veterinarian",phonetic:"[ˌvetərɪˈneəriən]",meaning:"수의사",pos:"n"},
-      {word:"fluctuation",phonetic:"[ˌflʌktʃuˈeɪʃn]",meaning:"변동",pos:"n"},
-      {word:"prudent",phonetic:"[ˈpruːdnt]",meaning:"신중한",pos:"a"},
-      {word:"prosper",phonetic:"[ˈprɒspə]",meaning:"번창하다",pos:"v"},
-      {word:"wound",phonetic:"[wuːnd]",meaning:"상처",pos:"n"},
-      {word:"solidify",phonetic:"[səˈlɪdɪfaɪ]",meaning:"고체화되다",pos:"v"},
-      {word:"setback",phonetic:"[ˈsetbæk]",meaning:"차질",pos:"n"},
-      {word:"cumulative",phonetic:"[ˈkjuːmjələtɪv]",meaning:"누적되는",pos:"a"},
-      {word:"phase",phonetic:"[feɪz]",meaning:"단계",pos:"a"},
-      {word:"infrastructure",phonetic:"[ˈɪnfrəstrʌktʃə]",meaning:"사회 기반 시설",pos:"n"},
-      {word:"subsidy",phonetic:"[ˈsʌbsədi]",meaning:"보조금",pos:"n"},
-      {word:"ambiguous",phonetic:"[æmˈbɪɡjuəs]",meaning:"모호한",pos:"a"},
-      {word:"lessen",phonetic:"[ˈlesn]",meaning:"줄이다",pos:"v"},
-      {word:"enthusiasm",phonetic:"[ɪnˈθjuːziæzəm]",meaning:"열정",pos:"n"},
-      {word:"tangle",phonetic:"[ˈtænɡl]",meaning:"얽히게 하다",pos:"v"},
-      {word:"discrete",phonetic:"[dɪˈskriːt]",meaning:"별개의",pos:"a"},
-      {word:"bankruptcy",phonetic:"[ˈbæŋkrʌptsi]",meaning:"파산",pos:"n"}
+      {word:"level",phonetic:"[ˈlevl]",meaning:"수준",pos:"n"}
     ];
 
-    // Global App States
     let words = [];
     let currentTab = 'list';
-    let currentRangeIndex = 0; // 0 means 'All'
+    let currentRangeIndex = 0; // 0: 전체보기
     let currentFilter = 'all';
     
-    // Sub-modules state
     let cardIndex = 0;
     let cardWords = [];
     let quizIndex = 0;
     let quizWords = [];
     let quizScore = 0;
-    
-    // Mobile touch swiping states
     let touchStartX = 0;
     let touchEndX = 0;
 
-    // Load LocalStorage and Initialize
     window.onload = function() {
       const savedStatus = JSON.parse(localStorage.getItem('cu_top_status')) || {};
       const savedFavs = JSON.parse(localStorage.getItem('cu_top_favs')) || {};
       
-      // Map states strictly parsing criteria rules wrapper brackets
       words = rawWords.map((w, idx) => ({
         ...w,
         id: idx,
-        status: savedStatus[idx] || '', // 'known' or ''
+        status: savedStatus[idx] || '', 
         fav: !!savedFavs[idx]
       }));
 
@@ -2260,7 +331,7 @@
       buildRangeBar();
       switchTab('list');
       
-      // Touch slider event registration
+      // 모바일 스와이프 터치 이벤트 연동
       const elCard = document.getElementById('card-box');
       elCard.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, false);
       elCard.addEventListener('touchend', e => { 
@@ -2280,19 +351,18 @@
       localStorage.setItem('cu_top_favs', JSON.stringify(favsObj));
     }
 
-    // Build Range Segment Slider Bar Items
+    // 10개 단위 구간 분할 기능
     function buildRangeBar() {
       const container = document.getElementById('range-bar');
       container.innerHTML = '';
       
-      // All Segment Option
       const btnAll = document.createElement('button');
       btnAll.className = 'range-btn active';
-      btnAll.innerText = '전체 목록';
+      btnAll.innerText = '전체 보기';
       btnAll.onclick = () => selectRange(0);
       container.appendChild(btnAll);
 
-      const itemsPerRange = 40;
+      const itemsPerRange = 10;
       const totalRanges = Math.ceil(words.length / itemsPerRange);
       
       for(let i = 1; i <= totalRanges; i++) {
@@ -2313,32 +383,26 @@
         else btn.classList.remove('active');
       });
       
-      // Refresh current active panel UI seamlessly
       if (currentTab === 'list') renderList();
       else if (currentTab === 'card') initFlashcards();
       else if (currentTab === 'quiz') startQuiz();
     }
 
-    // Filter dynamic criteria boundaries matching items
     function getFilteredWords() {
       let result = [...words];
       
-      // 1. Range barrier sync integration
       if (currentRangeIndex > 0) {
-        const itemsPerRange = 40;
+        const itemsPerRange = 10;
         const startIdx = (currentRangeIndex - 1) * itemsPerRange;
         const endIdx = startIdx + itemsPerRange;
         result = result.slice(startIdx, endIdx);
       }
       
-      // 2. Active Tab contextual constraints logic filtering
       if (currentTab === 'list') {
-        // Query search box parameters match
         const q = document.getElementById('search-box').value.trim().toLowerCase();
         if (q) {
           result = result.filter(w => w.word.toLowerCase().includes(q) || w.meaning.includes(q));
         }
-        // Selection filter state switches match
         if (currentFilter === 'wrong') {
           result = result.filter(w => w.status !== 'known');
         } else if (currentFilter === 'fav') {
@@ -2348,7 +412,6 @@
       return result;
     }
 
-    // Screen tab switcher controller
     function switchTab(tabName) {
       currentTab = tabName;
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -2380,10 +443,9 @@
       renderList();
     }
 
-    // TTS Web Speech Native Player Api Call
     function playTTS(text) {
       if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel(); // kill overlapping sounds instantly
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
         utterance.rate = 0.85;
@@ -2391,14 +453,14 @@
       }
     }
 
-    // --- MODULE 1: Word List View Rendering Logic ---
+    // --- 단어 목록 기능 ---
     function renderList() {
       const targetBox = document.getElementById('word-list-box');
       targetBox.innerHTML = '';
       const data = getFilteredWords();
 
       if(data.length === 0) {
-        targetBox.innerHTML = `<div class="empty-msg">조건에 부합하는 단어가 존재하지 않습니다.</div>`;
+        targetBox.innerHTML = `<div class="empty-msg">조건에 부합하는 단어가 없습니다.</div>`;
         return;
       }
 
@@ -2441,7 +503,7 @@
       }
     }
 
-    // --- MODULE 2: Flashcard View Engine ---
+    // --- 보완된 플래시카드 기능 ---
     function initFlashcards() {
       cardWords = getFilteredWords();
       cardIndex = 0;
@@ -2453,32 +515,42 @@
       const elPho = document.getElementById('fc-phonetic');
       const elMean = document.getElementById('fc-korean');
       const elHint = document.getElementById('fc-hint-text');
-      const elCount = document.getElementById('fc-count');
+      const elPos = document.getElementById('fc-partofspeech');
+      const elCountText = document.getElementById('fc-count-swipe');
       const favBtn = document.getElementById('fc-fav-btn');
 
       if(cardWords.length === 0) {
         elEng.innerText = "텅 빔";
         elPho.innerText = "";
+        elPos.innerText = "-";
         elMean.style.display = "none";
-        elHint.innerText = "선택된 구간 범위에 단어가 없습니다.";
-        elCount.innerText = "0 / 0";
+        elHint.innerText = "이 구간에 해당하는 단어가 없습니다.";
+        elCountText.innerText = "(0 / 0) Swipe 이동 불가";
         return;
       }
 
       const w = cardWords[cardIndex];
       elEng.innerText = w.word;
       elPho.innerText = w.phonetic;
+      elPos.innerText = w.pos;
       elMean.innerText = w.meaning;
       
-      // Hide translation layout back to initial state state tracker
       elMean.style.display = "none";
       elHint.style.display = "block";
-      elCount.innerText = `${cardIndex + 1} / ${cardWords.length}`;
+      elCountText.innerText = `(${cardIndex + 1} / ${cardWords.length}) Swipe 좌우 이동 가능`;
       
       if(w.fav) favBtn.classList.add('active');
       else favBtn.classList.remove('active');
 
       favBtn.onclick = (e) => toggleFav(w.id, e);
+    }
+
+    // 카드 독립 스피커 버튼 전용 함수 (카드 뒤집기 버블링 차단 필수)
+    function triggerCardTTS(event) {
+      if(event) event.stopPropagation(); 
+      if(cardWords.length > 0) {
+        playTTS(cardWords[cardIndex].word);
+      }
     }
 
     function revealCard() {
@@ -2489,29 +561,39 @@
       if(elMean.style.display === "none") {
         elMean.style.display = "block";
         elHint.style.display = "none";
-        playTTS(cardWords[cardIndex].word);
+        playTTS(cardWords[cardIndex].word); // 터치 시 최초 1회 자동 재생
       }
     }
 
-    function moveCard(direction) {
+    function markCardStatus(status) {
       if(cardWords.length === 0) return;
-      cardIndex += direction;
+      const w = cardWords[cardIndex];
+      words[w.id].status = status;
+      saveState();
+      
+      // 상태 변경 후 다음 카드로 자동 이동 및 숨김 초기화
+      cardIndex++;
       if(cardIndex >= cardWords.length) cardIndex = 0;
-      if(cardIndex < 0) cardIndex = cardWords.length - 1;
       updateCardUI();
     }
 
     function handleSwipe() {
       const swipethreshold = 50;
       if (touchStartX - touchEndX > swipethreshold) {
-        moveCard(1); // Swipe left -> Next card item
+        // 왼쪽으로 슬라이드 -> 다음 단어
+        cardIndex++;
+        if(cardIndex >= cardWords.length) cardIndex = 0;
+        updateCardUI();
       }
       if (touchEndX - touchStartX > swipethreshold) {
-        moveCard(-1); // Swipe right -> Previous item card
+        // 오른쪽으로 슬라이드 -> 이전 단어
+        cardIndex--;
+        if(cardIndex < 0) cardIndex = cardWords.length - 1;
+        updateCardUI();
       }
     }
 
-    // --- MODULE 3: Multi Choice Randomized Quiz Engine ---
+    // --- 퀴즈 기능 ---
     function startQuiz() {
       const scopePool = getFilteredWords();
       document.getElementById('quiz-result').style.display = "none";
@@ -2519,14 +601,12 @@
       if (scopePool.length < 4) {
         document.getElementById('quiz-game').style.display = "none";
         document.getElementById('quiz-result').style.display = "flex";
-        document.getElementById('res-score').innerText = "❌ 학습 불가";
-        document.getElementById('res-comment').innerText = "퀴즈를 생성하려면 최소 4개 이상의 단어가 구간 범위 내에 필요합니다.";
+        document.getElementById('res-score').innerText = "학습 불가";
+        document.getElementById('res-comment').innerText = "퀴즈를 시작하려면 선택 구간 내에 최소 4개 이상의 단어가 필요합니다.";
         return;
       }
 
       document.getElementById('quiz-game').style.display = "block";
-      
-      // Randomly draw 10 distinct elements from filtered list boundaries
       quizWords = [...scopePool].sort(() => 0.5 - Math.random()).slice(0, 10);
       quizIndex = 0;
       quizScore = 0;
@@ -2542,22 +622,19 @@
       document.getElementById('qz-eng').innerText = currentQ.word;
       document.getElementById('qz-pho').innerText = currentQ.phonetic;
 
-      // Make 4 choices layout
       const box = document.getElementById('qz-options-box');
       box.innerHTML = '';
 
       const choices = [currentQ.meaning];
       const fallbackPool = words.filter(w => w.meaning !== currentQ.meaning);
-      
-      // Shuffle pool metrics extraction dummy items
       const dummies = fallbackPool.sort(() => 0.5 - Math.random()).slice(0, 3).map(w => w.meaning);
       const finalChoices = [...choices, ...dummies].sort(() => 0.5 - Math.random());
 
-      finalChoices.forEach(meaningString => {
+      finalChoices.forEach(m => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
-        btn.innerText = meaningString;
-        btn.onclick = () => handleChoiceSelection(btn, meaningString, currentQ.meaning);
+        btn.innerText = m;
+        btn.onclick = () => handleChoiceSelection(btn, m, currentQ.meaning);
         box.appendChild(btn);
       });
 
@@ -2566,7 +643,6 @@
 
     function handleChoiceSelection(selectedBtn, chosenText, correctText) {
       const optionButtons = document.querySelectorAll('.option-btn');
-      // Disable alternative parallel clicking
       optionButtons.forEach(b => b.disabled = true);
 
       if (chosenText === correctText) {
@@ -2574,13 +650,11 @@
         quizScore++;
       } else {
         selectedBtn.classList.add('wrong');
-        // Flash correct trace outline variant to user visual feed
         optionButtons.forEach(b => {
           if(b.innerText === correctText) b.classList.add('correct');
         });
       }
 
-      // Automatically advance after brief interaction latency timeout window
       setTimeout(() => {
         quizIndex++;
         if(quizIndex < quizWords.length) {
@@ -2596,15 +670,13 @@
       const elRes = document.getElementById('quiz-result');
       elRes.style.display = "flex";
 
-      const totalNum = quizWords.length;
-      const finalScorePct = Math.round((quizScore / totalNum) * 100);
-      
+      const finalScorePct = Math.round((quizScore / quizWords.length) * 100);
       document.getElementById('res-score').innerText = `${finalScorePct}점`;
       
       let feedbackMsg = "조금 더 분발해봅시다! 💪";
-      if(finalScorePct === 100) feedbackMsg = "🥇 완벽합니다! 명예의 전당 등극!";
-      else if(finalScorePct >= 80) feedbackMsg = "✨ 아주 훌륭합니다. 씨유에탑 최고 수준!";
-      else if(finalScorePct >= 50) feedbackMsg = "👍 잘하고 있어요. 조금만 더 집중해봅시다!";
+      if(finalScorePct === 100) feedbackMsg = "🥇 완벽합니다! 씨유에탑 마스터 클래스!";
+      else if(finalScorePct >= 80) feedbackMsg = "✨ 아주 훌륭합니다. 실력이 대단하네요!";
+      else if(finalScorePct >= 50) feedbackMsg = "👍 잘하고 있어요. 조금만 더 연습해봐요!";
       
       document.getElementById('res-comment').innerText = feedbackMsg;
     }
