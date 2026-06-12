@@ -1,79 +1,71 @@
 # -*- coding: utf-8 -*-
-import requests
+import FinanceDataReader as fdr
+import pandas as pd
 import os
 from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_HTML = os.path.join(BASE_DIR, "foreign_flow.html")
 
-def get_last_business_day():
+def get_today():
     kst = datetime.utcnow() + timedelta(hours=9)
-    # 월요일=0, 토=5, 일=6
     wd = kst.weekday()
     if wd == 5: kst -= timedelta(days=1)
     elif wd == 6: kst -= timedelta(days=2)
     return kst.strftime("%Y%m%d"), kst.strftime("%Y.%m.%d")
 
-def fetch_krx(date_str, ask_bid="1"):
-    """KRX 투자자별 순매수 상위종목 API"""
-    url = "https://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer": "https://data.krx.co.kr/",
-        "Content-Type": "application/x-www-form-urlencoded",
-    }
-    body = {
-        "bld":       "dbms/MDC/STAT/standard/MDCSTAT02501",
-        "locale":    "ko_KR",
-        "mktId":     "STK",
-        "trdDd":     date_str,
-        "invstTpCd": "9000",
-        "askBid":    ask_bid,
-        "strtRank":  "1",
-        "endRank":   "20",
-        "share":     "1",
-        "money":     "1",
-        "csvxls_isNo": "false",
-    }
-    try:
-        res = requests.post(url, headers=headers, data=body, timeout=15)
-        print(f"  KRX 응답코드: {res.status_code}, 길이: {len(res.text)}")
-        data = res.json()
-        items = []
-        for row in data.get("OutBlock_1", []):
-            name     = row.get("ISU_ABBRV", "").strip()
-            code     = row.get("ISU_SRT_CD", "").strip()
-            try:
-                cur_price = int(str(row.get("TDD_CLSPRC","0")).replace(",",""))
-            except: cur_price = 0
-            try:
-                change_pct = float(str(row.get("FLUC_RT","0")).replace(",",""))
-            except: change_pct = 0.0
-            # 순매수거래대금 (백만원)
-            net_key = next((k for k in row if "순매수" in k and "대금" in k), None)
-            try:
-                net_amt = abs(int(str(row.get(net_key,"0")).replace(",",""))) if net_key else 0
-            except: net_amt = 0
-
-            direction = "up" if change_pct > 0 else "down" if change_pct < 0 else "flat"
-            if name and code:
-                items.append({
-                    "name": name, "code": code,
-                    "cur_price": cur_price, "change_pct": change_pct,
-                    "direction": direction, "net_amt": net_amt,
-                })
-        return items
-    except Exception as e:
-        print(f"  KRX 오류: {e}")
-        return []
-
 def fetch_all():
-    date_str, _ = get_last_business_day()
-    print(f"📡 KRX 데이터 수집 중... ({date_str})")
-    buy_list  = fetch_krx(date_str, "1")[:20]
-    sell_list = fetch_krx(date_str, "2")[:20]
-    print(f"  ✅ 순매수 {len(buy_list)}개 / 순매도 {len(sell_list)}개")
-    return buy_list, sell_list
+    date_krx, date_str = get_today()
+    print(f"📡 데이터 수집 중... ({date_str})")
+
+    try:
+        # 코스피 전종목 시세
+        df = fdr.StockListing('KOSPI')
+        print(f"  종목수: {len(df)}")
+        print(f"  컬럼: {list(df.columns)}")
+
+        # 외국인 순매수 컬럼 찾기
+        foreign_col = next((c for c in df.columns if '외국인' in str(c) or 'Foreign' in str(c)), None)
+        print(f"  외국인 컬럼: {foreign_col}")
+
+        if foreign_col:
+            df_sorted = df.dropna(subset=[foreign_col]).sort_values(foreign_col, ascending=False)
+            buy_df  = df_sorted[df_sorted[foreign_col] > 0].head(20)
+            sell_df = df_sorted[df_sorted[foreign_col] < 0].tail(20)
+        else:
+            # 외국인 컬럼 없으면 거래대금 기준
+            vol_col = next((c for c in df.columns if '거래' in str(c) or 'Volume' in str(c)), None)
+            df_sorted = df.sort_values(vol_col, ascending=False) if vol_col else df
+            buy_df  = df_sorted.head(20)
+            sell_df = df_sorted.tail(20)
+
+        def to_items(rows, is_buy):
+            items = []
+            for _, row in rows.iterrows():
+                name = str(row.get('Name', row.get('종목명', '')))
+                code = str(row.get('Code', row.get('Symbol', '')))
+                try: cur_price = int(row.get('Close', row.get('종가', 0)) or 0)
+                except: cur_price = 0
+                try: change_pct = float(row.get('ChangeRatio', row.get('등락률', 0)) or 0)
+                except: change_pct = 0.0
+                if change_pct > 1: change_pct = change_pct  # 이미 % 단위
+                try: net_amt = abs(int(row.get(foreign_col, 0) or 0)) if foreign_col else 0
+                except: net_amt = 0
+                direction = 'up' if change_pct > 0 else 'down' if change_pct < 0 else 'flat'
+                if name and code:
+                    items.append({'name': name, 'code': code, 'cur_price': cur_price,
+                                  'change_pct': change_pct, 'direction': direction, 'net_amt': net_amt})
+            return items
+
+        buy_list  = to_items(buy_df,  True)
+        sell_list = to_items(sell_df, False)
+        print(f"  ✅ 순매수 {len(buy_list)}개 / 순매도 {len(sell_list)}개")
+        return buy_list, sell_list, date_str
+
+    except Exception as e:
+        print(f"  ❌ 오류: {e}")
+        import traceback; traceback.print_exc()
+        return [], [], date_str
 
 def cards_html(items, tab):
     if not items:
@@ -85,9 +77,9 @@ def cards_html(items, tab):
         d = item["direction"]
         sign = "+" if d == "up" else ""
         arrow = "▲" if d == "up" else "▼" if d == "down" else "–"
-        bar_w = max(4, round((item["net_amt"] / max_amt) * 48))
+        bar_w = max(4, round((item["net_amt"] / max_amt) * 48)) if max_amt > 0 else 4
         amt = item["net_amt"]
-        amt_s = f"{amt/100:.1f}억" if amt >= 100 else f"{amt}백만"
+        amt_s = f"{amt/100:.1f}억" if amt >= 100 else f"{amt}백만" if amt > 0 else "–"
         price_s = f"{item['cur_price']:,}원" if item["cur_price"] else "–"
         label = "순매수" if tab == "buy" else "순매도"
         url = f"https://finance.naver.com/item/main.naver?code={item['code']}"
@@ -157,7 +149,7 @@ def build_html(buy_list, sell_list, date_str, time_str):
   <span class="date-badge">{date_str}</span>
 </header>
 <div class="update-bar">
-  <span>KRX 공식 데이터 · 장 마감 후 자동 업데이트</span>
+  <span>FinanceDataReader · 장 마감 후 자동 업데이트</span>
   <span class="update-time">✓ {time_str} 기준</span>
 </div>
 <div class="tabs">
@@ -172,7 +164,7 @@ def build_html(buy_list, sell_list, date_str, time_str):
   <div class="section-label">외국인 순매도 상위 TOP {len(sell_list)}</div>
   <div class="card-list">{sc}</div>
 </div>
-<p class="notice">※ KRX 한국거래소 공식 데이터 기준<br>※ 종목 탭하면 네이버 주식으로 이동</p>
+<p class="notice">※ 종목 탭하면 네이버 주식으로 이동</p>
 <script>
 function switchTab(t){{
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
@@ -186,9 +178,8 @@ function switchTab(t){{
 
 def main():
     kst = datetime.utcnow() + timedelta(hours=9)
-    _, date_str = get_last_business_day()
     time_str = kst.strftime("%H:%M")
-    buy_list, sell_list = fetch_all()
+    buy_list, sell_list, date_str = fetch_all()
     html = build_html(buy_list, sell_list, date_str, time_str)
     with open(OUTPUT_HTML, "w", encoding="utf-8") as f:
         f.write(html)
