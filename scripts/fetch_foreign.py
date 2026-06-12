@@ -1,55 +1,65 @@
 # -*- coding: utf-8 -*-
-import requests
+from pykrx import stock
 import os
 from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_HTML = os.path.join(BASE_DIR, "foreign_flow.html")
 
-def fetch_krx(trade_type="매수"):
-    """KRX 공식 API - 외국인 순매수/매도 상위"""
-    url = "http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
-    body = {
-        "bld": "dbms/MDC/STAT/standard/MDCSTAT02501",
-        "mktId": "STK",           # KOSPI
-        "trdDd": datetime.now().strftime("%Y%m%d"),
-        "invstTpCd": "9000",      # 외국인
-        "askBid": "1" if trade_type == "매수" else "2",
-        "strtRank": "1",
-        "endRank": "20",
-    }
-    headers = {
-        "User-Agent": "Mozilla/5.0",
-        "Referer": "http://data.krx.co.kr/",
-    }
-    try:
-        res = requests.post(url, data=body, headers=headers, timeout=15)
-        data = res.json()
-        items = []
-        for row in data.get("OutBlock_1", []):
-            name = row.get("ISU_ABBRV", "")
-            code = row.get("ISU_SRT_CD", "")
-            cur_price = int(str(row.get("TDD_CLSPRC", "0")).replace(",", "") or 0)
-            change_pct = float(str(row.get("FLUC_RT", "0")).replace(",", "") or 0)
-            net_amt = int(str(row.get("NETBID_TRDVOL", "0")).replace(",", "") or 0)
-            direction = "up" if change_pct > 0 else "down" if change_pct < 0 else "flat"
-            if name and code:
-                items.append({
-                    "name": name, "code": code,
-                    "cur_price": cur_price, "change_pct": change_pct,
-                    "direction": direction, "net_amt": abs(net_amt),
-                })
-        return items
-    except Exception as e:
-        print(f"  KRX 오류: {e}")
-        return []
-
 def fetch_all():
-    print("📡 KRX 데이터 수집 중...")
-    buy_list  = fetch_krx("매수")[:20]
-    sell_list = fetch_krx("매도")[:20]
-    print(f"  ✅ 순매수 {len(buy_list)}개 / 순매도 {len(sell_list)}개")
-    return buy_list, sell_list
+    print("📡 pykrx 데이터 수집 중...")
+    kst = datetime.utcnow() + timedelta(hours=9)
+    date_str_krx = kst.strftime("%Y%m%d")
+
+    try:
+        # 외국인 순매수 상위 (코스피)
+        df = stock.get_market_net_purchases_of_equities_by_ticker(
+            date_str_krx, date_str_krx, "KOSPI", "외국인"
+        )
+        df = df.sort_values("순매수거래대금", ascending=False)
+
+        buy_list = []
+        sell_list = []
+
+        for code, row in df.iterrows():
+            name = stock.get_market_ticker_name(code)
+            net = row["순매수거래대금"]
+
+            # 현재가 및 등락률
+            try:
+                price_df = stock.get_market_ohlcv_by_date(date_str_krx, date_str_krx, code)
+                if not price_df.empty:
+                    cur_price = int(price_df["종가"].iloc[-1])
+                    change_pct = float(price_df["등락률"].iloc[-1])
+                else:
+                    cur_price, change_pct = 0, 0.0
+            except:
+                cur_price, change_pct = 0, 0.0
+
+            direction = "up" if change_pct > 0 else "down" if change_pct < 0 else "flat"
+
+            item = {
+                "name": name, "code": code,
+                "cur_price": cur_price,
+                "change_pct": change_pct,
+                "direction": direction,
+                "net_amt": abs(int(net // 1_000_000)),  # 백만원 단위
+            }
+
+            if net > 0:
+                buy_list.append(item)
+            elif net < 0:
+                sell_list.append(item)
+
+        buy_list  = sorted(buy_list,  key=lambda x: x["net_amt"], reverse=True)[:20]
+        sell_list = sorted(sell_list, key=lambda x: x["net_amt"], reverse=True)[:20]
+
+        print(f"  ✅ 순매수 {len(buy_list)}개 / 순매도 {len(sell_list)}개")
+        return buy_list, sell_list
+
+    except Exception as e:
+        print(f"  ❌ 오류: {e}")
+        return [], []
 
 def cards_html(items, tab):
     if not items:
@@ -161,6 +171,7 @@ function switchTab(t){{
 </html>"""
 
 def main():
+    from datetime import datetime, timedelta
     kst = datetime.utcnow() + timedelta(hours=9)
     date_str = kst.strftime("%Y.%m.%d")
     time_str = kst.strftime("%H:%M")
