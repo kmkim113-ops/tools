@@ -1,91 +1,53 @@
 # -*- coding: utf-8 -*-
 import requests
-from bs4 import BeautifulSoup
 import os
 from datetime import datetime, timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_HTML = os.path.join(BASE_DIR, "foreign_flow.html")
 
-HEADERS = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    "Accept-Language": "ko-KR,ko;q=0.9",
-    "Accept-Encoding": "gzip, deflate, br",
-    "Referer": "https://finance.naver.com/",
-}
-
-def fetch_list(url, pages=2):
-    items = []
-    for page in range(1, pages + 1):
-        try:
-            res = requests.get(f"{url}&page={page}", headers=HEADERS, timeout=15)
-            res.encoding = "euc-kr"
-            soup = BeautifulSoup(res.text, "html.parser")
-
-            # 모든 테이블 시도
-            table = soup.find("table", {"class": "type_2"})
-            if not table:
-                table = soup.find("table")
-            if not table:
-                print(f"  ⚠️ 페이지{page} 테이블 없음, 상태코드={res.status_code}")
-                continue
-
-            rows = table.find_all("tr")
-            for row in rows:
-                tds = row.find_all("td")
-                if len(tds) < 5:
-                    continue
-                name_tag = row.find("a")
-                if not name_tag:
-                    continue
-
-                name = name_tag.text.strip()
-                href = name_tag.get("href", "")
-                code = href.split("code=")[-1].split("&")[0] if "code=" in href else ""
-
-                texts = [td.text.strip().replace(",", "").replace("%", "").replace("+", "") for td in tds]
-
-                try:
-                    cur_price = int(texts[1]) if texts[1].lstrip("-").isdigit() else 0
-                except:
-                    cur_price = 0
-
-                try:
-                    change_pct = float(texts[3]) if texts[3].replace(".", "").replace("-", "").isdigit() else 0.0
-                except:
-                    change_pct = 0.0
-
-                # 등락 방향
-                td2_html = str(tds[2])
-                if "상승" in td2_html or 'class="up"' in td2_html or "red" in td2_html:
-                    direction = "up"
-                    change_pct = abs(change_pct)
-                elif "하락" in td2_html or 'class="dn"' in td2_html or "blue" in td2_html:
-                    direction = "down"
-                    change_pct = -abs(change_pct)
-                else:
-                    direction = "flat"
-
-                try:
-                    net_amt = int(texts[5]) if texts[5].lstrip("-").isdigit() else 0
-                except:
-                    net_amt = 0
-
-                if name and code:
-                    items.append({
-                        "name": name, "code": code,
-                        "cur_price": cur_price, "change_pct": change_pct,
-                        "direction": direction, "net_amt": abs(net_amt),
-                    })
-        except Exception as e:
-            print(f"  페이지{page} 오류: {e}")
-    return items
+def fetch_krx(trade_type="매수"):
+    """KRX 공식 API - 외국인 순매수/매도 상위"""
+    url = "http://data.krx.co.kr/comm/bldAttendant/getJsonData.cmd"
+    body = {
+        "bld": "dbms/MDC/STAT/standard/MDCSTAT02501",
+        "mktId": "STK",           # KOSPI
+        "trdDd": datetime.now().strftime("%Y%m%d"),
+        "invstTpCd": "9000",      # 외국인
+        "askBid": "1" if trade_type == "매수" else "2",
+        "strtRank": "1",
+        "endRank": "20",
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "http://data.krx.co.kr/",
+    }
+    try:
+        res = requests.post(url, data=body, headers=headers, timeout=15)
+        data = res.json()
+        items = []
+        for row in data.get("OutBlock_1", []):
+            name = row.get("ISU_ABBRV", "")
+            code = row.get("ISU_SRT_CD", "")
+            cur_price = int(str(row.get("TDD_CLSPRC", "0")).replace(",", "") or 0)
+            change_pct = float(str(row.get("FLUC_RT", "0")).replace(",", "") or 0)
+            net_amt = int(str(row.get("NETBID_TRDVOL", "0")).replace(",", "") or 0)
+            direction = "up" if change_pct > 0 else "down" if change_pct < 0 else "flat"
+            if name and code:
+                items.append({
+                    "name": name, "code": code,
+                    "cur_price": cur_price, "change_pct": change_pct,
+                    "direction": direction, "net_amt": abs(net_amt),
+                })
+        return items
+    except Exception as e:
+        print(f"  KRX 오류: {e}")
+        return []
 
 def fetch_all():
-    print("📡 데이터 수집 중...")
-    buy_list  = fetch_list("https://finance.naver.com/sise/foreign_buy.naver?sosok=0")[:20]
-    sell_list = fetch_list("https://finance.naver.com/sise/foreign_sell.naver?sosok=0")[:20]
+    print("📡 KRX 데이터 수집 중...")
+    buy_list  = fetch_krx("매수")[:20]
+    sell_list = fetch_krx("매도")[:20]
     print(f"  ✅ 순매수 {len(buy_list)}개 / 순매도 {len(sell_list)}개")
     return buy_list, sell_list
 
@@ -171,7 +133,7 @@ def build_html(buy_list, sell_list, date_str, time_str):
   <span class="date-badge">{date_str}</span>
 </header>
 <div class="update-bar">
-  <span>장 마감 후 자동 업데이트</span>
+  <span>KRX 공식 데이터 · 장 마감 후 자동 업데이트</span>
   <span class="update-time">✓ {time_str} 기준</span>
 </div>
 <div class="tabs">
@@ -186,7 +148,7 @@ def build_html(buy_list, sell_list, date_str, time_str):
   <div class="section-label">외국인 순매도 상위 TOP {len(sell_list)}</div>
   <div class="card-list">{sc}</div>
 </div>
-<p class="notice">※ 네이버 금융 기준 · 종목 탭하면 네이버 주식으로 이동<br>※ 등락률은 당일 종가 기준</p>
+<p class="notice">※ KRX 한국거래소 공식 데이터 기준<br>※ 종목 탭하면 네이버 주식으로 이동</p>
 <script>
 function switchTab(t){{
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
