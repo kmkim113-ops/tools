@@ -19,7 +19,7 @@ jobs:
           python-version: '3.11'
 
       - name: 라이브러리 설치
-        run: pip install pykrx
+        run: run: pip install requests
 
       - name: 크롤링 및 HTML 생성
         run: python scripts/fetch_foreign.py
