@@ -8,57 +8,78 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUTPUT_HTML = os.path.join(BASE_DIR, "foreign_flow.html")
 
 HEADERS = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/120.0.0.0 Safari/537.36"
-    )
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "ko-KR,ko;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Referer": "https://finance.naver.com/",
 }
 
 def fetch_list(url, pages=2):
     items = []
     for page in range(1, pages + 1):
         try:
-            res = requests.get(f"{url}&page={page}", headers=HEADERS, timeout=10)
+            res = requests.get(f"{url}&page={page}", headers=HEADERS, timeout=15)
             res.encoding = "euc-kr"
             soup = BeautifulSoup(res.text, "html.parser")
-            rows = soup.select("table.type_2 tr")
+
+            # 모든 테이블 시도
+            table = soup.find("table", {"class": "type_2"})
+            if not table:
+                table = soup.find("table")
+            if not table:
+                print(f"  ⚠️ 페이지{page} 테이블 없음, 상태코드={res.status_code}")
+                continue
+
+            rows = table.find_all("tr")
             for row in rows:
                 tds = row.find_all("td")
-                if len(tds) < 6:
+                if len(tds) < 5:
                     continue
                 name_tag = row.find("a")
                 if not name_tag:
                     continue
+
                 name = name_tag.text.strip()
                 href = name_tag.get("href", "")
                 code = href.split("code=")[-1].split("&")[0] if "code=" in href else ""
-                def clean(td):
-                    return td.text.strip().replace(",", "").replace("%", "").replace("+", "")
+
+                texts = [td.text.strip().replace(",", "").replace("%", "").replace("+", "") for td in tds]
+
                 try:
-                    cur_price = int(clean(tds[1])) if clean(tds[1]).lstrip("-").isdigit() else 0
+                    cur_price = int(texts[1]) if texts[1].lstrip("-").isdigit() else 0
                 except:
                     cur_price = 0
+
                 try:
-                    change_pct = float(clean(tds[3]))
+                    change_pct = float(texts[3]) if texts[3].replace(".", "").replace("-", "").isdigit() else 0.0
                 except:
                     change_pct = 0.0
-                raw = tds[2].text.strip()
-                if "하락" in raw or tds[2].find(class_="dn"):
-                    direction, change_pct = "down", -abs(change_pct)
-                elif "상승" in raw or tds[2].find(class_="up"):
-                    direction, change_pct = "up", abs(change_pct)
+
+                # 등락 방향
+                td2_html = str(tds[2])
+                if "상승" in td2_html or 'class="up"' in td2_html or "red" in td2_html:
+                    direction = "up"
+                    change_pct = abs(change_pct)
+                elif "하락" in td2_html or 'class="dn"' in td2_html or "blue" in td2_html:
+                    direction = "down"
+                    change_pct = -abs(change_pct)
                 else:
                     direction = "flat"
+
                 try:
-                    net_amt = int(clean(tds[5]))
+                    net_amt = int(texts[5]) if texts[5].lstrip("-").isdigit() else 0
                 except:
                     net_amt = 0
+
                 if name and code:
-                    items.append({"name": name, "code": code, "cur_price": cur_price,
-                                  "change_pct": change_pct, "direction": direction, "net_amt": net_amt})
+                    items.append({
+                        "name": name, "code": code,
+                        "cur_price": cur_price, "change_pct": change_pct,
+                        "direction": direction, "net_amt": abs(net_amt),
+                    })
         except Exception as e:
-            print(f"  페이지 {page} 오류: {e}")
+            print(f"  페이지{page} 오류: {e}")
     return items
 
 def fetch_all():
