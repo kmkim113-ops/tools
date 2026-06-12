@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import FinanceDataReader as fdr
-import pandas as pd
 import os
 from datetime import datetime, timedelta
 
@@ -12,60 +11,56 @@ def get_today():
     wd = kst.weekday()
     if wd == 5: kst -= timedelta(days=1)
     elif wd == 6: kst -= timedelta(days=2)
-    return kst.strftime("%Y%m%d"), kst.strftime("%Y.%m.%d")
+    return kst.strftime("%Y-%m-%d"), kst.strftime("%Y.%m.%d")
 
 def fetch_all():
-    date_krx, date_str = get_today()
-    print(f"📡 데이터 수집 중... ({date_str})")
+    date_str, date_disp = get_today()
+    print(f"📡 데이터 수집 중... ({date_disp})")
 
     try:
         # 코스피 전종목 시세
-        df = fdr.StockListing('KOSPI')
-        print(f"  종목수: {len(df)}")
-        print(f"  컬럼: {list(df.columns)}")
+        kospi = fdr.StockListing('KOSPI')
 
-        # 외국인 순매수 컬럼 찾기
-        foreign_col = next((c for c in df.columns if '외국인' in str(c) or 'Foreign' in str(c)), None)
-        print(f"  외국인 컬럼: {foreign_col}")
+        # 외국인 순매수: DataReader로 개별 조회 대신
+        # KOSPI 등락률 상위 종목을 거래대금 기준으로 추출
+        kospi = kospi.dropna(subset=['Close', 'Volume'])
+        kospi['Amount'] = kospi['Amount'].fillna(0)
 
-        if foreign_col:
-            df_sorted = df.dropna(subset=[foreign_col]).sort_values(foreign_col, ascending=False)
-            buy_df  = df_sorted[df_sorted[foreign_col] > 0].head(20)
-            sell_df = df_sorted[df_sorted[foreign_col] < 0].tail(20)
-        else:
-            # 외국인 컬럼 없으면 거래대금 기준
-            vol_col = next((c for c in df.columns if '거래' in str(c) or 'Volume' in str(c)), None)
-            df_sorted = df.sort_values(vol_col, ascending=False) if vol_col else df
-            buy_df  = df_sorted.head(20)
-            sell_df = df_sorted.tail(20)
+        # 등락률 컬럼 정규화
+        ratio_col = 'ChagesRatio' if 'ChagesRatio' in kospi.columns else 'ChangeRatio'
 
-        def to_items(rows, is_buy):
+        # 상승 종목 상위 20 (거래대금 기준)
+        up_df = kospi[kospi[ratio_col] > 0].sort_values('Amount', ascending=False).head(20)
+        # 하락 종목 상위 20
+        dn_df = kospi[kospi[ratio_col] < 0].sort_values('Amount', ascending=False).head(20)
+
+        def to_items(rows):
             items = []
             for _, row in rows.iterrows():
-                name = str(row.get('Name', row.get('종목명', '')))
-                code = str(row.get('Code', row.get('Symbol', '')))
-                try: cur_price = int(row.get('Close', row.get('종가', 0)) or 0)
+                name = str(row.get('Name', ''))
+                code = str(row.get('Code', ''))
+                try: cur_price = int(row['Close'])
                 except: cur_price = 0
-                try: change_pct = float(row.get('ChangeRatio', row.get('등락률', 0)) or 0)
+                try: change_pct = float(row[ratio_col])
                 except: change_pct = 0.0
-                if change_pct > 1: change_pct = change_pct  # 이미 % 단위
-                try: net_amt = abs(int(row.get(foreign_col, 0) or 0)) if foreign_col else 0
+                try: net_amt = int(row['Amount'] // 100_000_000)  # 억원
                 except: net_amt = 0
                 direction = 'up' if change_pct > 0 else 'down' if change_pct < 0 else 'flat'
                 if name and code:
-                    items.append({'name': name, 'code': code, 'cur_price': cur_price,
-                                  'change_pct': change_pct, 'direction': direction, 'net_amt': net_amt})
+                    items.append({'name': name, 'code': code,
+                                  'cur_price': cur_price, 'change_pct': change_pct,
+                                  'direction': direction, 'net_amt': net_amt})
             return items
 
-        buy_list  = to_items(buy_df,  True)
-        sell_list = to_items(sell_df, False)
-        print(f"  ✅ 순매수 {len(buy_list)}개 / 순매도 {len(sell_list)}개")
-        return buy_list, sell_list, date_str
+        buy_list = to_items(up_df)
+        sell_list = to_items(dn_df)
+        print(f"  ✅ 상승 {len(buy_list)}개 / 하락 {len(sell_list)}개")
+        return buy_list, sell_list, date_disp
 
     except Exception as e:
         print(f"  ❌ 오류: {e}")
         import traceback; traceback.print_exc()
-        return [], [], date_str
+        return [], [], date_disp
 
 def cards_html(items, tab):
     if not items:
@@ -77,18 +72,18 @@ def cards_html(items, tab):
         d = item["direction"]
         sign = "+" if d == "up" else ""
         arrow = "▲" if d == "up" else "▼" if d == "down" else "–"
-        bar_w = max(4, round((item["net_amt"] / max_amt) * 48)) if max_amt > 0 else 4
+        bar_w = max(4, round((item["net_amt"] / max_amt) * 48))
         amt = item["net_amt"]
-        amt_s = f"{amt/100:.1f}억" if amt >= 100 else f"{amt}백만" if amt > 0 else "–"
+        amt_s = f"{amt:.0f}억" if amt >= 1 else "–"
         price_s = f"{item['cur_price']:,}원" if item["cur_price"] else "–"
-        label = "순매수" if tab == "buy" else "순매도"
+        label = "거래대금상위" if tab == "buy" else "하락대금상위"
         url = f"https://finance.naver.com/item/main.naver?code={item['code']}"
         html += f"""
         <div class="card" onclick="window.open('{url}','_blank')">
           <div class="rank">{idx}</div>
           <div class="card-info">
             <div class="stock-name">{item['name']}</div>
-            <div class="stock-meta">{price_s} · {label} {amt_s}</div>
+            <div class="stock-meta">{price_s} · {amt_s}</div>
             <div class="bar-wrap"><div class="bar-fill {d}" style="width:{bar_w}px"></div></div>
           </div>
           <div class="card-right">
@@ -106,7 +101,7 @@ def build_html(buy_list, sell_list, date_str, time_str):
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>외국인 수급 {date_str}</title>
+<title>시장 수급 {date_str}</title>
 <style>
   *{{margin:0;padding:0;box-sizing:border-box}}
   :root{{--bg:#0d1117;--surface:#161b22;--surface2:#1c2230;--border:#30363d;
@@ -145,26 +140,26 @@ def build_html(buy_list, sell_list, date_str, time_str):
 </head>
 <body>
 <header>
-  <h1>🌏 외국인 수급</h1>
+  <h1>📈 시장 수급</h1>
   <span class="date-badge">{date_str}</span>
 </header>
 <div class="update-bar">
-  <span>FinanceDataReader · 장 마감 후 자동 업데이트</span>
+  <span>KOSPI 거래대금 기준 · 장 마감 후 자동 업데이트</span>
   <span class="update-time">✓ {time_str} 기준</span>
 </div>
 <div class="tabs">
-  <div class="tab buy active" onclick="switchTab('buy')">▲ 순매수</div>
-  <div class="tab sell" onclick="switchTab('sell')">▼ 순매도</div>
+  <div class="tab buy active" onclick="switchTab('buy')">▲ 상승 상위</div>
+  <div class="tab sell" onclick="switchTab('sell')">▼ 하락 상위</div>
 </div>
 <div id="buy-panel" class="panel active">
-  <div class="section-label">외국인 순매수 상위 TOP {len(buy_list)}</div>
+  <div class="section-label">상승 + 거래대금 상위 TOP {len(buy_list)}</div>
   <div class="card-list">{bc}</div>
 </div>
 <div id="sell-panel" class="panel">
-  <div class="section-label">외국인 순매도 상위 TOP {len(sell_list)}</div>
+  <div class="section-label">하락 + 거래대금 상위 TOP {len(sell_list)}</div>
   <div class="card-list">{sc}</div>
 </div>
-<p class="notice">※ 종목 탭하면 네이버 주식으로 이동</p>
+<p class="notice">※ 종목 탭하면 네이버 주식으로 이동<br>※ KOSPI 거래대금 기준 (외국인 수급 아님)</p>
 <script>
 function switchTab(t){{
   document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));
