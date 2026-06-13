@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="성경통독100일">
+<meta name="theme-color" content="#2d6a4f">
+<title>성경통독 100일 1독</title>
+<style>
+  :root {
+    --green-dark: #1b4332;
+    --green-main: #2d6a4f;
+    --green-mid: #40916c;
+    --green-light: #74c69d;
+    --green-pale: #d8f3dc;
+    --green-bg: #f0faf4;
+    --gold: #b5835a;
+    --gold-light: #f5e6d3;
+    --text-dark: #1a1a1a;
+    --text-mid: #4a4a4a;
+    --text-light: #888;
+    --white: #ffffff;
+    --shadow: 0 2px 16px rgba(29,67,50,0.10);
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--green-bg); font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; color: var(--text-dark); }
+
+  /* ── Header ── */
+  .header {
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-main) 100%);
+    color: white;
+    padding: 20px 20px 16px;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+  }
+  .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .church-brand { display: flex; align-items: center; gap: 10px; }
+  .church-logo { width: 36px; height: 36px; flex-shrink: 0; }
+  .church-name { font-size: 11px; color: rgba(255,255,255,0.75); line-height: 1.3; }
+  .church-name strong { display: block; font-size: 13px; color: white; font-weight: 700; }
+  .main-title { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; }
+  .main-title span { color: var(--green-light); }
+
+  /* Progress */
+  .progress-wrap { background: rgba(255,255,255,0.12); border-radius: 8px; padding: 10px 14px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 6px; }
+  .progress-bar-bg { background: rgba(255,255,255,0.2); border-radius: 99px; height: 8px; overflow: hidden; }
+  .progress-bar-fill { background: linear-gradient(90deg, var(--green-light), #b7e4c7); border-radius: 99px; height: 100%; transition: width 0.6s ease; }
+
+  /* ── Tabs ── */
+  .tabs { display: flex; background: white; border-bottom: 2px solid var(--green-pale); }
+  .tab { flex: 1; padding: 13px 0; font-size: 13px; font-weight: 600; text-align: center; border: none; background: none; cursor: pointer; color: var(--text-light); transition: all 0.2s; }
+  .tab.active { color: var(--green-main); border-bottom: 2px solid var(--green-main); margin-bottom: -2px; }
+  .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+
+  /* ── Content ── */
+  .content { padding: 16px; max-width: 480px; margin: 0 auto; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* Today Card */
+  .today-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .today-badge {
+    background: linear-gradient(135deg, var(--green-main), var(--green-mid));
+    color: white;
+    padding: 10px 16px;
+    font-size: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .day-num { font-weight: 700; font-size: 14px; }
+  .book-category { font-size: 11px; opacity: 0.85; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 99px; }
+  .today-body { padding: 16px; }
+  .today-range { font-size: 22px; font-weight: 800; color: var(--green-dark); letter-spacing: -0.5px; margin-bottom: 4px; }
+  .today-theme { font-size: 13px; color: var(--green-mid); font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 5px; }
+  .today-summary { font-size: 13px; color: var(--text-mid); line-height: 1.7; border-left: 3px solid var(--green-pale); padding-left: 10px; margin-bottom: 14px; }
+
+  /* Meditation */
+  .meditation-box {
+    background: var(--gold-light);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .meditation-title { font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+  .meditation-text { font-size: 13px; color: #5a3e2b; line-height: 1.7; }
+  .meditation-verse { font-size: 11px; color: var(--gold); margin-top: 6px; font-style: italic; }
+
+  /* Complete Button */
+  .btn-complete {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, var(--green-mid), var(--green-main));
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.1s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(64,145,108,0.35);
+  }
+  .btn-complete:active { transform: scale(0.98); }
+  .btn-complete.done {
+    background: linear-gradient(135deg, #adb5bd, #868e96);
+    box-shadow: none;
+  }
+
+  /* Next Day Preview */
+  .next-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid var(--green-light);
+  }
+  .next-label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; }
+  .next-range { font-size: 15px; font-weight: 700; color: var(--green-dark); }
+  .next-theme { font-size: 12px; color: var(--text-mid); margin-top: 2px; }
+
+  /* All Days List */
+  .list-section { margin-bottom: 20px; }
+  .list-section-title {
+    font-size: 13px; font-weight: 700; color: var(--green-main);
+    padding: 8px 0; border-bottom: 1px solid var(--green-pale); margin-bottom: 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .day-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; background: white; border-radius: var(--radius-sm);
+    margin-bottom: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    cursor: pointer; transition: background 0.15s;
+  }
+  .day-item:active { background: var(--green-pale); }
+  .day-item.completed { opacity: 0.55; }
+  .day-num-badge {
+    min-width: 32px; height: 32px; border-radius: 50%;
+    background: var(--green-pale); color: var(--green-main);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; flex-shrink: 0;
+  }
+  .day-item.current .day-num-badge { background: var(--green-main); color: white; }
+  .day-item.completed .day-num-badge { background: var(--green-light); color: white; }
+  .day-info { flex: 1; min-width: 0; }
+  .day-range { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+  .day-theme-sm { font-size: 11px; color: var(--text-light); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .check-mark { font-size: 18px; color: var(--green-mid); }
+
+  /* Records */
+  .record-summary {
+    background: white; border-radius: var(--radius); padding: 16px;
+    box-shadow: var(--shadow); margin-bottom: 14px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;
+  }
+  .stat-item { }
+  .stat-num { font-size: 24px; font-weight: 800; color: var(--green-main); }
+  .stat-label { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+  .calendar-grid {
+    background: white; border-radius: var(--radius); padding: 16px;
+    box-shadow: var(--shadow);
+  }
+  .cal-title { font-size: 14px; font-weight: 700; color: var(--green-dark); margin-bottom: 12px; }
+  .cal-dots { display: flex; flex-wrap: wrap; gap: 5px; }
+  .cal-dot {
+    width: 28px; height: 28px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 600;
+    background: var(--green-pale); color: var(--text-light);
+  }
+  .cal-dot.done { background: var(--green-main); color: white; }
+  .cal-dot.today { background: var(--gold); color: white; }
+
+  /* Modal */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5); z-index: 200;
+    align-items: flex-end; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white; border-radius: 20px 20px 0 0;
+    padding: 20px 20px 40px; width: 100%; max-width: 480px;
+    max-height: 85vh; overflow-y: auto;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .modal-handle { width: 40px; height: 4px; background: #ddd; border-radius: 99px; margin: 0 auto 16px; }
+  .modal-day-badge {
+    background: var(--green-pale); color: var(--green-main);
+    display: inline-block; padding: 3px 10px; border-radius: 99px;
+    font-size: 12px; font-weight: 700; margin-bottom: 8px;
+  }
+  .modal-range { font-size: 20px; font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
+  .modal-theme { font-size: 13px; color: var(--green-mid); font-weight: 600; margin-bottom: 14px; }
+  .modal-summary { font-size: 14px; color: var(--text-mid); line-height: 1.8; margin-bottom: 16px; }
+  .modal-meditation {
+    background: var(--gold-light); border-radius: var(--radius-sm);
+    padding: 14px; margin-bottom: 16px;
+  }
+  .modal-close { width: 100%; padding: 13px; background: var(--green-pale); color: var(--green-main); border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+
+  /* Completion Animation */
+  .confetti-wrap { position: fixed; inset: 0; pointer-events: none; z-index: 300; display: flex; align-items: center; justify-content: center; }
+  .confetti-msg { background: var(--green-dark); color: white; padding: 20px 32px; border-radius: var(--radius); text-align: center; font-size: 18px; font-weight: 800; box-shadow: 0 8px 32px rgba(0,0,0,0.25); display: none; }
+  .confetti-msg.show { display: block; animation: popIn 0.4s ease; }
+  @keyframes popIn { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+</style>
+</head>
+<body>
+
+<!-- Completion Message -->
+<div class="confetti-wrap" id="confettiWrap">
+  <div class="confetti-msg" id="confettiMsg"></div>
+</div>
+
+<!-- Day Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
+    <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">닫기</button>
+  </div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <div class="church-brand">
+      <svg class="church-logo" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="29" fill="white" fill-opacity="0.15" stroke="white" stroke-opacity="0.4" stroke-width="1"/>
+        <!-- Shield -->
+        <path d="M12 22 Q12 44 30 52 Q48 44 48 22 L30 14 Z" fill="white" fill-opacity="0.18"/>
+        <path d="M12 22 Q12 44 30 52 Q48 44 48 22 L30 14 Z" stroke="white" stroke-opacity="0.6" stroke-width="1.5" fill="none"/>
+        <!-- Dove/leaf left -->
+        <path d="M18 36 Q14 30 18 26 Q22 28 20 34 Z" fill="#74c69d"/>
+        <!-- Cross -->
+        <rect x="27.5" y="16" width="5" height="22" rx="2" fill="white"/>
+        <rect x="21" y="22" width="18" height="5" rx="2" fill="white"/>
+        <!-- Green right -->
+        <path d="M42 38 Q46 32 42 28 Q38 30 40 36 Z" fill="#40916c" fill-opacity="0.7"/>
+      </svg>
+      <div class="church-name">
+        <strong>새로운 우리교회</strong>
+        성경통독 100일 1독
+      </div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;opacity:0.7" id="headerDate"></div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>📖 전체 진행률</span>
+      <span id="progressText">0 / 100일</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('today')"><span class="tab-icon">📖</span>오늘읽기</button>
+  <button class="tab" onclick="showTab('list')"><span class="tab-icon">📋</span>전체목록</button>
+  <button class="tab" onclick="showTab('record')"><span class="tab-icon">📊</span>기록</button>
+</div>
+
+<!-- Content -->
+<div class="content">
+
+  <!-- TODAY TAB -->
+  <div class="screen active" id="screen-today">
+    <div id="todayContent"></div>
+  </div>
+
+  <!-- LIST TAB -->
+  <div class="screen" id="screen-list">
+    <div id="listContent"></div>
+  </div>
+
+  <!-- RECORD TAB -->
+  <div class="screen" id="screen-record">
+    <div class="record-summary">
+      <div class="stat-item">
+        <div class="stat-num" id="statDone">0</div>
+        <div class="stat-label">완료</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statRemain">100</div>
+        <div class="stat-label">남은일</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="statPercent">0%</div>
+        <div class="stat-label">달성률</div>
+      </div>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-title">📅 100일 진행 현황</div>
+      <div class="cal-dots" id="calDots"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 100일 성경 읽기 데이터 ──
+const DAYS = [
+  { range:"창세기 1-14장", theme:"천지창조와 인간의 타락", summary:"하나님이 6일 동안 세상을 창조하시고 7일째 안식하심. 아담과 하와의 타락과 에덴 추방, 가인과 아벨, 노아의 홍수 이야기.", meditation:"'하나님이 보시기에 좋았더라' — 창조의 아름다움을 묵상하며, 하나님의 형상으로 지음받은 나의 존귀함을 새겨보세요.", verse:"창세기 1:31" },
+  { range:"창세기 15-25장", theme:"아브라함의 믿음과 언약", summary:"하나님이 아브라함을 부르시고 언약을 맺으심. 이삭의 출생과 아브라함의 믿음의 시험(모리아 산 제사).", meditation:"믿음으로 나아간 아브라함처럼, 보이지 않아도 하나님의 약속을 붙드는 믿음을 묵상하세요.", verse:"창세기 15:6" },
+  { range:"창세기 26-34장", theme:"이삭과 야곱의 이야기", summary:"이삭의 우물 다툼, 야곱과 에서의 장자권, 야곱의 도망과 브엘세바 서원, 라헬과 레아.", meditation:"야곱의 삶 속에서 역사하시는 하나님을 보며, 내 삶 곳곳에 함께하시는 하나님을 발견하세요.", verse:"창세기 28:15" },
+  { range:"창세기 35-44장", theme:"야곱 가족과 요셉 이야기", summary:"야곱의 귀환과 베델 언약 갱신. 요셉이 형들에게 팔려 애굽으로 가는 이야기.", meditation:"형들에게 팔린 요셉을 통해 고난 속에서도 하나님의 계획이 있음을 묵상하세요.", verse:"창세기 50:20" },
+  { range:"창세기 45장-출애굽기 6장", theme:"요셉의 화해와 출애굽 준비", summary:"요셉이 형들에게 자신을 드러내고 화해. 야곱 가족의 애굽 이주. 모세의 출생과 소명.", meditation:"용서와 화해의 주인공 요셉처럼, 상처를 넘어 화해로 나아가는 용기를 구해보세요.", verse:"출애굽기 3:14" },
+  { range:"출애굽기 7-16장", theme:"열 가지 재앙과 유월절", summary:"애굽에 내린 열 가지 재앙, 유월절 제정, 이스라엘의 출애굽과 홍해 도강.", meditation:"홍해를 가르신 하나님은 오늘도 내 삶의 막힌 길을 여실 수 있음을 믿으세요.", verse:"출애굽기 14:14" },
+  { range:"출애굽기 17-28장", theme:"광야 여정과 율법 수여", summary:"마라의 쓴물, 만나와 메추라기, 시내산 십계명과 율법 수여.", meditation:"십계명은 규율이 아니라 하나님 백성으로 살아가는 자유의 지침임을 묵상하세요.", verse:"출애굽기 20:2" },
+  { range:"출애굽기 29-38장", theme:"성막 건설 명령과 시작", summary:"제사장 위임식, 금송아지 사건, 하나님의 용서와 성막 건설 시작.", meditation:"금송아지를 만든 이스라엘처럼 우리도 자주 하나님을 잊습니다. 그럼에도 용서하시는 하나님께 감사하세요.", verse:"출애굽기 34:6" },
+  { range:"출애굽기 39장-레위기 10장", theme:"성막 완성과 제사 규례", summary:"성막 완성과 봉헌, 번제·소제·화목제·속죄제 등 제사 규례.", meditation:"제사 제도는 하나님 앞에 나아가는 길을 보여줍니다. 예수님이 완성하신 은혜를 감사하세요.", verse:"레위기 1:4" },
+  { range:"레위기 11-19장", theme:"거룩함의 규례", summary:"정결법, 나병 규례, 속죄일(욤키푸르), 성 규례. '너희는 거룩하라' 명령.", meditation:"'너희는 거룩하라 나 여호와 너희 하나님이 거룩함이니라' — 일상에서 거룩을 실천하는 방법을 생각해 보세요.", verse:"레위기 19:2" },
+  { range:"레위기 20장-민수기 1장", theme:"언약 공동체의 삶", summary:"형벌 규례, 제사장 규례, 절기 규례(유월절·초막절), 이스라엘 인구 조사.", meditation:"하나님이 정하신 절기들은 하나님의 구원을 기억하게 합니다. 나는 어떻게 하나님의 일을 기억하나요?", verse:"민수기 6:24-26" },
+  { range:"민수기 2-10장", theme:"광야 행진 준비", summary:"이스라엘 진영 배치, 레위인 직무, 나실인 서원, 나팔 신호 규례.", meditation:"하나님의 구름 기둥·불 기둥처럼 내 삶을 인도하시는 하나님의 방향을 구하세요.", verse:"민수기 9:23" },
+  { range:"민수기 11-20장", theme:"광야 불평과 반역", summary:"만나에 대한 불평, 정탐꾼 파송과 실패, 고라의 반역, 아론의 싹난 지팡이.", meditation:"광야의 이스라엘처럼 나도 불평할 때가 있습니다. 오늘 감사 제목 세 가지를 찾아보세요.", verse:"민수기 14:8" },
+  { range:"민수기 21-30장", theme:"광야 후반 여정", summary:"놋뱀 사건, 발람과 발락, 미디안 전쟁, 두 지파의 요단 동편 정착.", meditation:"놋뱀을 바라보는 자마다 살았듯, 예수님을 바라볼 때 우리도 삽니다(요 3:14-15).", verse:"민수기 21:9" },
+  { range:"민수기 31장-신명기 3장", theme:"가나안 정착 준비", summary:"미디안 정복, 요단 동편 분배, 가데스 바네아 회상, 광야 여정 요약.", meditation:"하나님은 우리의 실수도 기억하시지만 은혜로 이끄십니다. 지난 삶에서 하나님의 인도하심을 돌아보세요.", verse:"신명기 1:30" },
+  { range:"신명기 4-14장", theme:"율법 재강조", summary:"십계명 재강조, 쉐마(이스라엘아 들으라), 드림·십일조·규례.", meditation:"'이스라엘아 들으라' — 하나님 말씀을 듣는 자세로 오늘 하루를 시작하세요.", verse:"신명기 6:4-5" },
+  { range:"신명기 15-27장", theme:"언약 사회의 규범", summary:"안식년·희년, 왕의 규례, 선지자·제사장 규례, 저주와 축복.", meditation:"가난한 자와 나그네를 돌보라는 하나님의 명령을 내 삶에 어떻게 적용할 수 있을까요?", verse:"신명기 15:11" },
+  { range:"신명기 28장-여호수아 2장", theme:"축복과 저주, 여호수아 파송", summary:"축복과 저주의 선언, 모세의 마지막 노래, 여호수아 파송, 라합과 정탐꾼.", meditation:"하나님은 두려워하는 라합도 구원하셨습니다. 약함 가운데 하나님의 은혜를 구하세요.", verse:"여호수아 1:9" },
+  { range:"여호수아 3-13장", theme:"가나안 정복", summary:"요단강 도강, 여리고 함락, 아이성 전투, 기브온 조약, 가나안 정복 전쟁.", meditation:"여리고 성은 싸워서 함락된 것이 아닙니다. 순종이 승리의 열쇠임을 묵상하세요.", verse:"여호수아 6:20" },
+  { range:"여호수아 14-24장", theme:"땅 분배와 언약 갱신", summary:"열두 지파 땅 분배, 도피성 지정, 여호수아의 마지막 설교와 세겜 언약.", meditation:"'나와 내 집은 여호와를 섬기겠노라' — 우리 가정의 결단을 새롭게 해보세요.", verse:"여호수아 24:15" },
+  { range:"사사기 1-9장", theme:"사사 시대의 반복 패턴", summary:"이스라엘의 반복되는 배도-심판-회개-구원 패턴. 옷니엘, 에훗, 드보라, 기드온.", meditation:"죄-심판-회개-구원의 패턴은 우리 삶에도 있습니다. 오늘 회개하고 돌아올 영역을 생각해 보세요.", verse:"사사기 2:16" },
+  { range:"사사기 10-19장", theme:"사사들의 이야기 후반", summary:"입다, 삼손의 출생과 사역, 블레셋과의 전쟁, 삼손의 실패와 최후.", meditation:"강한 삼손도 하나님을 떠날 때 힘을 잃었습니다. 하나님과의 연결이 내 힘의 원천임을 기억하세요.", verse:"사사기 16:28" },
+  { range:"사사기 20장-사무엘상 4장", theme:"혼란기와 사무엘 탄생", summary:"베냐민 전쟁, 룻기(나오미와 룻), 엘가나 가족, 한나의 기도, 사무엘의 탄생.", meditation:"한나의 간절한 기도처럼, 하나님 앞에 마음을 쏟아내는 시간을 가져보세요.", verse:"사무엘상 1:27" },
+  { range:"사무엘상 5-15장", theme:"사울 왕의 이야기", summary:"언약궤 이야기, 이스라엘 왕 요청, 사울 즉위, 아말렉 전쟁과 사울의 불순종.", meditation:"순종이 제사보다 낫다(삼상 15:22) — 내 삶에서 하나님의 말씀에 온전히 순종하지 못한 부분을 돌아보세요.", verse:"사무엘상 15:22" },
+  { range:"사무엘상 16-24장", theme:"다윗의 등장", summary:"다윗의 기름부음, 골리앗 전투, 다윗과 요나단의 우정, 사울의 추격.", meditation:"사람은 외모를 보지만 하나님은 중심을 보십니다(삼상 16:7). 하나님 보시기에 내 중심은 어떠한가요?", verse:"사무엘상 16:7" },
+  { range:"사무엘하 25장-사무엘하 3장", theme:"사울의 죽음과 다윗 즉위", summary:"아비가일 이야기, 사울의 최후, 다윗의 애도, 유다 왕 즉위.", meditation:"원수가 죽어도 슬퍼한 다윗의 마음을 묵상하며, 원수를 위해 기도하는 삶을 생각해 보세요.", verse:"사무엘하 1:12" },
+  { range:"사무엘하 4-14장", theme:"다윗 왕국 전성기", summary:"다윗의 통일 이스라엘 왕 즉위, 예루살렘 정복, 언약궤 이전, 다윗 언약.", meditation:"다윗 언약은 예수님 안에서 성취됩니다. 하나님의 신실하심을 감사하세요.", verse:"사무엘하 7:16" },
+  { range:"사무엘하 15-22장", theme:"다윗의 위기와 회복", summary:"방세바 사건, 나단의 책망, 압살롬의 반역, 다윗의 도피와 귀환.", meditation:"죄를 회개할 때 하나님은 다시 회복시켜 주십니다. 다윗의 시편 51편을 함께 읽어보세요.", verse:"시편 51:10" },
+  { range:"사무엘하 23장-열왕기상 6장", theme:"다윗 말년과 솔로몬 즉위", summary:"다윗의 마지막 말씀, 솔로몬 즉위, 기브온에서의 꿈, 성전 건축 시작.", meditation:"솔로몬이 구한 것은 지혜였습니다. 나는 하나님께 무엇을 구하고 있나요?", verse:"열왕기상 3:9" },
+  { range:"열왕기상 7-13장", theme:"성전 완성과 왕국 분열 시작", summary:"성전 완성과 봉헌, 솔로몬의 영광, 왕국의 타락 시작, 분열 왕국.", meditation:"최고의 왕 솔로몬도 말년에 타락했습니다. 끝까지 하나님을 붙드는 삶을 위해 기도하세요.", verse:"열왕기상 11:4" },
+  { range:"열왕기상 14-21장", theme:"분열 왕국과 엘리야", summary:"이스라엘과 유다의 왕들, 엘리야의 갈멜산 대결, 가뭄과 비, 호렙산 세미한 소리.", meditation:"광야에서 지친 엘리야에게 음식을 주신 하나님처럼, 지친 우리를 돌보시는 하나님을 경험하세요.", verse:"열왕기상 19:12" },
+  { range:"열왕기상 22장-열왕기하 7장", theme:"엘리야와 엘리사", summary:"엘리야의 승천, 엘리사의 기적들(나아만 치유, 과부 기름, 도끼 기적).", meditation:"나아만의 겸손한 순종이 치유를 가져왔듯, 하나님의 단순한 명령에 순종하는 삶을 묵상하세요.", verse:"열왕기하 5:14" },
+  { range:"열왕기하 8-16장", theme:"이스라엘 왕국의 쇠퇴", summary:"이스라엘과 유다 왕들의 연속된 타락, 예후의 개혁, 아달랴와 요아스.", meditation:"왕들의 실패에서 우리는 교훈을 얻습니다. 어떤 상황에서도 하나님만을 의지하는 삶을 다짐하세요.", verse:"열왕기하 17:13" },
+  { range:"열왕기하 17-25장", theme:"이스라엘 멸망과 유다 포로", summary:"이스라엘의 앗수르 멸망, 히스기야의 개혁, 요시야의 개혁, 유다의 바벨론 포로.", meditation:"포로기는 끝이 아니라 하나님의 연단 과정이었습니다. 내 삶의 힘든 계절도 하나님의 손 안에 있습니다.", verse:"열왕기하 19:19" },
+  { range:"역대상 1-9장", theme:"족보와 역사 서론", summary:"아담부터 포로 귀환까지 이스라엘의 족보. 다윗 왕조와 레위 지파 족보.", meditation:"나의 이름도 하나님 나라의 족보에 기록되어 있습니다. 신앙의 계보를 이어가는 자임을 기억하세요.", verse:"역대상 9:1" },
+  { range:"역대상 10-22장", theme:"다윗의 통치와 준비", summary:"사울의 죽음, 다윗의 즉위와 예루살렘 정복, 언약궤 이전, 다윗의 성전 준비.", meditation:"다윗은 자신이 짓지 못했어도 성전을 위해 헌신했습니다. 내 역할이 작아도 하나님 나라에 기여하는 삶을 묵상하세요.", verse:"역대상 22:5" },
+  { range:"역대상 23장-역대하 5장", theme:"성전 준비와 완성", summary:"레위인과 제사장 직무 배정, 솔로몬 즉위, 성전 건축 시작과 완성.", meditation:"성전을 하나님의 영광으로 가득 채우신 것처럼, 나의 삶도 하나님의 영광으로 채워지기를 기도하세요.", verse:"역대하 5:14" },
+  { range:"역대하 6-17장", theme:"솔로몬 기도와 왕국 역사", summary:"솔로몬의 봉헌 기도, 여호람 치세, 아사 개혁, 여호사밧의 경건한 통치.", meditation:"솔로몬의 봉헌 기도처럼 나도 하나님의 성전인 내 삶을 드리는 기도를 드려보세요.", verse:"역대하 7:14" },
+  { range:"역대하 18-28장", theme:"유다 왕들의 신앙", summary:"여호사밧, 요람, 아하시야, 아달랴, 요아스, 아마샤, 웃시야 왕들의 이야기.", meditation:"하나님을 찾을 때 형통했던 왕들의 이야기처럼, 매일 하나님을 먼저 찾는 습관을 만드세요.", verse:"역대하 26:5" },
+  { range:"역대하 29장-에스라 2장", theme:"히스기야 개혁과 포로 귀환", summary:"히스기야의 성전 정화, 유월절 회복, 요시야 개혁, 포로로 잡혀감, 에스라의 귀환 명단.", meditation:"히스기야의 기도처럼 불가능해 보이는 상황에서도 하나님께 기도하는 용기를 가져보세요.", verse:"역대하 30:9" },
+  { range:"에스라 3장-느헤미야 3장", theme:"성전 재건과 성벽 시작", summary:"성전 기초 공사, 대적의 방해, 닥대 느헤미야의 기도와 귀환, 성벽 재건 시작.", meditation:"느헤미야처럼 현실의 문제 앞에서 먼저 기도하고 그 다음 행동하는 삶을 배우세요.", verse:"느헤미야 2:4" },
+  { range:"느헤미야 4-13장", theme:"성벽 완성과 언약 갱신", summary:"성벽 재건 완성, 에스라의 율법 낭독, 언약 갱신, 느헤미야의 개혁.", meditation:"'이 성벽 공사는 우리 하나님의 도우심으로 이루어졌다' — 내 삶의 성취가 하나님의 은혜임을 고백하세요.", verse:"느헤미야 6:16" },
+  { range:"에스더 1장-욥기 6장", theme:"에스더와 욥 이야기 시작", summary:"에스더의 왕후 즉위, 하만의 음모, 에스더의 용기, 욥의 고난 시작.", meditation:"'이 때를 위함이 아닌지 누가 알겠느냐' — 하나님이 나를 지금 이 자리에 두신 이유를 묵상하세요.", verse:"에스더 4:14" },
+  { range:"욥기 7-23장", theme:"욥의 고난과 친구들의 논쟁", summary:"욥의 탄식, 엘리바스·빌닷·소발과의 논쟁, 욥의 자기 변호.", meditation:"고난 중에도 '나의 구원자가 살아 계신다'고 고백한 욥처럼, 힘든 때 하나님을 붙드세요.", verse:"욥기 19:25" },
+  { range:"욥기 24-40장", theme:"욥기 후반부와 결론", summary:"욥의 마지막 변론, 엘리후의 등장, 하나님의 폭풍 속 대답.", meditation:"하나님의 말씀 앞에 침묵한 욥처럼, 내가 다 이해하지 못해도 하나님을 신뢰하는 믿음을 가져보세요.", verse:"욥기 38:4" },
+  { range:"욥기 41장-시편 25편", theme:"욥기 결말과 시편 초반", summary:"욥의 회복, 시편 1편(복있는 사람), 다윗과 아삽의 찬양시들.", meditation:"시편 23편 — '여호와는 나의 목자시니 내게 부족함이 없으리로다' 를 천천히 묵상하세요.", verse:"시편 23:1" },
+  { range:"시편 26-48장", theme:"찬양과 탄식 시편", summary:"다윗의 탄식 시, 하나님의 영광 찬양, 고라 자손의 시, 시편 46편(하나님은 우리의 피난처).", meditation:"'하나님이여 사슴이 시냇물을 찾기에 갈급함 같이 내 영혼이 주를 찾기에 갈급하나이다' (시 42:1)", verse:"시편 46:1" },
+  { range:"시편 49-71장", theme:"지혜 시편과 회개 시편", summary:"시편 50편(참된 예배), 시편 51편(다윗의 회개), 시편 63편(광야에서의 갈망).", meditation:"시편 51편을 읽으며 내 삶의 죄를 솔직하게 고백하는 시간을 가져보세요.", verse:"시편 51:10" },
+  { range:"시편 72-91장", theme:"왕의 시와 하나님 신뢰", summary:"시편 72편(왕의 기도), 아삽의 시편들, 시편 90편(모세의 기도), 시편 91편(하나님의 보호).", meditation:"시편 91편 — 하나님의 날개 아래 피하는 삶이 가장 안전한 삶임을 묵상하세요.", verse:"시편 91:2" },
+  { range:"시편 92-112편", theme:"할렐루야 시편 시작", summary:"시편 100편(감사 찬송), 시편 103편(하나님의 자비), 시편 107편(구속 감사).", meditation:"시편 103편 1-5절을 외우며, 하나님의 5가지 은혜를 하나씩 감사하세요.", verse:"시편 103:1-2" },
+  { range:"시편 113-139편", theme:"할렐 시편과 깊은 고백", summary:"시편 119편(말씀 찬양, 가장 긴 시), 시편 121편(나의 도움), 시편 139편(하나님의 전지하심).", meditation:"시편 139편 — 나를 완전히 아시는 하나님 앞에서 숨길 것이 없음을 고백하세요.", verse:"시편 139:23-24" },
+  { range:"시편 140편-잠언 10장", theme:"시편 마지막과 잠언 시작", summary:"시편 145-150편(할렐루야 찬송), 잠언 1-10장(지혜의 기초, 여인 지혜).", meditation:"잠언 3:5-6 — '너의 길을 여호와께 맡기고 그를 의지하라'", verse:"잠언 3:5-6" },
+  { range:"잠언 11-24장", theme:"지혜의 교훈들", summary:"일상 속 지혜의 원칙들: 말의 절제, 부지런함, 정직, 가난한 자 돌봄.", meditation:"오늘 잠언에서 가장 마음에 와닿는 구절 하나를 골라 하루 동안 실천해 보세요.", verse:"잠언 16:3" },
+  { range:"잠언 25-전도서 8장", theme:"잠언 후반과 전도서 시작", summary:"솔로몬의 추가 잠언, 전도서(헛됨과 지혜), 해 아래 모든 것의 의미.", meditation:"'헛되고 헛되도다' — 영원한 것에 집중하는 삶의 우선순위를 점검해 보세요.", verse:"전도서 12:13" },
+  { range:"전도서 9장-이사야 7장", summary:"전도서 결론, 아가서(사랑 노래), 이사야 1-7장(유다 심판과 임마누엘 예언).", theme:"전도서 결론과 이사야 시작", meditation:"이사야 6장의 이사야 소명처럼 '내가 여기 있나이다 나를 보내소서'라는 헌신을 드려보세요.", verse:"이사야 6:8" },
+  { range:"이사야 8-23장", theme:"열방 심판과 종말 예언", summary:"앗수르 침공 예언, 임박한 메시아 예언(9장, 11장), 열국에 대한 경고.", meditation:"'아름다운 소식을 시온에 전하는 자여' — 복음을 전하는 사명을 새기세요(사 52:7).", verse:"이사야 9:6" },
+  { range:"이사야 24-36장", theme:"묵시와 구원 예언", summary:"이사야 묵시록(24-27장), 화 선언, 이스라엘 회복 약속.", meditation:"하나님은 모든 민족을 위한 잔치를 베푸시고 사망을 영원히 멸하실 것입니다(사 25:8).", verse:"이사야 25:8" },
+  { range:"이사야 37-47장", theme:"히스기야와 위로의 이사야", summary:"히스기야의 위기와 구원, 바벨론 포로 예언, 이사야 40장(위로하라).", meditation:"'오직 여호와를 앙망하는 자는 새 힘을 얻으리니' — 지치고 힘들 때 이 말씀을 붙드세요(사 40:31).", verse:"이사야 40:31" },
+  { range:"이사야 48-62장", theme:"종의 노래와 회복 예언", summary:"고난받는 종 예언(52-53장), 이스라엘의 회복, 새 이스라엘 비전.", meditation:"이사야 53장을 읽으며 우리를 위해 상하신 예수님을 묵상하세요.", verse:"이사야 53:5" },
+  { range:"이사야 63장-예레미야 6장", theme:"이사야 결론과 예레미야 시작", summary:"이사야의 마지막 기도(63-66장), 예레미야의 소명, 유다에 대한 경고.", meditation:"예레미야처럼 '나는 아이라'고 할 때도 하나님이 함께하심을 기억하세요(렘 1:6-8).", verse:"예레미야 1:8" },
+  { range:"예레미야 7-16장", theme:"예레미야의 심판 선포", summary:"성전 설교, 배도한 이스라엘, 예레미야의 탄식, 거짓 선지자들.", meditation:"예레미야처럼 인기 없는 진리를 말해야 할 때, 하나님의 용기를 구하세요.", verse:"예레미야 15:16" },
+  { range:"예레미야 17-26장", theme:"여러 경고와 비유들", summary:"안식일 규례, 토기장이와 진흙 비유, 성전 심판, 예레미야의 수난.", meditation:"토기장이와 진흙처럼 하나님의 손에 나를 맡기는 기도를 드려보세요.", verse:"예레미야 18:6" },
+  { range:"예레미야 27-35장", theme:"포로와 귀환 예언", summary:"바벨론 종속 권고, 70년 포로 예언, 새 언약 약속(31장), 예레미야 매입.", meditation:"예레미야 31:33 — 마음에 새겨진 새 언약, 성령 안에 사는 우리의 삶을 묵상하세요.", verse:"예레미야 31:33" },
+  { range:"예레미야 36-46장", theme:"예레미야의 고난과 예루살렘 멸망", summary:"시드기야의 거절, 예루살렘 포위와 멸망, 예레미야의 구원, 애굽 피신.", meditation:"절망적인 상황에서도 땅을 산 예레미야처럼, 하나님의 미래를 신뢰하세요.", verse:"예레미야 32:17" },
+  { range:"예레미야 47-52장", theme:"열방 심판과 예레미야 결론", summary:"열방에 대한 예언들, 바벨론 심판, 예루살렘 함락 기록.", meditation:"하나님의 심판과 사랑은 함께합니다. 나를 향한 하나님의 긍휼을 감사하세요.", verse:"예레미야애가 3:22-23" },
+  { range:"예레미야애가 1장-에스겔 7장", theme:"애가와 에스겔 시작", summary:"예루살렘 멸망 애도, 에스겔의 소명과 이상(그룹과 바퀴), 이스라엘 심판.", meditation:"'주의 인자와 긍휼이 무궁하시므로 우리가 진멸되지 아니함이니이다' (애 3:22)", verse:"예레미야애가 3:22-23" },
+  { range:"에스겔 8-18장", theme:"에스겔의 심판 예언", summary:"성전의 가증한 일들, 예루살렘 심판 이상, 파수꾼 에스겔, 개인 책임 원칙.", meditation:"에스겔 18장 — 각 사람은 자신의 행위대로 책임집니다. 내 삶의 책임을 묵상하세요.", verse:"에스겔 18:30" },
+  { range:"에스겔 19-27장", theme:"이스라엘과 열방 심판", summary:"이스라엘 지도자들 애가, 오홀라와 오홀리바, 두로와 시돈 심판.", meditation:"두로의 교만처럼 재물과 성공이 우상이 될 수 있습니다. 내 삶의 우상을 점검하세요.", verse:"에스겔 28:2" },
+  { range:"에스겔 28-36장", theme:"회복 예언 시작", summary:"애굽 심판, 에스겔의 파수꾼 사명 갱신, 새 목자 예언, 마른 뼈 이상(37장).", meditation:"마른 뼈도 살리시는 하나님! 죽어있는 내 삶의 영역에 성령의 바람이 불어오기를 기도하세요.", verse:"에스겔 37:14" },
+  { range:"에스겔 37-45장", theme:"에스겔의 새 성전 이상", summary:"마른 뼈 환상, 두 막대기 하나 됨, 곡과 마곡 전쟁, 새 성전 이상.", meditation:"에스겔의 회복 이상처럼, 개인과 가정, 교회의 회복을 하나님께 구하세요.", verse:"에스겔 36:26" },
+  { range:"에스겔 46장-다니엘 5장", theme:"에스겔 결론과 다니엘", summary:"새 성전 규례, 생명수 강, 다니엘의 신앙(풀무불, 사자굴, 느부갓네살 꿈 해석).", meditation:"풀무불에서도 예수님 같은 분이 함께 하셨습니다(단 3:25). 하나님이 내 고난 중에 함께하심을 믿으세요.", verse:"다니엘 3:25" },
+  { range:"다니엘 6장-호세아 4장", theme:"다니엘 후반과 소선지서 시작", summary:"사자굴의 다니엘, 다니엘의 이상들, 호세아의 결혼 비유.", meditation:"다니엘처럼 하루 세 번 기도하는 습관을 만들어 보세요(단 6:10).", verse:"다니엘 6:10" },
+  { range:"호세아 5장-아모스 2장", theme:"호세아와 요엘·아모스", summary:"이스라엘의 간음, 호세아의 회복 사랑, 요엘의 메뚜기 재앙과 성령 예언, 아모스의 사회 정의.", meditation:"'너희는 여호와를 찾으라 그리하면 살리라' (암 5:6) — 하나님을 찾는 하루가 되게 하세요.", verse:"호세아 6:1" },
+  { range:"아모스 3장-미가 5장", theme:"사회 정의 선지서들", summary:"아모스의 심판 설교, 오바댜(에돔 심판), 요나(니느웨 선교), 미가의 심판과 구원.", meditation:"요나처럼 나도 하나님의 소명을 피하려 할 때가 있습니다. 하나님의 부르심에 순종하는 용기를 구하세요.", verse:"미가 6:8" },
+  { range:"미가 6장-스가랴 1장", theme:"나훔·하박국·스바냐·학개", summary:"미가의 결론, 나훔(니느웨 심판), 하박국의 신앙 논증, 스바냐의 심판, 학개의 성전 재건 촉구.", meditation:"'비록 무화과나무가 무성하지 못하며... 나는 여호와로 인하여 즐거워하리로다' (합 3:17-18)", verse:"하박국 3:17-18" },
+  { range:"스가랴 2-말라기 4장", theme:"스가랴와 말라기", summary:"스가랴의 8개 이상, 메시아 예언, 말라기의 경고(십일조, 이혼, 오실 메신저).", meditation:"말라기의 마지막 메시지 이후 400년 침묵 — 그리고 예수님이 오셨습니다. 하나님의 때를 기다리는 인내를 배우세요.", verse:"말라기 4:2" },
+  { range:"마태복음 1-11장", theme:"예수님의 탄생과 초기 사역", summary:"예수님 탄생, 세례, 광야 시험, 산상수훈(팔복·주기도문), 기적들.", meditation:"마태복음 5-7장 산상수훈을 읽으며 '나는 어떤 삶을 살고 있는가'를 점검해 보세요.", verse:"마태복음 5:3" },
+  { range:"마태복음 12-20장", theme:"예수님의 비유와 가르침", summary:"씨 뿌리는 자 비유, 오병이어, 베드로의 고백, 변화산, 잃은 양 비유.", meditation:"'나를 따르려거든 자기를 부인하고 자기 십자가를 지고 나를 따르라' (마 16:24)", verse:"마태복음 16:24" },
+  { range:"마태복음 21-27장", theme:"예루살렘 입성과 수난", summary:"예루살렘 입성, 성전 정화, 마지막 가르침, 최후의 만찬, 겟세마네, 십자가.", meditation:"겟세마네에서 '아버지의 뜻대로 하옵소서'라고 기도한 예수님처럼, 내 뜻보다 하나님 뜻을 구하세요.", verse:"마태복음 26:39" },
+  { range:"마태복음 28-마가복음 8장", theme:"부활과 마가복음 시작", summary:"예수님 부활과 대위임령, 마가복음(역동적인 사역), 기적들과 논쟁들.", meditation:"'가서 모든 민족을 제자로 삼으라' — 내 삶에서 한 사람에게 복음을 나눌 기회를 찾아보세요.", verse:"마태복음 28:19" },
+  { range:"마가복음 9-16장", theme:"마가복음 후반과 수난", summary:"변화산, 어린이 영접, 부자 청년, 예루살렘 입성, 수난과 부활.", meditation:"막 10:45 — '인자가 온 것은 섬김을 받으려 함이 아니라 섬기려 함이라' 오늘 섬길 사람을 찾아보세요.", verse:"마가복음 10:45" },
+  { range:"누가복음 1-7장", theme:"누가복음의 예수님", summary:"예수님 탄생 이야기(목자들, 시므온), 나사렛 선언, 기적들과 부르심.", meditation:"눅 4:18 — '가난한 자에게 복음을 전하게 하시려고' 예수님의 사명이 나의 사명이기도 합니다.", verse:"누가복음 4:18" },
+  { range:"누가복음 8-14장", theme:"예수님의 비유와 기적들", summary:"씨 뿌리는 자, 열두 제자 파송, 오병이어, 착한 사마리아인, 마르다와 마리아, 잃은 아들.", meditation:"잃은 아들 비유(눅 15장) — 아버지가 달려나와 맞이하는 하나님의 사랑을 묵상하세요.", verse:"누가복음 15:20" },
+  { range:"누가복음 15-22장", theme:"잃은 것들과 예루살렘 입성", summary:"잃은 양·잃은 드라크마·잃은 아들, 삭개오, 예루살렘 입성과 최후의 만찬.", meditation:"삭개오처럼 예수님을 만나는 순간 삶이 변화됩니다. 나의 삭개오 이야기는 무엇인가요?", verse:"누가복음 19:10" },
+  { range:"누가복음 23장-요한복음 5장", theme:"수난·부활·요한복음 시작", summary:"예수님 십자가와 부활, 엠마오 제자들, 요한복음 1장(태초에 말씀이), 니고데모.", meditation:"요 3:16 — 하나님이 세상을 이처럼 사랑하사... 이 사랑을 받은 자로 어떻게 살 것인지 묵상하세요.", verse:"요한복음 3:16" },
+  { range:"요한복음 6-11장", theme:"요한복음의 표적들", summary:"생명의 떡, 세상의 빛, 선한 목자, 나사로 부활.", meditation:"'나는 부활이요 생명이니' — 죽음도 두렵지 않은 부활 신앙을 새기세요(요 11:25).", verse:"요한복음 11:25" },
+  { range:"요한복음 12-20장", theme:"최후의 만찬과 부활", summary:"마리아의 향유, 고별 설교(요 14-17장), 겟세마네, 수난, 빈 무덤.", meditation:"요한복음 17장 예수님의 대제사장 기도를 읽으며, 나를 위한 예수님의 중보 기도를 묵상하세요.", verse:"요한복음 14:27" },
+  { range:"요한복음 21장-사도행전 9장", theme:"부활 이후와 초대교회 탄생", summary:"디베랴 호수, 성령 강림(오순절), 베드로의 설교, 초대교회의 삶, 스데반 순교.", meditation:"행 2:42-47 초대교회의 모습 — 말씀, 기도, 교제, 나눔. 우리 교회에서 실천할 부분은 무엇인가요?", verse:"사도행전 2:42" },
+  { range:"사도행전 10-18장", theme:"이방인 선교 시작", summary:"고넬료 사건, 바울의 1·2차 선교여행, 빌립보 감옥, 데살로니가·고린도 사역.", meditation:"'내가 너와 함께 있으니 두려워하지 말라' (행 18:9-10) — 하나님이 함께하시니 두려워하지 마세요.", verse:"사도행전 16:31" },
+  { range:"사도행전 19-28장", theme:"바울의 3차 선교와 로마행", summary:"에베소 사역, 밀레도 고별 설교, 예루살렘 체포, 로마 향해.", meditation:"바울의 고별 설교(행 20:24) — '나의 달려갈 길을 마치려 함이니라' 내 신앙의 레이스를 점검하세요.", verse:"사도행전 20:24" },
+  { range:"로마서 1-11장", theme:"복음의 교리", summary:"모든 인간의 죄, 이신칭의, 성령의 삶(8장), 이스라엘과 이방인 구원.", meditation:"롬 8:28 — '모든 것이 합력하여 선을 이루느니라' 지금의 어려움도 하나님 손 안에 있습니다.", verse:"로마서 8:28" },
+  { range:"로마서 12장-고린도전서 9장", theme:"실천적 기독교 삶", summary:"산 제물 헌신, 이웃 사랑, 권위 복종, 교회의 은사들, 고린도 교회 문제들.", meditation:"롬 12:1-2 — 산 제물로 드리는 삶의 의미를 묵상하고 오늘 하루를 하나님께 드려보세요.", verse:"로마서 12:1-2" },
+  { range:"고린도전서 10장-고린도후서 5장", theme:"성찬·부활·고난", summary:"성찬 교훈, 은사와 사랑장(고전 13장), 부활 교리, 고린도후서의 사도 변호.", meditation:"고전 13장 사랑의 장을 읽으며, 내 삶에서 가장 부족한 사랑의 모습은 무엇인지 생각해 보세요.", verse:"고린도전서 13:13" },
+  { range:"고린도후서 6장-갈라디아서 6장", theme:"화해와 복음의 자유", summary:"바울의 수난, 연보 권고, 사도 변호, 갈라디아서(율법vs은혜).", meditation:"갈 2:20 — '이제 내가 사는 것이 아니요 오직 내 안에 그리스도께서 사시는 것이라'", verse:"갈라디아서 2:20" },
+  { range:"에베소서 1장-골로새서 4장", theme:"교회론과 성도의 삶", summary:"에베소서(교회론, 전신갑주), 빌립보서(기쁨), 골로새서(그리스도의 충족성).", meditation:"빌 4:4-7 — 아무것도 염려하지 말고 기도와 간구로 아뢰라. 지금의 염려를 하나님께 맡기세요.", verse:"빌립보서 4:13" },
+  { range:"데살로니가전서 1장-디모데후서 4장", theme:"종말과 목회 서신", summary:"재림 가르침, 디모데전서(교회 지도자 자격), 디모데후서(바울의 마지막 편지).", meditation:"딤후 4:7 — '나는 선한 싸움을 싸우고 나의 달려갈 길을 마치고...' 끝까지 완주하는 신앙을 다짐하세요.", verse:"디모데후서 4:7" },
+  { range:"디도서 1장-히브리서 11장", theme:"목회 서신과 히브리서", summary:"디도서, 빌레몬서, 히브리서(그리스도의 대제사장, 믿음의 영웅들).", meditation:"히 11장 믿음의 영웅들처럼, 보이지 않는 것을 바라보며 나아가는 믿음을 키워보세요.", verse:"히브리서 11:1" },
+  { range:"히브리서 12장-베드로후서 3장", theme:"인내와 서신서들", summary:"믿음의 경주, 야고보서(행함의 믿음), 베드로전후서(고난 중의 소망).", meditation:"약 1:22 — '말씀을 행하는 자가 되고 듣기만 하여 자신을 속이는 자가 되지 말라'", verse:"야고보서 1:22" },
+  { range:"요한일서 1장-요한계시록 5장", theme:"사랑의 서신서와 요한계시록 시작", summary:"요한일서(사랑 안에 거하기), 요한이삼서, 유다서, 요한계시록 초반(일곱 교회).", meditation:"요일 4:19 — '우리가 사랑함은 그가 먼저 우리를 사랑하셨음이라' 하나님의 먼저 하신 사랑을 기억하세요.", verse:"요한일서 4:19" },
+  { range:"요한계시록 6-22장", theme:"요한계시록 완성", summary:"일곱 인봉, 나팔, 대접 재앙들, 바벨론 멸망, 새 예루살렘, 마라나타.", meditation:"계 21:4 — '다시는 사망이 없고 애통하는 것이나 곡하는 것이나 아픔이 없으리니' 천국의 소망을 가슴에 새기세요.", verse:"요한계시록 22:20" }
+];
+
+// State
+let state = {
+  completed: [],
+  currentDay: 0
+};
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('bible100_v2');
+    if (s) { state = JSON.parse(s); }
+  } catch(e) {}
+}
+
+function saveState() {
+  try { localStorage.setItem('bible100_v2', JSON.stringify(state)); } catch(e) {}
+}
+
+// Init
+loadState();
+updateHeader();
+renderToday();
+renderList();
+renderRecord();
+updateHeaderDate();
+
+function updateHeaderDate() {
+  const d = new Date();
+  const days = ['일','월','화','수','목','금','토'];
+  document.getElementById('headerDate').textContent =
+    `${d.getMonth()+1}월 ${d.getDate()}일 (${days[d.getDay()]})`;
+}
+
+function updateHeader() {
+  const done = state.completed.length;
+  const pct = done;
+  document.getElementById('progressText').textContent = `${done} / 100일`;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+function renderToday() {
+  const dayIdx = state.currentDay;
+  if (dayIdx >= DAYS.length) {
+    document.getElementById('todayContent').innerHTML = `
+      <div style="text-align:center;padding:40px 16px">
+        <div style="font-size:48px;margin-bottom:16px">🎉</div>
+        <div style="font-size:22px;font-weight:800;color:var(--green-dark);margin-bottom:8px">성경통독 완료!</div>
+        <div style="font-size:14px;color:var(--text-mid)">구약과 신약을 모두 읽으셨습니다.<br>하나님의 말씀을 통독한 당신을 축복합니다!</div>
+      </div>`;
+    return;
+  }
+  const d = DAYS[dayIdx];
+  const isDone = state.completed.includes(dayIdx);
+  document.getElementById('todayContent').innerHTML = `
+    <div class="today-card">
+      <div class="today-badge">
+        <span class="day-num">📅 ${dayIdx+1}일차</span>
+        <span class="book-category">${getCategory(dayIdx)}</span>
+      </div>
+      <div class="today-body">
+        <div class="today-range">${d.range}</div>
+        <div class="today-theme">✦ ${d.theme}</div>
+        <div class="today-summary">${d.summary}</div>
+        <div class="meditation-box">
+          <div class="meditation-title">🙏 묵상 포인트</div>
+          <div class="meditation-text">${d.meditation}</div>
+          <div class="meditation-verse">📜 ${d.verse}</div>
+        </div>
+        <button class="btn-complete ${isDone?'done':''}" onclick="toggleComplete(${dayIdx})">
+          ${isDone ? '✅ 완료됨 (취소하려면 탭)' : '📖 오늘 읽기 완료'}
+        </button>
+      </div>
+    </div>
+    ${dayIdx+1 < DAYS.length ? `
+    <div class="next-card">
+      <div class="next-label">📌 다음 읽을 말씀</div>
+      <div class="next-range">${DAYS[dayIdx+1].range}</div>
+      <div class="next-theme">${DAYS[dayIdx+1].theme}</div>
+    </div>` : ''}
+  `;
+}
+
+function getCategory(idx) {
+  if (idx < 4) return '모세오경';
+  if (idx < 17) return '모세오경';
+  if (idx < 23) return '역사서';
+  if (idx < 35) return '역사서';
+  if (idx < 39) return '역사서';
+  if (idx < 41) return '역사서';
+  if (idx < 43) return '시가서';
+  if (idx < 50) return '시가서';
+  if (idx < 55) return '시가서';
+  if (idx < 60) return '선지서';
+  if (idx < 66) return '선지서';
+  if (idx < 74) return '선지서';
+  if (idx < 76) return '소선지서';
+  if (idx < 80) return '복음서';
+  if (idx < 86) return '복음서';
+  if (idx < 91) return '서신서';
+  return '서신서';
+}
+
+function toggleComplete(idx) {
+  const wasCompleted = state.completed.includes(idx);
+  if (wasCompleted) {
+    state.completed = state.completed.filter(d => d !== idx);
+  } else {
+    if (!state.completed.includes(idx)) state.completed.push(idx);
+    // Advance to next uncompleted day
+    let next = idx + 1;
+    while (next < DAYS.length && state.completed.includes(next)) next++;
+    state.currentDay = Math.min(next, DAYS.length);
+    showCompletionMsg(idx);
+  }
+  saveState();
+  updateHeader();
+  renderToday();
+  renderList();
+  renderRecord();
+}
+
+function showCompletionMsg(idx) {
+  const msgs = [
+    `${idx+1}일차 완료! 🎉\n말씀을 읽으셨습니다. 축복합니다!`,
+    `${idx+1}일차 통독 완료! ✨\n오늘도 하나님 말씀과 함께했습니다.`,
+    `${idx+1}일차 완료! 🙌\n꾸준히 읽어가는 당신을 응원합니다!`,
+  ];
+  const msg = document.getElementById('confettiMsg');
+  msg.textContent = msgs[idx % msgs.length];
+  msg.classList.add('show');
+  setTimeout(() => msg.classList.remove('show'), 2200);
+}
+
+function renderList() {
+  const books = ['모세오경 (1-17일)', '역사서 (18-42일)', '시가서 (43-55일)', '선지서 (56-75일)', '소선지서 (76-77일)', '신약 복음서 (78-89일)', '신약 서신서 (90-100일)'];
+  const ranges = [[0,16],[17,41],[42,54],[55,74],[75,76],[77,88],[89,99]];
+  let html = '';
+  ranges.forEach((r, si) => {
+    html += `<div class="list-section"><div class="list-section-title">📚 ${books[si]}</div>`;
+    for (let i = r[0]; i <= r[1]; i++) {
+      const d = DAYS[i];
+      const done = state.completed.includes(i);
+      const isCur = i === state.currentDay;
+      html += `
+        <div class="day-item ${done?'completed':''} ${isCur?'current':''}" onclick="openModal(${i})">
+          <div class="day-num-badge">${i+1}</div>
+          <div class="day-info">
+            <div class="day-range">${d.range}</div>
+            <div class="day-theme-sm">${d.theme}</div>
+          </div>
+          <div class="check-mark">${done?'✅':isCur?'▶':'○'}</div>
+        </div>`;
+    }
+    html += '</div>';
+  });
+  document.getElementById('listContent').innerHTML = html;
+}
+
+function renderRecord() {
+  const done = state.completed.length;
+  const remain = 100 - done;
+  document.getElementById('statDone').textContent = done;
+  document.getElementById('statRemain').textContent = remain;
+  document.getElementById('statPercent').textContent = done + '%';
+  let dots = '';
+  for (let i = 0; i < 100; i++) {
+    const d = state.completed.includes(i);
+    const cur = i === state.currentDay;
+    dots += `<div class="cal-dot ${d?'done':cur?'today':''}">${i+1}</div>`;
+  }
+  document.getElementById('calDots').innerHTML = dots;
+}
+
+function openModal(idx) {
+  const d = DAYS[idx];
+  const done = state.completed.includes(idx);
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-day-badge">${idx+1}일차 · ${getCategory(idx)}</div>
+    <div class="modal-range">${d.range}</div>
+    <div class="modal-theme">✦ ${d.theme}</div>
+    <div class="modal-summary">${d.summary}</div>
+    <div class="modal-meditation">
+      <div class="meditation-title">🙏 묵상 포인트</div>
+      <div class="meditation-text">${d.meditation}</div>
+      <div class="meditation-verse">📜 ${d.verse}</div>
+    </div>
+    ${idx === state.currentDay ? `
+    <button class="btn-complete ${done?'done':''}" onclick="toggleComplete(${idx}); document.getElementById('modalOverlay').classList.remove('open');" style="margin-bottom:8px">
+      ${done ? '✅ 완료 (취소)' : '📖 읽기 완료 표시'}
+    </button>` : ''}
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('modalOverlay')) {
+    document.getElementById('modalOverlay').classList.remove('open');
+  }
+}
+
+function showTab(tab) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('screen-' + tab).classList.add('active');
+  event.target.closest('.tab').classList.add('active');
+}
+</script>
+</body>
+</html>
