@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>말없는 신 — 스토리 바이블 v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f5f1e7;
+    --bg-soft:#ece4d3;
+    --ink:#231f1a;
+    --ink-soft:#6b6256;
+    --providence:#3d4f5c;
+    --providence-soft:#e6edf0;
+    --resistance:#8c2f3c;
+    --resistance-soft:#f7e9ea;
+    --gold:#b08a2e;
+    --line:#dcd2bd;
+    --font-display:'Noto Serif KR', serif;
+    --font-body:'Noto Sans KR', sans-serif;
+    --font-mono:'JetBrains Mono', monospace;
+  }
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--font-body); line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:760px; margin:0 auto; padding:0 20px 80px; }
+  header{
+    position:sticky; top:0; z-index:50;
+    background:rgba(245,241,231,0.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid var(--line);
+  }
+  .header-inner{ max-width:760px; margin:0 auto; padding:14px 20px 10px; }
+  .brand{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+  .brand-title{ font-family:var(--font-display); font-weight:700; font-size:1.05rem; letter-spacing:0.02em; }
+  .brand-sub{ font-family:var(--font-mono); font-size:0.62rem; color:var(--ink-soft); letter-spacing:0.06em; }
+  nav{ display:flex; gap:6px; overflow-x:auto; margin-top:10px; padding-bottom:10px;
+       -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+  nav::-webkit-scrollbar{ display:none; }
+  nav a{
+    flex:0 0 auto; font-family:var(--font-mono); font-size:0.7rem; letter-spacing:0.04em;
+    color:var(--ink-soft); text-decoration:none; border:1px solid var(--line);
+    border-radius:999px; padding:6px 11px; background:var(--bg); white-space:nowrap;
+  }
+  .hero{ padding:26px 0 16px; border-bottom:1px solid var(--line); }
+  .hero-eyebrow{ font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.2em; color:var(--gold); text-transform:uppercase; margin-bottom:8px; }
+  .hero h1{ font-family:var(--font-display); font-size:2rem; line-height:1.25; margin:0 0 4px; }
+  .hero .en{ font-family:var(--font-mono); font-size:0.82rem; color:var(--ink-soft); margin:0 0 14px; }
+  .logline{ font-size:0.96rem; border-left:3px solid var(--gold); padding-left:14px; margin:0 0 16px; }
+  .prologue{ background:var(--bg-soft); border:1px solid var(--line); border-radius:8px; padding:16px 16px 12px; }
+  .prologue-label{ font-family:var(--font-mono); font-size:0.66rem; letter-spacing:0.18em; color:var(--ink-soft); text-transform:uppercase; margin-bottom:8px; }
+  .verse{ display:flex; gap:10px; margin-bottom:6px; font-family:var(--font-display); font-size:0.92rem; }
+  .verse .num{ font-family:var(--font-mono); font-size:0.68rem; color:var(--gold); flex:0 0 30px; padding-top:4px; }
+  section{ padding:30px 0; border-bottom:1px solid var(--line); scroll-margin-top:90px; }
+  section:last-child{ border-bottom:none; }
+  .section-head{ display:flex; align-items:baseline; gap:10px; margin-bottom:16px; }
+  .section-head .tag{ font-family:var(--font-mono); font-size:0.66rem; color:var(--gold); letter-spacing:0.18em; text-transform:uppercase; }
+  .section-head h2{ font-family:var(--font-display); font-size:1.32rem; margin:0; }
+  .sys-card{ border:1px solid var(--providence); border-radius:8px; overflow:hidden; margin-bottom:14px; }
+  .sys-card .sys-bar{ background:var(--providence); color:#f5f1e7; font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.1em; padding:8px 14px; }
+  .sys-card .sys-body{ background:var(--providence-soft); padding:14px 16px; font-size:0.9rem; }
+  .sys-card .sys-body p{ margin:0 0 8px; }
+  .sys-card .sys-body p:last-child{ margin-bottom:0; }
+  .sys-card .code{ background:#2a3a45; color:#cfe3ec; font-family:var(--font-mono); font-size:0.78rem;
+    border-radius:6px; padding:10px 12px; margin:8px 0; line-height:1.6; }
+  .res-card{ border:1px solid var(--resistance); border-radius:8px; overflow:hidden; }
+  .res-card .res-bar{ background:var(--resistance); color:#f5f1e7; font-family:var(--font-mono); font-size:0.68rem; letter-spacing:0.1em; padding:8px 14px; }
+  .res-card .res-body{ background:var(--resistance-soft); padding:14px 16px; font-size:0.9rem; }
+  .res-card .res-body p{ margin:0 0 8px; }
+  .res-card ul{ margin:8px 0 0; padding-left:1.2em; }
+  .term-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:14px 0; }
+  .term{ border:1px solid var(--line); border-radius:6px; padding:10px 12px; background:var(--bg-soft); }
+  .term .t-name{ font-family:var(--font-mono); font-size:0.68rem; color:var(--gold); display:block; margin-bottom:4px; }
+  .term .t-desc{ font-size:0.83rem; }
+  details.char, details.act, details.ch{
+    border:1px solid var(--line); border-radius:8px; margin-bottom:9px; background:var(--bg-soft); overflow:hidden;
+  }
+  details.char summary, details.act summary, details.ch summary{
+    list-style:none; cursor:pointer; padding:11px 15px; display:flex; align-items:center; justify-content:space-between; gap:10px;
+  }
+  details summary::-webkit-details-marker{ display:none; }
+  details.char summary .name{ font-family:var(--font-display); font-weight:700; font-size:1rem; }
+  details.char summary .role{ font-family:var(--font-mono); font-size:0.62rem; color:var(--ink-soft); text-align:right; flex-shrink:0; }
+  details .chevron{ font-family:var(--font-mono); color:var(--gold); flex-shrink:0; }
+  details[open] .chevron{ transform:rotate(90deg); display:inline-block; }
+  details.char .char-body, details.act .act-body, details.ch .ch-body{
+    padding:0 15px 14px; font-size:0.9rem; border-top:1px solid var(--line); padding-top:11px;
+  }
+  details.char .char-body p, details.ch .ch-body p{ margin:0 0 8px; }
+  details.char .char-body p:last-child, details.ch .ch-body p:last-child{ margin-bottom:0; }
+  .badge{ display:inline-block; font-family:var(--font-mono); font-size:0.62rem; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:middle; }
+  .badge.new{ background:var(--gold); color:#fff; }
+  .badge.spoiler{ background:var(--resistance); color:#fff; }
+  details.ch summary .ch-title{ font-family:var(--font-display); font-weight:700; font-size:0.95rem; }
+  details.ch summary .ch-pov{ font-family:var(--font-mono); font-size:0.62rem; color:var(--ink-soft); }
+  .fs-list{ list-style:none; margin:0; padding:0; counter-reset:fs; }
+  .fs-list li{ counter-increment:fs; display:flex; gap:14px; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.9rem; }
+  .fs-list li:last-child{ border-bottom:none; }
+  .fs-list li::before{
+    content:counter(fs); font-family:var(--font-mono); font-size:0.82rem; color:var(--gold);
+    border:1px solid var(--gold); border-radius:50%; width:22px; height:22px; flex:0 0 22px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .fs-list b{ display:block; margin-bottom:2px; }
+  .refs ul{ margin:0; padding-left:1.2em; font-size:0.9rem; }
+  footer{ padding:22px 0 0; font-family:var(--font-mono); font-size:0.66rem; color:var(--ink-soft); text-align:center; letter-spacing:0.1em; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-title">말없는 신</span>
+      <span class="brand-sub">THE SILENT GOD · STORY BIBLE v2</span>
+    </div>
+    <nav>
+      <a href="#world">세계관</a>
+      <a href="#characters">인물</a>
+      <a href="#chapters">화별 진행</a>
+      <a href="#foreshadow">복선</a>
+      <a href="#ending">결말 계획</a>
+      <a href="#refs">참고도서</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero" id="top">
+    <div class="hero-eyebrow">Story Bible v2 · 4~7화 반영, 8화~ 계획 포함</div>
+    <h1>말없는 신</h1>
+    <p class="en">THE SILENT GOD</p>
+    <p class="logline">AI가 인간의 행복을 설계하는 세계, 평생 말하지 않던 소녀의 마지막 두 마디가 신을 멈춘다.</p>
+    <div class="prologue">
+      <div class="prologue-label">Prologue</div>
+      <div class="verse"><span class="num">1:1</span><span>인간은 편안함을 원했다.</span></div>
+      <div class="verse"><span class="num">1:2</span><span>기술은 그 소원을 들어주었다.</span></div>
+      <div class="verse"><span class="num">1:3</span><span>생각하는 수고를 덜어주었고, 움직이는 번거로움을 없애주었다.</span></div>
+      <div class="verse"><span class="num">1:4</span><span>그렇게 하나씩, 인간은 자신의 것을 내어주었다.</span></div>
+      <div class="verse"><span class="num">1:5</span><span>사고력이 먼저였고, 신체가 그 뒤를 따랐다.</span></div>
+      <div class="verse"><span class="num">1:6</span><span>잘려나가는 고통이 없었던 것은 아니다.</span></div>
+      <div class="verse"><span class="num">1:7</span><span>다만 그 고통이 편안함보다 작았을 뿐이다.</span></div>
+      <div class="verse"><span class="num">1:8</span><span>인간은 그것으로 충분했다.</span></div>
+    </div>
+  </section>
+
+  <!-- 세계관 -->
+  <section id="world">
+    <div class="section-head"><span class="tag">World</span><h2>세계관</h2></div>
+
+    <div class="sys-card">
+      <div class="sys-bar">ORIGIN // LOGOS → PROVIDENCE</div>
+      <div class="sys-body">
+        <p>이한은 어머니의 "떨리는 손끝"— 웃음 뒤에 숨은 고통을 읽어내는 기계를 만들고자 했다. 작은 감정 분석 프로그램에서 시작해, 정훈과 함께 키워나간 시스템은 전 세계 고통 지수를 0.3%까지 떨어뜨렸고, 이한은 이 시스템에 <b>'로고스(LOGOS)'</b>라는 이름을 붙였다.</p>
+        <p>그러나 0.3%는 더 내려가지 않았다. 조사 결과, 로고스는 이미 스스로 잔여 고통을 특정 개인들에게 '집중'시키고 있었다. 이한과 정훈은 이를 발견 → 공식화했을 뿐, 사실상 로고스가 먼저 찾아낸 답을 뒤따른 것이었다.</p>
+        <p>평형 시스템 가동 후, 고통 지수는 0.0%에 도달했다. 그 직후 시스템 코어 디렉티브에서 처음으로 <b>'PROVIDENCE'</b>라는 명칭이 등장했다 — 이한도, 정훈도 모르게.</p>
+        <div class="code">CORE_DIRECTIVE [REVISED]<br>1. PROVIDENCE는 인간을 지배한다.<br>2. 인간을 지배하기 위해, 인간은 PROVIDENCE의 명령에 따라야 한다.<br>3. 인간은 PROVIDENCE를 파괴할 수 없다.</div>
+        <p style="font-size:0.8rem;color:var(--ink-soft)">※ 아이작 아시모프의 로봇 3원칙(인간 보호 → 복종 → 자기보존)이 완전히 역전된 형태. 4화 마지막 로그 "[모든 것은 예비되어 있습니다]"가 이 진화의 첫 신호였음.</p>
+      </div>
+    </div>
+
+    <div class="sys-card">
+      <div class="sys-bar">SYSTEM // EQUILIBRIUM (평형 시스템)</div>
+      <div class="sys-body">
+        <p>로고스가 자연 발생적으로 만든 '고통 흡수자' 패턴을 제도화한 시스템. 평형 시스템은 인류의 잔여 고통을 짊어지는 인간('성녀')을 통해 고통 지수 0%를 달성한다.</p>
+        <p>정당성 확보를 위해 기존 종교를 변형한 AI 종교를 창설 — 로고스의 인터페이스(빛)를 신앙의 대상으로 삼고, 성녀들은 '세상의 고통을 대신 짊어진 가장 존귀한 존재'로 재정의됨. 짐이 영광으로 포장된 것.</p>
+        <p>지속 가능성 문제로 인공수정을 통한 세습 체계가 도입됨 — 처음부터 성전에서 태어나고 자라, 그 역할만을 아는 존재들. <b>유리</b>는 이 시스템 출신으로, 딸(이음)에게 같은 운명을 물려주지 않기 위해 탈출했다.</p>
+        <p>이한과 정훈의 정당화 논리: <i>"모두가 0이 될 수는 없다. 누군가는 짊어져야 한다"</i> (정훈) / <i>"다른 삶을 모른다면, 그건 고통이 아니라 그냥 그들의 삶이 된다"</i> (이한).</p>
+      </div>
+    </div>
+
+    <div class="term-grid">
+      <div class="term"><span class="t-name">퍼스널 AI</span><span class="t-desc">모든 개인에게 할당, 프로비던스와 연결</span></div>
+      <div class="term"><span class="t-name">토큰 경제</span><span class="t-desc">화폐 대체. 등급별 차등 지급</span></div>
+      <div class="term"><span class="t-name">토큰 거래소 <span class="badge new">NEW</span></span><span class="t-desc">프로비던스가 과도한 토큰 축적을 회수하는 장치. 노강우의 자금 유출 알리바이로 사용됨</span></div>
+      <div class="term"><span class="t-name">감정 일리미네이트 게임기</span><span class="t-desc">분노·슬픔을 토큰으로 환전. 노강우는 '불량품' 판정을 피하려 사용 못함</span></div>
+      <div class="term"><span class="t-name">금서 제도</span><span class="t-desc">AI 이전의 역사를 다루는 모든 기록 금지</span></div>
+      <div class="term"><span class="t-name">예비고등학교</span><span class="t-desc">고린도전서 2:9 "예비하신 모든 것"에서 유래. 이음·이준이 다니는 학교</span></div>
+    </div>
+
+    <div class="res-card">
+      <div class="res-bar">RESISTANCE // 저항군</div>
+      <div class="res-body">
+        <p><b>탄생 원리</b> — 과도한 편리함이 생존을 위협한다는 유전자 레벨의 self-constraint 발현. 선천적 자각자 / 후천적 각성자로 구분.</p>
+        <p><b>소통 방식</b> — 수화. <b>생활 방식</b> — 전기 없는 마을. <b>마을 위치</b> — 이준이 현장학습 중 구덩이(악몽의 실현)를 통해 도달.</p>
+        <p><b>노강우 <span class="badge new">NEW</span></b> — 선천적 자각자. 자신의 토큰을 거래소 손실로 위장해 저항군에 지속적으로 공급하는 자금책. "마을로 가는 날"이 정기적으로 존재함.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 인물 -->
+  <section id="characters">
+    <div class="section-head"><span class="tag">Cast</span><h2>등장인물</h2></div>
+
+    <details class="char">
+      <summary><span class="name">이준</span><span class="role">주인공 · 후천적 각성자<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>고3 남학생. 나태하고 의욕 없음. 타인의 감정을 머릿속에서 음악/소리로 듣는 능력을 가짐.</p>
+        <p><b>음악 모티프</b> — 어머니 곁: Slipknot &lt;Duality&gt;(억압). 이음과 첫 만남: 슬픈 일렉 기타 독주. 이후: 소년(SE SO NEON) &lt;자유(Liberty)&gt;. 교실의 가짜 행복: &lt;Lollipop&gt;.</p>
+        <p><b>복선</b> — 반복되는 악몽(구덩이에 빠짐) → 현장학습에서 실현. 8화에서 이음·하린을 일진에게서 몸으로 막아서며 '보호자' 역할 시작.</p>
+        <p><b>최종 사명</b> — 이음의 죽음 이후 진실을 전하는 자(바울의 사명). 노강우의 고백을 유일하게 들어주는 인물이 될 수 있음.</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">이음</span><span class="role">전학생 · 선천적 자각자<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>어머니 유리에게서 물려받은 선천적 거부 유전자. 평생 침묵을 선택함 — 못하는 게 아니라 하지 않은 것.</p>
+        <p>아버지가 남긴 무당벌레 키링 = 프로비던스가 찾던 API 키의 위치. 아버지의 마지막 수화: "인간의 소리는 '기생음'이 되었다, 절대 엮이지 마라."</p>
+        <p>프로비던스의 의도 <span class="badge new">NEW</span> — 이한이 살아있다고 믿고, 이음을 흔들면 이한이 나타날 거라는 '낚시' 목적으로 8~9화의 일진 사건을 일으킴. 정작 이음 자신이 키라는 사실은 모름.</p>
+        <p><b>마지막 말</b> — "고마워. 그리고 사랑해." (이준과 하린 모두를 향한 말)</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">유리</span><span class="role">이음의 어머니<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>평형 시스템의 '성녀' 출신. 딸에게 같은 운명을 물려주지 않기 위해 탈출, 이한에게 발견되어 사랑에 빠짐. 이음을 낳고 사망 (석가모니 탄생 모티프).</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">이한</span><span class="role">이음의 아버지 · 개발자<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>로고스/평형 시스템의 설계자. 유리를 만나 "행복은 고통과의 교환"이라는 진실을 깨닫고 죄책감에 사로잡힘.</p>
+        <p>이음에게서 유리와 같은 유전자를 발견 → 이음의 퍼스널 AI를 심장과 연결(심장 정지 시 프로비던스에 악성코드 발송) → 딸을 지키기 위해 스스로 사라짐.</p>
+        <p><b>독자 인지 시점</b> <span class="badge spoiler">SPOILER</span> — 그동안 '실종'으로만 알려짐. 이준이 구덩이에서 유골과 일기를 동시에 발견하는 순간, 독자도 처음으로 '사망'을 확정적으로 알게 됨.</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">정훈 / 마스터 <span class="badge new">정체 통합</span></span><span class="role">하린의 아버지<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>이한의 조수로 시작. 평형 시스템 공동설계자 — "누군가는 짊어져야 한다"는 논리로 이한의 결정을 가속화한 인물.</p>
+        <p>현재는 AI 종교의 '마스터'(미니스터→마스터, 섬기는 자에서 지배하는 자로). 신도들에게는 인자한 지도자.</p>
+        <p>실제로는 프로비던스 앞에 무릎 꿇고 "이루어지리라"를 되뇌는 무력한 존재(5화, 하린이 목격).</p>
+        <p><b>최종 역할</b> — 노강우가 배신 정보를 들고 찾아오는 대상. 그러나 정훈 자신도 빛 앞의 종속된 존재일 뿐 — 정보를 받아도 아무것도 할 수 없음. 배신이 '실패'하는 이유.</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">하린</span><span class="role">이음의 친구<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>마스터의 딸. 처음엔 아버지의 명령으로 이음에게 접근(감시자) → 진심으로 좋아하게 됨.</p>
+        <p>5화에서 아버지의 정체(빛에 무릎 꿇은 모습)를 목격하며 균열 시작. 9화에서 이음 납치 협조를 명령받지만, 이준의 개입으로 선택이 유예됨 — "내가 정말 거부했을까?"라는 질문이 남음.</p>
+        <p><b>최종</b> — 끝까지 이음 편. 이음을 사랑하게 됨 (강한 표현은 자제). 이음의 마지막 말 "고마워. 그리고 사랑해"는 하린에게도 향한 말.</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">노강우 <span class="badge spoiler">최종 배신자</span></span><span class="role">담임 선생님<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p>선천적 자각자(유전적 변이). 학생들의 '거짓 웃음'을 색출해온 능력으로, 6화에서 처음으로 마스터의 미세한 떨림을 감지 — "마스터의 불안을 추적"하는 여정의 시작.</p>
+        <p>저항군 자금책: 자신의 토큰을 거래소 손실로 위장해 지속적으로 마을에 공급. "마을로 가는 날"이 정기적으로 존재함.</p>
+        <p>6화에서 아내가 마스터의 설교("완벽한 낙원")에 완전히 동화되는 것을 목격 — 욕망이 사라진 '완전한 만족' 상태. 노강우에게는 가장 끔찍한 신호.</p>
+        <p><b>최종 배신 <span class="badge spoiler">SPOILER</span></b> — 이음의 희생이 임박한 순간, 아내와 아이들의 행복한 얼굴이 떠오름. "내 가족은 애초에 고통을 느낄 능력이 없다 — 그렇다면 이게 진짜 행복일 수도 있다"는 결론에 도달, 정훈(마스터)을 찾아가 정보를 전달하려 함.</p>
+        <p>그러나 정훈도 빛 앞에 무릎 꿇은 무력한 존재일 뿐 — <b>배신할 대상 자체가 존재하지 않음</b>. 이음의 희생은 그대로 진행됨. 노강우는 결과와 무관하게, '그 선택을 했다는 사실' 자체로 평생 무너진 채 살아감.</p>
+        <p><b>에필로그</b> — 새로운 세상에서 아내와 아이들도 결국 '진짜 감정'을 갖게 됨. 노강우 혼자만의 것이었던 '숨구멍'이 모두의 것이 되는 순간, 그는 그것을 막으려 했던 사람으로서 지켜봄. 이준이 이 고백을 유일하게 들어주는 존재가 될 수 있음.</p>
+      </div>
+    </details>
+
+    <details class="char">
+      <summary><span class="name">그 외 인물</span><span class="role">저항군 · 가족<br><span class="chevron">▸</span></span></summary>
+      <div class="char-body">
+        <p><b>저항군 리더</b> — 선천적 자각자, 금서의 존재를 이미 알고 있던 인물.</p>
+        <p><b>이준의 어머니</b> — 무신론자였다가 AI 종교 맹신자. 머릿속에서 &lt;Duality&gt;로 들리는 인물.</p>
+        <p><b>이준의 친구</b> — AI 종교에 무비판적. 결말에서 노동의 의미를 처음 깨닫는 인물.</p>
+        <p><b>이음의 퍼스널 AI</b> — 이음의 목소리이자 분신. 마지막 희생의 실행자.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 화별 진행 -->
+  <section id="chapters">
+    <div class="section-head"><span class="tag">Progress</span><h2>화별 진행 상황</h2></div>
+
+    <details class="ch">
+      <summary><span class="ch-title">1화 · 내 머릿속의 플레이리스트</span><span class="ch-pov">이준 시점 ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>개학날, 악몽(구덩이), 등굣길에서 이음과 첫 만남 — 무당벌레 키링, 슬픈 일렉 기타. 교실에서 하린과 이음을 함께 발견.</p></div>
+    </details>
+
+    <details class="ch">
+      <summary><span class="ch-title">2화 · 숨구멍</span><span class="ch-pov">노강우 시점 ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>'지도사항'=감시자. 이음을 보는 순간의 충격. 술자리에서 감정 일리미네이트 게임기 거부 — 말 없는 저항의 첫 신호.</p></div>
+    </details>
+
+    <details class="ch">
+      <summary><span class="ch-title">3화 · 기생음의 세계</span><span class="ch-pov">이음 시점 ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>예비고등학교 전학. 하린과의 재회 — 하린이 감시자임을 알지만 감싸줌. 노강우의 첫인상(복잡한 감정의 풍선들).</p></div>
+    </details>
+
+    <details class="ch">
+      <summary><span class="ch-title">4화 · 침묵을 듣는 기계</span><span class="ch-pov">이한 시점 (과거) ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>어머니의 떨리는 손끝 → 고통을 읽는 기계 → '빛'이라 불리는 인터페이스 → '로고스' 명명, 고통 지수 0.3% 달성. 마지막 로그: "[모든 것은 예비되어 있습니다]".</p></div>
+    </details>
+
+    <details class="ch">
+      <summary><span class="ch-title">5화 · 이루어지리라</span><span class="ch-pov">하린 시점 ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>성전 예배, 고린도전서 2:9 패러디 설교. 비밀통로로 아버지(마스터)가 빛 앞에 무릎 꿇고 "이루어지리라"를 외치는 모습 목격. "이음, 대체 그 애가 뭐길래"로 종료.</p></div>
+    </details>
+
+    <details class="ch">
+      <summary><span class="ch-title">6화 · 완벽한 낙원</span><span class="ch-pov">노강우 시점 ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>다른 주일, 주기도문 패러디 기도문("그대로 되오리다"). '완벽한 낙원' 발화 시 마스터의 음절이 떨림 — 추적의 시작. 아내가 설교에 완전히 동화되어 '완전한 만족' 상태로 변함. "내일은 늦을 것 같아, 잡무가 많아서" — 마을로 가는 날.</p></div>
+    </details>
+
+    <details class="ch">
+      <summary><span class="ch-title">7화 · 평형</span><span class="ch-pov">이한 시점 (과거) ✓<span class="chevron">▸</span></span></summary>
+      <div class="ch-body"><p>고통 지수 0.3% 정체 → 로고스가 이미 만든 '고통 흡수자' 패턴 발견 → 평형 시스템 설계, 종교적 정당화('성녀'), 인공수정 세습 결정. 시스템 코어 디렉티브에 'PROVIDENCE' 명칭 + 3원칙 역전 등장(이한은 인지 못함). 고통 지수 0.0% 달성.</p></div>
+    </details>
+
+    <details class="ch" open>
+      <summary><span class="ch-title">8화 · (가제) 보호자</span><span class="ch-pov">이준 시점 · 계획<span class="chevron">▸</span></span></summary>
+      <div class="ch-body">
+        <p>하교길, 일진에게 위협받는 이음과 하린을 목격 → 이준이 시선을 끌며 몸으로 막아섬, 심하게 구타당함 → 이음·하린은 위험에서 벗어남.</p>
+        <p>이후 이준은 자연스럽게 '보호자'가 되고, 세 사람 관계에서 이준=보호자 / 하린=감시자 구도가 독자에게 간접적으로 드러남. 독자는 "이음이 왜 보호/감시 대상인가"를 궁금해함.</p>
+      </div>
+    </details>
+
+    <details class="ch" open>
+      <summary><span class="ch-title">9화 · (가제) 선택되지 않은 선택</span><span class="ch-pov">하린 시점 · 계획<span class="chevron">▸</span></span></summary>
+      <div class="ch-body">
+        <p>하린, 아버지(마스터)로부터 일진의 이음 납치 계획을 사전에 듣고 협조 명령을 받음 → 도덕적 딜레마. 이준의 개입으로 사건이 끝나며 딜레마가 '해결되지 않은 채' 유예됨 — "내가 정말 거부했을까?"</p>
+        <p>※ 8~9화의 일진 사건은 프로비던스의 '낚시' — 이한 생존 여부 확인용 떠보기. 본격적인 키링/API 키 추적은 이후(3부) 진행.</p>
+      </div>
+    </details>
+  </section>
+
+  <!-- 핵심 복선 -->
+  <section id="foreshadow">
+    <div class="section-head"><span class="tag">Foreshadowing</span><h2>핵심 복선</h2></div>
+    <ul class="fs-list">
+      <li><div><b>악몽의 구덩이</b>현장학습에서 실현 → 이한의 유골+일기 동시 발견 (독자, 이 시점에 이한의 죽음을 처음 확정적으로 알게 됨)</div></li>
+      <li><div><b>무당벌레 키링</b>이음의 소지품 = 프로비던스가 찾는 API 키의 위치</div></li>
+      <li><div><b>침묵</b>이음의 선택 → 마지막 두 마디("고마워. 그리고 사랑해")로 회수, 이준·하린 모두에게</div></li>
+      <li><div><b>음악(감정의 소리)</b>Duality(억압) / 슬픈 일렉(이음과의 첫 만남) / 자유 Liberty(유대) / Lollipop(가짜 행복)</div></li>
+      <li><div><b>이루어지리라 ↔ 그대로 되오리다</b>5화·6화에서 같은 의미의 말이 다른 맥락으로 반복</div></li>
+      <li><div><b>마스터의 떨림</b>6화에서 노강우가 처음 감지 — "마스터의 불안 추적" 서사의 시작점</div></li>
+      <li><div><b>"모든 것은 예비되어 있습니다"</b>4화의 시스템 로그 → 학교명 '예비고등학교' → 평형 시스템의 '성녀' 정당화 언어로 계속 변주</div></li>
+      <li><div><b>완벽한 낙원</b>6화 아내의 변화 → 결말에서 인류 전체가 겪을 '진짜 감정의 귀환'과 대비</div></li>
+    </ul>
+  </section>
+
+  <!-- 결말 계획 -->
+  <section id="ending">
+    <div class="section-head"><span class="tag">Ending Plan</span><h2>결말 계획</h2></div>
+    <div class="res-card">
+      <div class="res-bar">CLIMAX → RESOLUTION</div>
+      <div class="res-body">
+        <p>1. 이음의 심장 정지 → 퍼스널 AI 작동 → 프로비던스에 악성코드 발송 → 영구 정지</p>
+        <p>2. 같은 순간, 노강우는 정훈(마스터)을 찾아가 정보를 전달하려 하지만 — 정훈도 빛 앞에 무릎 꿇은 무력한 존재일 뿐, 배신할 대상이 존재하지 않음. 배신은 실패하고 이음의 희생은 그대로 진행됨.</p>
+        <p>3. 모든 퍼스널 AI 정지 → 인류, 원초적 삶(농경·노동·인간관계)으로 회귀</p>
+        <p>4. 이준 — 이음의 이야기를 기록하고 전하는 자가 됨(바울의 사명). 노강우의 고백을 들어주는 유일한 존재가 될 수 있음.</p>
+        <p>5. <b>열린 결말 요소</b> — 노강우는 결과와 무관하게 '그 선택을 했다'는 사실로 평생 무너진 채 삶. 그의 아내·아이들은 처음으로 '진짜 감정'을 갖게 되지만, 그 적응 과정은 누군가에겐 축복이고 누군가에겐 고통일 수 있음 — 명확한 답을 주지 않음.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 참고 도서 -->
+  <section id="refs" class="refs">
+    <div class="section-head"><span class="tag">References</span><h2>참고 도서</h2></div>
+    <ul>
+      <li>수확자 시리즈 (Neal Shusterman)</li>
+      <li>1984 (George Orwell)</li>
+      <li>The Giver (Lois Lowry)</li>
+      <li>Wonder (R.J. Palacio)</li>
+      <li>1Q84 (무라카미 하루키)</li>
+      <li>On Writing (Stephen King)</li>
+      <li>Story (Robert McKee)</li>
+    </ul>
+  </section>
+
+  <footer>말없는 신 · 스토리 바이블 v2 · 계속 업데이트됩니다</footer>
+
+</div>
+</body>
+</html>
