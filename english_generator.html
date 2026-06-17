@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>영어 워크시트 생성기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:#f0eff5;min-height:100vh;color:#1a1a1a;font-size:13px;}
+
+.topbar{background:#fff;border-bottom:1px solid #e0dff5;padding:0 16px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(83,74,183,.08);}
+.logo-wrap{display:flex;align-items:center;gap:8px;}
+.logo{width:28px;height:28px;background:linear-gradient(135deg,#534AB7,#7B72E0);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;}
+.app-name{font-size:14px;font-weight:700;color:#1a1a1a;}
+.api-wrap{display:flex;align-items:center;gap:6px;}
+.api-label{font-size:11px;color:#999;white-space:nowrap;}
+.api-input{padding:5px 9px;font-size:12px;border:1px solid #ddd;border-radius:7px;width:220px;background:#fafafa;font-family:monospace;color:#333;}
+.api-input:focus{outline:none;border-color:#534AB7;background:#fff;}
+.save-btn{padding:5px 12px;font-size:12px;border:1.5px solid #534AB7;border-radius:7px;background:#EEEDFE;color:#3C3489;cursor:pointer;font-weight:600;white-space:nowrap;transition:all .15s;}
+.save-btn:hover{background:#534AB7;color:#fff;}
+.saved-ok{font-size:11px;color:#0F6E56;background:#E1F5EE;padding:3px 8px;border-radius:20px;display:none;}
+
+.layout{display:grid;grid-template-columns:250px 1fr;height:calc(100vh - 52px);}
+
+.sidebar{background:#fff;border-right:1px solid #e0dff5;padding:13px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;}
+.slabel{font-size:10px;font-weight:700;color:#bbb;text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:4px;}
+textarea.passage{width:100%;resize:none;font-size:12px;font-family:inherit;border:1px solid #e0e0e0;border-radius:7px;padding:8px;background:#fafafa;color:#1a1a1a;min-height:165px;line-height:1.65;}
+textarea.passage:focus{outline:none;border-color:#534AB7;background:#fff;box-shadow:0 0 0 3px rgba(83,74,183,.08);}
+.hint{font-size:10.5px;color:#aaa;margin-top:3px;line-height:1.5;}
+.ccount{font-size:10px;color:#ccc;text-align:right;margin-top:2px;}
+.pill-row{display:flex;gap:4px;flex-wrap:wrap;}
+.pill{padding:4px 10px;font-size:11px;border:1px solid #ddd;border-radius:20px;background:#fff;color:#666;cursor:pointer;transition:all .15s;}
+.pill.active{border-color:#0F6E56;background:#E1F5EE;color:#0F6E56;font-weight:600;}
+.genbtn{padding:11px;font-size:13px;font-weight:700;border:none;border-radius:9px;background:linear-gradient(135deg,#534AB7,#7B72E0);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 3px 10px rgba(83,74,183,.3);transition:all .15s;}
+.genbtn:hover{transform:translateY(-1px);}
+.genbtn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+.main{display:flex;flex-direction:column;overflow:hidden;}
+.main-header{padding:10px 16px;border-bottom:1px solid #e0dff5;display:flex;align-items:center;justify-content:space-between;background:#fff;}
+.main-title{font-size:13px;font-weight:700;}
+.toolbar{display:flex;gap:5px;}
+.tbarbtn{padding:5px 10px;font-size:11px;border:1px solid #ddd;border-radius:6px;background:#fff;color:#444;cursor:pointer;display:flex;align-items:center;gap:3px;transition:all .15s;white-space:nowrap;}
+.tbarbtn:hover{background:#f5f4fc;border-color:#999;}
+.tab-row{display:flex;border-bottom:1px solid #e0dff5;background:#fff;}
+.tab{padding:8px 14px;font-size:12px;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
+.tab.active{color:#534AB7;border-bottom-color:#534AB7;font-weight:600;}
+.output-area{flex:1;overflow-y:auto;padding:14px 18px;background:#f0eff5;}
+
+.placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:#ccc;min-height:280px;}
+.placeholder .ico{font-size:44px;}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;height:300px;gap:14px;}
+.spinner{width:30px;height:30px;border:2.5px solid #e0e0e0;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ltext{font-size:13px;color:#888;}
+
+/* ── PAGES ── */
+.ws-pages{display:flex;flex-direction:column;gap:14px;max-width:960px;margin:0 auto;}
+.ws-page{background:#fff;border-radius:10px;border:1px solid #e0dff5;box-shadow:0 1px 6px rgba(83,74,183,.06);overflow:hidden;}
+.page-title-bar{padding:8px 16px;background:linear-gradient(90deg,#534AB7,#7B72E0);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:space-between;}
+.page-label{font-size:10px;opacity:.8;font-weight:400;}
+.textbook-info{padding:7px 16px;background:#f0effe;border-bottom:1.5px solid #d0cfee;display:flex;align-items:center;gap:10px;}
+.tb-badge{background:#534AB7;color:#fff;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.tb-text{font-size:13px;font-weight:600;color:#1a1a1a;}
+
+/* ── PAGE 1 레이아웃 ── */
+.p1-body{padding:12px 16px;display:flex;flex-direction:column;gap:12px;}
+.sec-head{font-size:11px;font-weight:700;color:#534AB7;display:flex;align-items:center;gap:5px;padding-bottom:5px;border-bottom:1.5px solid #e0dff5;margin-bottom:8px;}
+
+/* 지문구조분석 */
+.struct-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px;}
+.crd{padding:6px 8px;background:#f8f7fb;border-radius:7px;border:1px solid #eeedf8;}
+.crd-lbl{font-size:9px;color:#534AB7;font-weight:700;margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em;}
+.crd-val{font-size:10.5px;line-height:1.5;color:#222;}
+.flow-wrap{display:flex;gap:8px;}
+.flow-item{display:flex;gap:5px;align-items:flex-start;flex:1;}
+.flow-num{min-width:17px;height:17px;background:#534AB7;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.flow-badge{display:inline-block;font-size:9px;padding:1px 5px;border-radius:7px;background:#EEEDFE;color:#534AB7;font-weight:600;margin-right:3px;}
+.flow-txt{font-size:10.5px;line-height:1.65;color:#333;}
+
+/* 변형문제 예상 - 불릿 리스트 */
+.vprob-list{list-style:none;padding:0;display:flex;flex-direction:column;gap:7px;}
+.vprob-li{font-size:11px;line-height:1.7;color:#222;display:flex;align-items:baseline;gap:8px;padding-left:4px;}
+.vprob-type-inline{font-size:10px;font-weight:700;color:#fff;background:#534AB7;padding:1px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0;}
+
+/* 핵심문장 */
+.key-sent-box{padding:8px 12px;background:#f0effe;border-left:3px solid #534AB7;border-radius:0 7px 7px 0;font-size:11px;color:#1a1a1a;font-style:italic;line-height:1.75;}
+.key-sent-lbl{font-size:9px;font-weight:700;color:#534AB7;display:block;margin-bottom:3px;font-style:normal;text-transform:uppercase;}
+
+/* 핵심어휘 */
+.vocab-table{width:100%;border-collapse:collapse;}
+.vocab-table th{background:#f0effe;color:#3C3489;font-weight:700;padding:4px 8px;border-bottom:1.5px solid #e0dff5;text-align:left;font-size:10px;}
+.vocab-table td{padding:4px 8px;border-bottom:1px solid #f0f0f8;vertical-align:middle;font-size:11px;line-height:1.5;}
+.vocab-table tr:last-child td{border-bottom:none;}
+.vocab-table tr:nth-child(even) td{background:#faf9fe;}
+.vword{font-weight:700;color:#3C3489;font-size:11.5px;}
+.vsyn{font-size:10.5px;color:#0F6E56;}
+.vant{font-size:10.5px;color:#993C1D;}
+
+/* ── PAGE 2: 예상변형문제 ── */
+.page2-body{padding:16px 20px;display:flex;flex-direction:column;gap:20px;}
+.q-wrap{border:1px solid #e0dff5;border-radius:9px;overflow:hidden;}
+.q-type-bar{padding:7px 13px;background:#f8f7fb;border-bottom:1px solid #e0dff5;font-size:11px;font-weight:700;color:#3C3489;display:flex;align-items:center;gap:6px;}
+.q-type-badge{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;}
+.badge-suneung{background:#faeeda;color:#633806;}
+.badge-naeshin{background:#E1F5EE;color:#0F6E56;}
+.q-body{padding:13px 16px;}
+.passage-box{background:#f8f7fb;border:1px solid #e8e7f5;border-radius:7px;padding:10px 13px;font-size:12px;line-height:1.85;color:#222;margin-bottom:12px;}
+.q-num{font-size:13px;font-weight:700;color:#1a1a1a;margin-bottom:6px;}
+.q-stem{font-size:12.5px;font-weight:600;color:#1a1a1a;margin-bottom:9px;line-height:1.65;}
+.q-opt{padding:3px 0 3px 2px;font-size:12.5px;color:#333;line-height:1.65;display:flex;gap:6px;}
+.q-opt span.num{color:#534AB7;font-weight:600;min-width:16px;}
+.ans-section{margin-top:14px;padding:11px 13px;background:#f8f7fb;border-radius:8px;border:1px solid #e0dff5;}
+.ans-title{font-size:10.5px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.ans-item{margin-bottom:8px;}
+.ans-num{font-size:11.5px;font-weight:700;color:#534AB7;margin-bottom:3px;}
+.ans-answer{font-size:12px;font-weight:700;color:#3C3489;margin-bottom:3px;}
+.ans-intent{font-size:11.5px;color:#444;line-height:1.65;margin-bottom:2px;}
+.ans-trap{font-size:11px;color:#888;line-height:1.6;}
+
+/* ── PAGE 3: 해석연습 ── */
+.page3-body{padding:14px 18px;display:flex;flex-direction:column;gap:0;}
+.sent-row{border-bottom:1px solid #f0effe;padding:10px 0;}
+.sent-row:last-child{border-bottom:none;}
+.sent-en{font-size:12.5px;color:#1a1a1a;line-height:1.7;margin-bottom:6px;font-weight:500;}
+.sent-num{display:inline-block;background:#534AB7;color:#fff;font-size:9.5px;font-weight:700;width:18px;height:18px;border-radius:50%;text-align:center;line-height:18px;margin-right:6px;}
+.sent-kr{border-bottom:1px dashed #c0bde8;min-height:22px;margin:0 0 3px 24px;position:relative;}
+.sent-kr::after{content:"한글 해석";position:absolute;left:4px;top:2px;font-size:9.5px;color:#ddd;pointer-events:none;}
+
+.err-box{display:flex;flex-direction:column;align-items:center;gap:10px;padding:40px 20px;color:#c00;text-align:center;}
+.err-hint{font-size:12px;color:#888;margin-top:4px;line-height:1.75;background:#fafafa;padding:10px 14px;border-radius:8px;border:1px solid #eee;text-align:left;}
+.raw-panel{font-size:11.5px;font-family:monospace;white-space:pre-wrap;line-height:1.7;color:#555;padding:14px;background:#f8f8f8;border-radius:9px;border:1px solid #e0e0e0;max-width:960px;margin:0 auto;}
+
+@media print{
+  @page{margin:10mm;size:A4;}
+  .topbar,.sidebar,.tab-row,.toolbar,.main-header{display:none!important;}
+  .layout{display:block;}
+  .main{overflow:visible;}
+  .output-area{padding:0;background:#fff;}
+  .ws-pages{gap:0;max-width:100%;}
+  .ws-page{border-radius:0;border:none;box-shadow:none;page-break-after:always;break-after:page;}
+  .ws-page:last-child{page-break-after:avoid;break-after:avoid;}
+  body{background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo-wrap">
+    <div class="logo">📘</div>
+    <span class="app-name">영어 워크시트 생성기</span>
+  </div>
+  <div class="api-wrap">
+    <span class="api-label">API Key</span>
+    <input type="password" class="api-input" id="apiKey" placeholder="sk-ant-api03-...">
+    <button class="save-btn" onclick="saveKey()">💾 저장</button>
+    <span class="saved-ok" id="savedOk">✓ 저장됨</span>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div>
+      <span class="slabel">영어 지문 입력</span>
+      <textarea class="passage" id="passageInput" oninput="updateCount()"
+        placeholder="첫 줄에 교재정보 입력 (선택):&#10;예) 22년6월 30번&#10;&#10;그 다음 줄부터 지문 입력"></textarea>
+      <div class="hint">📌 첫 줄에 「교재명 번호」 입력 시 상단 자동 표시</div>
+      <div class="ccount" id="charCount">0 / 3,000자</div>
+    </div>
+    <div>
+      <span class="slabel">장르</span>
+      <div class="pill-row" id="genreRow">
+        <button class="pill active" onclick="setPill('genreRow',this,'비문학')">비문학</button>
+        <button class="pill" onclick="setPill('genreRow',this,'문학')">문학</button>
+        <button class="pill" onclick="setPill('genreRow',this,'자동감지')">자동 감지</button>
+      </div>
+    </div>
+    <div>
+      <span class="slabel">난이도</span>
+      <div class="pill-row" id="levelRow">
+        <button class="pill" onclick="setPill('levelRow',this,'중학')">중학</button>
+        <button class="pill" onclick="setPill('levelRow',this,'고등')">고등</button>
+        <button class="pill active" onclick="setPill('levelRow',this,'수능')">수능</button>
+      </div>
+    </div>
+    <div>
+      <span class="slabel">생성 페이지</span>
+      <div class="pill-row" style="flex-direction:column;gap:5px;">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="chk_p1" checked> Page 1 — 지문분석</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="chk_p2"> Page 2 — 변형문제 (5지선다)</label>
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;"><input type="checkbox" id="chk_p3"> Page 3 — 해석연습</label>
+      </div>
+    </div>
+    <button class="genbtn" id="genBtn" onclick="generate()">✨ 워크시트 생성</button>
+  </div>
+
+  <div class="main">
+    <div class="main-header">
+      <span class="main-title">워크시트 미리보기</span>
+      <div class="toolbar">
+        <button class="tbarbtn" onclick="window.print()">🖨️ 인쇄/PDF</button>
+        <button class="tbarbtn" onclick="copyText()">📋 복사</button>
+        <button class="tbarbtn" onclick="saveImage()">🖼️ 이미지</button>
+      </div>
+    </div>
+    <div class="tab-row" id="tabRow" style="display:none">
+      <div class="tab active" onclick="switchTab(this,'preview')">미리보기</div>
+      <div class="tab" onclick="switchTab(this,'raw')">원본</div>
+    </div>
+    <div class="output-area" id="outputArea">
+      <div class="placeholder"><div class="ico">📄</div><p>지문을 입력하고 워크시트 생성을 눌러주세요</p></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script>
+let genre='비문학', level='수능', rawText='';
+
+window.addEventListener('load',()=>{
+  const k=localStorage.getItem('worksheet_apikey');
+  if(k){document.getElementById('apiKey').value=k;document.getElementById('savedOk').style.display='inline-block';}
+});
+function saveKey(){
+  const k=document.getElementById('apiKey').value.trim();
+  if(!k){alert('API Key를 입력해주세요.');return;}
+  localStorage.setItem('worksheet_apikey',k);
+  const b=document.getElementById('savedOk');
+  b.style.display='inline-block';
+  setTimeout(()=>b.style.display='none',2500);
+}
+function updateCount(){
+  const t=document.getElementById('passageInput').value;
+  document.getElementById('charCount').textContent=`${t.length.toLocaleString()} / 3,000자`;
+}
+function setPill(rowId,btn,val){
+  document.getElementById(rowId).querySelectorAll('.pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  if(rowId==='genreRow') genre=val; else level=val;
+}
+function switchTab(tab,name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  tab.classList.add('active');
+  const raw=document.getElementById('rawPanel');
+  const pre=document.getElementById('previewPanel');
+  if(name==='raw'&&raw){raw.style.display='block';if(pre)pre.style.display='none';}
+  else{if(pre)pre.style.display='block';if(raw)raw.style.display='none';}
+}
+function copyText(){
+  if(!rawText){alert('먼저 워크시트를 생성해주세요.');return;}
+  navigator.clipboard.writeText(rawText).then(()=>alert('복사되었습니다.'));
+}
+async function saveImage(){
+  const el=document.getElementById('previewPanel');
+  if(!el){alert('먼저 워크시트를 생성해주세요.');return;}
+  const btn=document.querySelectorAll('.tbarbtn')[2];
+  const orig=btn.textContent; btn.textContent='⏳...'; btn.disabled=true;
+  try{
+    const canvas=await html2canvas(el,{scale:2,backgroundColor:'#f0eff5',useCORS:true,logging:false});
+    const link=document.createElement('a'); link.download='worksheet.png';
+    link.href=canvas.toDataURL('image/png'); link.click();
+  }catch(e){alert('이미지 저장 실패: '+e.message);}
+  btn.textContent=orig; btn.disabled=false;
+}
+function parseInput(raw){
+  const lines=raw.trim().split('\n');
+  const first=lines[0].trim();
+  const hasKorean=/[가-힣]/.test(first);
+  const hasNumber=/\d/.test(first);
+  const isShort=first.length<=60;
+  const noEndPunct=!/[.!?]$/.test(first);
+  const hasMoreLines=lines.length>1&&lines.slice(1).join('').trim().length>20;
+  const isBookInfo=(hasKorean||hasNumber)&&isShort&&noEndPunct&&hasMoreLines;
+  if(isBookInfo) return{bookInfo:first,passage:lines.slice(1).join('\n').trim()};
+  return{bookInfo:'',passage:raw.trim()};
+}
+function extractBlock(text,key){
+  const m=text.match(new RegExp(`===\\s*${key}\\s*===([\\s\\S]*?)(?====|$)`));
+  return m?m[1].trim():null;
+}
+function splitSentences(text){
+  const p=text.replace(/\b(Mr|Mrs|Ms|Dr|Prof|Sr|Jr|vs|etc|i\.e|e\.g|a\.m|p\.m|U\.S|U\.K)\./gi,m=>m.replace('.','<DOT>'));
+  const parts=p.match(/[^.!?]+[.!?]+["']?/g)||[text];
+  return parts.map(s=>s.replace(/<DOT>/g,'.').trim()).filter(s=>s.length>5);
+}
+
+async function generate(){
+  const apiKey=document.getElementById('apiKey').value.trim();
+  if(!apiKey){alert('API Key를 입력하고 저장해주세요.');return;}
+  const rawInput=document.getElementById('passageInput').value.trim();
+  if(!rawInput){alert('지문을 입력해주세요.');return;}
+  const doP1=document.getElementById('chk_p1').checked;
+  const doP2=document.getElementById('chk_p2').checked;
+  const doP3=document.getElementById('chk_p3').checked;
+  if(!doP1&&!doP2&&!doP3){alert('페이지를 1개 이상 선택해주세요.');return;}
+
+  const {bookInfo,passage}=parseInput(rawInput);
+
+  const btn=document.getElementById('genBtn');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spinner" style="width:14px;height:14px;border-width:2px;margin:0"></div> 생성 중...';
+  const out=document.getElementById('outputArea');
+  out.innerHTML='<div class="loading"><div class="spinner"></div><p class="ltext">워크시트를 생성하고 있습니다...</p></div>';
+  document.getElementById('tabRow').style.display='none';
+
+  const prompt=`당신은 한국 고등학교 영어 교육 전문가이자 수능 출제 위원입니다.
+아래 영어 지문을 분석하여 ${level} 수준 워크시트를 만들어주세요.
+장르: ${genre} / 난이도: ${level}
+${bookInfo?`교재정보: ${bookInfo}`:''}
+
+[영어 지문]
+${passage.slice(0,2500)}
+
+[생성할 섹션]
+${doP1?`
+▶ PAGE1
+- 지문구조분석: 주제(한 문장), 소재, 목적/유형, 논리전개방식, 논리흐름 3단계, 핵심문장(원문)
+- 변형문제 예상: 이 지문에 가장 적합한 수능/내신 변형 유형 4가지를 선정하고 각각:
+  유형명 + 핵심 출제 포인트 + 예상 답/빈칸/핵심어구 힌트 제시 (5지선다 문제 형태가 아닌 예상 내용 요약)
+  예) 주제/제목: "스마트 기술 의존과 인간 통제력 상실" / 빈칸추론: "flexibility" 또는 "paradox" 부분 / 문장삽입: 역설 설명 문장 위치 / 어휘: reliable↔unreliable 혼동 포인트
+- 핵심문장: 지문에서 가장 중요한 문장 원문
+- 핵심어휘: 동의어/반의어가 있는 고등학교 수준 단어 최대 10개 (영단어 | 한글뜻 | 동의어 | 반의어)`:''}
+${doP2?`
+▶ PAGE2
+- 예상변형문제 2개 (수능유형 1 + 내신유형 1):
+  각 문제: 5지선다, 가공된 지문, 정답+출제의도+오답분석
+  문제번호: ${bookInfo?`${bookInfo.match(/\d+/)?.[0]||'1'}-1, ${bookInfo.match(/\d+/)?.[0]||'1'}-2`:'1-1, 1-2'}`:''}
+${doP3?'▶ PAGE3\n- 해석연습: 각 문장을 "S1: 문장", "S2: 문장" 형식으로 번호 붙여 나열 (원문 영어만)'  :''}
+
+아래 형식으로 정확히 출력하세요 (=== 구분자 필수):
+
+${doP1?`===STRUCTURE===
+TOPIC: 주제
+SUBJECT: 소재
+PURPOSE: 목적/유형
+LOGIC: 논리전개방식
+FLOW:
+1. [도입] 내용
+2. [전개] 내용
+3. [결론] 내용
+KEY_SENTENCE: 핵심문장 원문
+
+===VARIATION_PREVIEW===
+TYPE1_NAME: 유형명
+TYPE1_POINT: 출제포인트와 예상 핵심어구/답 힌트
+TYPE2_NAME: 유형명
+TYPE2_POINT: 출제포인트와 예상 핵심어구/답 힌트
+TYPE3_NAME: 유형명
+TYPE3_POINT: 출제포인트와 예상 핵심어구/답 힌트
+TYPE4_NAME: 유형명
+TYPE4_POINT: 출제포인트와 예상 핵심어구/답 힌트
+
+===VOCAB===
+영단어 | 한글뜻 | 동의어(없으면 -) | 반의어(없으면 -)
+(동의어/반의어 있는 단어만, 최대 10개)`:''}
+${doP2?`
+===VARIATION===
+QNUM: ${bookInfo?bookInfo.match(/\d+/)?.[0]||'1':'1'}
+Q1_TYPE: 수능유형명
+Q1_STEM: 문제 발문
+Q1_PASSAGE: 가공된 지문(빈칸/번호 표시 포함)
+Q1_OPT_A: 선택지①
+Q1_OPT_B: 선택지②
+Q1_OPT_C: 선택지③
+Q1_OPT_D: 선택지④
+Q1_OPT_E: 선택지⑤
+Q1_ANS: 정답번호
+Q1_INTENT: 출제의도
+Q1_TRAP: 오답분석
+Q2_TYPE: 내신유형명
+Q2_STEM: 문제 발문
+Q2_PASSAGE: 가공된 지문(NONE이면 생략)
+Q2_OPT_A: 선택지①
+Q2_OPT_B: 선택지②
+Q2_OPT_C: 선택지③
+Q2_OPT_D: 선택지④
+Q2_OPT_E: 선택지⑤
+Q2_ANS: 정답번호
+Q2_INTENT: 출제의도
+Q2_TRAP: 오답분석`:''}
+${doP3?`
+===TRANSLATION===
+S1: 첫번째 문장
+S2: 두번째 문장
+(계속)`:''}`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:4000,messages:[{role:'user',content:prompt}]})
+    });
+    if(!res.ok){let msg=`HTTP ${res.status}`;try{const e=await res.json();msg=e.error?.message||msg;}catch(_){}throw new Error(msg);}
+    const data=await res.json();
+    rawText=data.content?.[0]?.text||'';
+    if(!rawText) throw new Error('응답이 비어 있습니다.');
+    renderWorksheet(rawText,{doP1,doP2,doP3,bookInfo,passage});
+  }catch(e){
+    out.innerHTML=`<div class="err-box"><div style="font-size:36px">⚠️</div><p style="font-size:13px">${e.message}</p></div>`;
+  }
+  btn.disabled=false;
+  btn.innerHTML='✨ 워크시트 생성';
+}
+
+function renderWorksheet(text,{doP1,doP2,doP3,bookInfo,passage}){
+  const out=document.getElementById('outputArea');
+  const tbHtml=bookInfo?`<div class="textbook-info"><span class="tb-badge">📚 교재</span><span class="tb-text">${bookInfo}</span></div>`:'';
+  let html='<div class="ws-pages" id="previewPanel">';
+
+  /* ══ PAGE 1 ══ */
+  if(doP1){
+    const structBlock=extractBlock(text,'STRUCTURE');
+    const vpBlock=extractBlock(text,'VARIATION_PREVIEW');
+    const vocabBlock=extractBlock(text,'VOCAB');
+
+    html+=`<div class="ws-page">
+      <div class="page-title-bar"><span style="display:flex;align-items:center;gap:8px;"><span style="background:rgba(255,255,255,0.25);padding:1px 8px;border-radius:12px;font-size:11px;font-weight:800;">씨유에탑</span>📄 Page 1 — 지문 분석</span><span class="page-label">지문구조 · 변형예상 · 핵심어휘</span></div>
+      ${tbHtml}
+      <div class="p1-body">`;
+
+    /* 지문구조분석 */
+    if(structBlock){
+      const get=k=>{const m=structBlock.match(new RegExp(`${k}:\\s*(.+)`));return m?m[1].trim():'';};
+      const fi=structBlock.indexOf('FLOW:'), fend=structBlock.indexOf('KEY_SENTENCE:');
+      const fl=fi>=0?structBlock.slice(fi+5,fend>=0?fend:undefined).split('\n').filter(l=>/^\d+\./.test(l.trim())):[];
+      const ks=get('KEY_SENTENCE');
+
+      html+=`<div><div class="sec-head">🔍 지문 구조 분석</div>
+        <div class="struct-meta">`;
+      [['주제',get('TOPIC')],['소재',get('SUBJECT')],['목적/유형',get('PURPOSE')],['논리전개',get('LOGIC')]].forEach(([l,v])=>{
+        if(v) html+=`<div class="crd"><div class="crd-lbl">${l}</div><div class="crd-val">${v}</div></div>`;
+      });
+      html+=`</div>`;
+      if(fl.length){
+        html+=`<div class="flow-wrap">`;
+        fl.forEach((l,i)=>{
+          const m=l.match(/^\d+\.\s*(\[.+?\])?\s*(.*)/);
+          if(m) html+=`<div class="flow-item"><div class="flow-num">${i+1}</div><div class="flow-txt">${m[1]?`<span class="flow-badge">${m[1]}</span>`:''}${m[2]}</div></div>`;
+        });
+        html+=`</div>`;
+      }
+      if(ks) html+=`<div class="key-sent-box" style="margin-top:8px;"><span class="key-sent-lbl">핵심 문장</span>${ks}</div>`;
+      html+=`</div>`;
+    }
+
+    /* 변형문제 예상 - 불릿 리스트 형태 */
+    if(vpBlock){
+      html+=`<div><div class="sec-head">📝 변형문제 예상</div><ul class="vprob-list">`;
+      for(let i=1;i<=4;i++){
+        const nm=vpBlock.match(new RegExp(`TYPE${i}_NAME:\\s*(.+)`));
+        const pt=vpBlock.match(new RegExp(`TYPE${i}_POINT:\\s*([\\s\\S]*?)(?=TYPE${i+1}_NAME:|===|$)`));
+        if(nm&&pt){
+          html+=`<li class="vprob-li"><span class="vprob-type-inline">${nm[1].trim()}</span> ${pt[1].trim().replace(/\n/g,' ')}</li>`;
+        }
+      }
+      html+=`</ul></div>`;
+    }
+
+    /* 핵심어휘 */
+    if(vocabBlock){
+      const rows=vocabBlock.split('\n').filter(l=>l.includes('|')&&!l.trim().startsWith('영단어'));
+      if(rows.length>0){
+        html+=`<div><div class="sec-head">📖 핵심 어휘</div>
+          <table class="vocab-table">
+            <thead><tr><th style="width:14%">단어</th><th style="width:18%">한글 뜻</th><th style="width:34%">🟢 동의어</th><th style="width:34%">🔴 반의어</th></tr></thead>
+            <tbody>`;
+        rows.forEach(r=>{
+          const p=r.split('|').map(x=>x.trim());
+          if(p.length>=2){
+            const syn=p[2]&&p[2]!=='-'?p[2].split(',').map(s=>`<span class="vsyn">${s.trim()}</span>`).join('&nbsp; '):'<span style="color:#ddd">—</span>';
+            const ant=p[3]&&p[3]!=='-'?p[3].split(',').map(s=>`<span class="vant">${s.trim()}</span>`).join('&nbsp; '):'<span style="color:#ddd">—</span>';
+            html+=`<tr><td><span class="vword">${p[0]}</span></td><td>${p[1]}</td><td>${syn}</td><td>${ant}</td></tr>`;
+          }
+        });
+        html+=`</tbody></table></div>`;
+      }
+    }
+
+    html+=`</div></div>`;
+  }
+
+  /* ══ PAGE 2 ══ */
+  if(doP2){
+    const b=extractBlock(text,'VARIATION');
+    if(b){
+      const get=k=>{const m=b.match(new RegExp(`${k}:\\s*([\\s\\S]*?)(?=\\n[A-Z0-9_]+:|$)`));return m?m[1].trim():'';};
+      const qnum=get('QNUM')||'1';
+      html+=`<div class="ws-page">
+        <div class="page-title-bar"><span style="display:flex;align-items:center;gap:8px;"><span style="background:rgba(255,255,255,0.25);padding:1px 8px;border-radius:12px;font-size:11px;font-weight:800;">씨유에탑</span>📝 Page 2 — 예상 변형문제</span><span class="page-label">수능유형 · 내신유형</span></div>
+        ${tbHtml}
+        <div class="page2-body">`;
+
+      const renderQ=(n,label,badgeClass)=>{
+        const type=get(`Q${n}_TYPE`), stem=get(`Q${n}_STEM`), pass=get(`Q${n}_PASSAGE`);
+        const opts=['A','B','C','D','E'].map(o=>get(`Q${n}_OPT_${o}`));
+        const ans=get(`Q${n}_ANS`), intent=get(`Q${n}_INTENT`), trap=get(`Q${n}_TRAP`);
+        const circled=['①','②','③','④','⑤'];
+        html+=`<div class="q-wrap"><div class="q-type-bar"><span class="q-type-badge ${badgeClass}">${label}</span>${type||''}</div><div class="q-body">`;
+        if(pass&&pass!=='NONE') html+=`<div class="passage-box">${pass.replace(/\n/g,'<br>')}</div>`;
+        html+=`<div class="q-num">${qnum}-${n}</div>`;
+        if(stem) html+=`<div class="q-stem">${stem}</div>`;
+        opts.forEach((o,i)=>{if(o) html+=`<div class="q-opt"><span class="num">${circled[i]}</span>${o}</div>`;});
+        html+=`</div></div>`;
+        return{ans,intent,trap,n,type};
+      };
+      const q1=renderQ(1,'수능유형','badge-suneung');
+      const q2=renderQ(2,'내신유형','badge-naeshin');
+
+      html+=`<div class="ans-section"><div class="ans-title">📌 정답 및 해설</div>`;
+      [q1,q2].forEach(q=>{
+        html+=`<div class="ans-item">
+          <div class="ans-num">${qnum}-${q.n} [${q.type||''}]</div>
+          <div class="ans-answer">정답: ${q.ans||'-'}</div>
+          ${q.intent?`<div class="ans-intent">출제의도: ${q.intent}</div>`:''}
+          ${q.trap?`<div class="ans-trap">오답분석: ${q.trap}</div>`:''}
+        </div>`;
+      });
+      html+=`</div></div></div>`;
+    }
+  }
+
+  /* ══ PAGE 3 ══ */
+  if(doP3){
+    const b=extractBlock(text,'TRANSLATION');
+    let sentences=[];
+    if(b){
+      b.split('\n').filter(l=>l.trim()).forEach(l=>{
+        const m=l.match(/^S\d+:\s*(.*)/);
+        if(m&&m[1].trim()) sentences.push(m[1].trim());
+      });
+    }
+    if(sentences.length===0) sentences=splitSentences(passage);
+
+    html+=`<div class="ws-page">
+      <div class="page-title-bar"><span style="display:flex;align-items:center;gap:8px;"><span style="background:rgba(255,255,255,0.25);padding:1px 8px;border-radius:12px;font-size:11px;font-weight:800;">씨유에탑</span>✍️ Page 3 — 해석 연습</span><span class="page-label">문장별 한글 해석 쓰기</span></div>
+      ${tbHtml}
+      <div class="page3-body">`;
+    sentences.forEach((s,i)=>{
+      html+=`<div class="sent-row">
+        <div class="sent-en"><span class="sent-num">${i+1}</span>${s}</div>
+        <div class="sent-kr"></div>
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  html+=`</div>`;
+  html+=`<div id="rawPanel" style="display:none;margin-top:14px"><div class="raw-panel">${rawText.replace(/</g,'&lt;')}</div></div>`;
+  out.innerHTML=html;
+  document.getElementById('tabRow').style.display='flex';
+}
+</script>
+</body>
+</html>
