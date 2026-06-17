@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>침묵의 신 — 작가노트</title>
+<style>
+:root {
+  --bg: #0a0c10;
+  --bg2: #111318;
+  --bg3: #181c24;
+  --bg4: #1f2430;
+  --accent: #4a7fa5;
+  --accent2: #6aaed6;
+  --accent3: #2d5a7a;
+  --text: #e8eaf0;
+  --text2: #9ca3b0;
+  --text3: #5a6275;
+  --border: #252a35;
+  --border2: #2e3545;
+  --red: #c25a5a;
+  --green: #4a8a6a;
+  --gold: #b8954a;
+  --purple: #7a5ab8;
+  --radius: 10px;
+  --sidebar: 220px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.7}
+
+/* ── 레이아웃 ── */
+.shell{display:flex;height:100vh;overflow:hidden}
+
+/* ── 사이드바 ── */
+.sidebar{width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .25s}
+.sidebar.collapsed{width:0}
+.sidebar-head{padding:16px 14px 10px;border-bottom:1px solid var(--border)}
+.logo{font-size:15px;font-weight:700;color:var(--accent2);letter-spacing:-0.3px;white-space:nowrap}
+.logo-sub{font-size:10px;color:var(--text3);margin-top:2px;white-space:nowrap}
+.sidebar-section{padding:10px 8px 4px 14px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;white-space:nowrap}
+.nav-list{flex:1;overflow-y:auto;padding:4px 6px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;cursor:pointer;color:var(--text2);font-size:13px;white-space:nowrap;transition:all .15s;margin-bottom:2px}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--accent3);color:var(--accent2)}
+.nav-item .dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.nav-item.active .dot{background:var(--accent2)}
+.nav-item .num{font-size:10px;color:var(--text3);margin-left:auto;flex-shrink:0}
+.nav-add{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:7px;cursor:pointer;color:var(--text3);font-size:12px;margin:4px 6px 8px;border:1px dashed var(--border2);transition:all .15s}
+.nav-add:hover{border-color:var(--accent);color:var(--accent2)}
+
+/* ── 메인 ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:48px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0}
+.menu-btn{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:7px;cursor:pointer;border:none;background:transparent;color:var(--text2);font-size:18px;transition:all .15s}
+.menu-btn:hover{background:var(--bg3);color:var(--text)}
+.topbar-title{font-size:14px;font-weight:600;color:var(--text);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-meta{font-size:11px;color:var(--text3);white-space:nowrap}
+.save-btn{padding:5px 14px;background:var(--accent3);color:var(--accent2);border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.save-btn:hover{background:var(--accent)}
+.save-btn.saved{background:#1a3a1a;color:var(--green)}
+
+/* ── 탭 바 ── */
+.tabbar{background:var(--bg2);border-bottom:1px solid var(--border);display:flex;padding:0 16px;gap:2px;flex-shrink:0}
+.tab{padding:9px 14px;font-size:12px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text2)}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent2)}
+
+/* ── 패널들 ── */
+.panel{flex:1;overflow-y:auto;padding:20px;display:none}
+.panel.active{display:block}
+
+/* ── 에디터 패널 ── */
+.editor-wrap{max-width:720px;margin:0 auto}
+.ep-title{width:100%;background:transparent;border:none;outline:none;font-size:22px;font-weight:700;color:var(--text);padding:0;margin-bottom:6px;font-family:inherit}
+.ep-meta{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.ep-badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none}
+.badge-ep{background:#1a2535;color:var(--accent2)}
+.badge-status{background:#1a2515;color:var(--green)}
+.badge-status.draft{background:#251a10;color:var(--gold)}
+.ep-body{width:100%;min-height:calc(100vh - 280px);background:transparent;border:none;outline:none;color:var(--text);font-size:14px;line-height:1.85;resize:none;font-family:inherit;white-space:pre-wrap}
+.ep-body::placeholder{color:var(--text3)}
+.word-count{font-size:11px;color:var(--text3);text-align:right;margin-top:8px}
+
+/* ── 정보 패널 ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:720px;margin:0 auto}
+@media(max-width:600px){.info-grid{grid-template-columns:1fr}}
+.info-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.info-card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px}
+.info-field{margin-bottom:8px}
+.info-field label{font-size:11px;color:var(--text3);display:block;margin-bottom:3px}
+.info-field input,.info-field textarea,.info-field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:12px;padding:6px 9px;font-family:inherit;outline:none;transition:border .15s}
+.info-field input:focus,.info-field textarea:focus{border-color:var(--accent)}
+.info-field textarea{resize:vertical;min-height:70px;line-height:1.6}
+.info-field select{cursor:pointer}
+.char-tag-wrap{display:flex;flex-wrap:wrap;gap:5px;margin-top:4px}
+.char-tag{padding:3px 10px;background:var(--bg4);border:1px solid var(--border2);border-radius:20px;font-size:11px;color:var(--text2);cursor:pointer;transition:all .15s}
+.char-tag:hover,.char-tag.on{background:var(--accent3);border-color:var(--accent);color:var(--accent2)}
+
+/* ── 메모 패널 ── */
+.memo-wrap{max-width:720px;margin:0 auto}
+.memo-textarea{width:100%;min-height:calc(100vh - 200px);background:transparent;border:none;outline:none;color:var(--text);font-size:13px;line-height:1.9;resize:none;font-family:inherit}
+
+/* ── 목록 패널 ── */
+.list-wrap{max-width:860px;margin:0 auto}
+.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.list-header h2{font-size:16px;font-weight:600}
+.list-add-btn{padding:7px 16px;background:var(--accent3);color:var(--accent2);border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.list-add-btn:hover{background:var(--accent)}
+.ep-list{display:flex;flex-direction:column;gap:8px}
+.ep-row{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s}
+.ep-row:hover{border-color:var(--border2);background:var(--bg3)}
+.ep-row.current{border-color:var(--accent3)}
+.ep-row-num{font-size:12px;font-weight:700;color:var(--accent2);min-width:36px}
+.ep-row-info{flex:1}
+.ep-row-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.ep-row-preview{font-size:11px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:500px}
+.ep-row-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+.status-pill{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600}
+.status-done{background:#0d2010;color:var(--green)}
+.status-draft{background:#251f0a;color:var(--gold)}
+.status-plan{background:#0a0f1f;color:var(--accent2)}
+.ep-date{font-size:10px;color:var(--text3)}
+.ep-del{padding:3px 8px;border:1px solid var(--border2);border-radius:5px;background:transparent;color:var(--text3);font-size:11px;cursor:pointer;transition:all .15s}
+.ep-del:hover{border-color:var(--red);color:var(--red)}
+
+/* ── 세계관 패널 ── */
+.world-wrap{max-width:720px;margin:0 auto}
+.world-textarea{width:100%;min-height:calc(100vh - 200px);background:transparent;border:none;outline:none;color:var(--text);font-size:13px;line-height:1.9;resize:none;font-family:inherit}
+.world-section{margin-bottom:24px}
+.world-section h3{font-size:13px;font-weight:600;color:var(--accent2);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+
+/* ── 내보내기 패널 ── */
+.export-wrap{max-width:480px;margin:0 auto}
+.export-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.export-card h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.export-card p{font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6}
+.export-btn{padding:9px 20px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+.exp-json{background:var(--accent3);color:var(--accent2)}
+.exp-json:hover{background:var(--accent)}
+.exp-txt{background:#1a2a1a;color:var(--green)}
+.exp-txt:hover{background:#254025}
+.exp-import{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}
+.exp-import:hover{background:var(--bg4)}
+.import-input{display:none}
+.storage-info{font-size:11px;color:var(--text3);text-align:center;margin-top:8px}
+
+/* ── 알림 토스트 ── */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 20px;border-radius:20px;font-size:12px;display:none;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{display:block;animation:fadeup .3s ease}
+@keyframes fadeup{from{opacity:0;transform:translateX(-50%) translateY(8px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+/* ── 모달 ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.show{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:24px;width:100%;max-width:420px}
+.modal h3{font-size:15px;font-weight:600;margin-bottom:16px}
+.modal-field{margin-bottom:12px}
+.modal-field label{font-size:12px;color:var(--text2);display:block;margin-bottom:4px}
+.modal-field input,.modal-field select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:13px;padding:8px 11px;font-family:inherit;outline:none}
+.modal-field input:focus{border-color:var(--accent)}
+.modal-btns{display:flex;gap:8px;margin-top:18px}
+.modal-btns button{flex:1;padding:9px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.mb-ok{background:var(--accent3);color:var(--accent2)}
+.mb-ok:hover{background:var(--accent)}
+.mb-cancel{background:var(--bg3);color:var(--text2)}
+
+/* ── 모바일 ── */
+@media(max-width:640px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:50;transition:transform .25s}
+  .sidebar.collapsed{transform:translateX(-100%);width:var(--sidebar)}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49;display:none}
+  .overlay.show{display:block}
+  .topbar-meta{display:none}
+  .info-grid{grid-template-columns:1fr}
+}
+
+/* ── 스크롤바 ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="shell">
+<!-- ── 사이드바 ── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-head">
+    <div class="logo">침묵의 신</div>
+    <div class="logo-sub">The Silent God · 작가노트</div>
+  </div>
+  <div class="nav-list" id="nav-list">
+    <div class="sidebar-section">메뉴</div>
+    <div class="nav-item active" onclick="showView('list')" data-view="list">
+      <span class="dot"></span> 전체 회차
+    </div>
+    <div class="nav-item" onclick="showView('world')" data-view="world">
+      <span class="dot"></span> 세계관 · 설정
+    </div>
+    <div class="nav-item" onclick="showView('export')" data-view="export">
+      <span class="dot"></span> 내보내기 · 가져오기
+    </div>
+    <div class="sidebar-section" style="margin-top:8px">회차</div>
+    <div id="ep-nav"></div>
+    <div class="nav-add" onclick="openNewModal()">＋ 새 회차 추가</div>
+  </div>
+</aside>
+
+<!-- ── 메인 ── -->
+<div class="main">
+  <div class="topbar">
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="topbar-title" id="topbar-title">전체 회차</div>
+    <div class="topbar-meta" id="topbar-meta"></div>
+    <button class="save-btn" id="save-btn" onclick="saveAll()" style="display:none">저장</button>
+  </div>
+
+  <!-- 탭 (에디터 뷰일 때만 표시) -->
+  <div class="tabbar" id="tabbar" style="display:none">
+    <div class="tab active" onclick="setTab('write',this)">✍️ 원고</div>
+    <div class="tab" onclick="setTab('info',this)">📋 정보</div>
+    <div class="tab" onclick="setTab('memo',this)">🗒 메모</div>
+  </div>
+
+  <!-- 전체 회차 목록 -->
+  <div class="panel active" id="view-list">
+    <div class="list-wrap">
+      <div class="list-header">
+        <h2>전체 회차</h2>
+        <button class="list-add-btn" onclick="openNewModal()">＋ 새 회차</button>
+      </div>
+      <div class="ep-list" id="ep-list"></div>
+      <div id="empty-msg" style="text-align:center;padding:60px 0;color:var(--text3);font-size:13px">
+        아직 작성된 회차가 없어요.<br>새 회차 추가 버튼을 눌러 시작하세요.
+      </div>
+    </div>
+  </div>
+
+  <!-- 에디터 — 원고 -->
+  <div class="panel" id="view-write">
+    <div class="editor-wrap">
+      <input class="ep-title" id="ep-title" placeholder="제목을 입력하세요" oninput="markDirty()">
+      <div class="ep-meta">
+        <span class="ep-badge badge-ep" id="ep-badge-num"></span>
+        <span class="ep-badge badge-status" id="ep-badge-status" onclick="cycleStatus()"></span>
+      </div>
+      <textarea class="ep-body" id="ep-body" placeholder="여기에 원고를 작성하세요..." oninput="markDirty();updateWordCount()"></textarea>
+      <div class="word-count" id="word-count"></div>
+    </div>
+  </div>
+
+  <!-- 에디터 — 정보 -->
+  <div class="panel" id="view-info">
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-title">기본 정보</div>
+        <div class="info-field"><label>부제 / 소제목</label><input id="inf-sub" placeholder="예: 닭이 울기 전" oninput="markDirty()"></div>
+        <div class="info-field"><label>집필 날짜</label><input type="date" id="inf-date" oninput="markDirty()"></div>
+        <div class="info-field">
+          <label>진행 상태</label>
+          <select id="inf-status" onchange="syncStatus()">
+            <option value="계획">📋 계획</option>
+            <option value="초고">✏️ 초고 작성 중</option>
+            <option value="완성">✅ 완성</option>
+          </select>
+        </div>
+        <div class="info-field"><label>분량 (자수 목표)</label><input id="inf-goal" placeholder="예: 5000자" oninput="markDirty()"></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-title">등장 인물</div>
+        <div class="char-tag-wrap" id="char-tags"></div>
+      </div>
+      <div class="info-card" style="grid-column:1/-1">
+        <div class="info-card-title">이번 화 핵심 포인트</div>
+        <div class="info-field"><textarea id="inf-point" rows="3" placeholder="이 화의 서사적 목적, 반전, 감정선..." oninput="markDirty()"></textarea></div>
+        <div class="info-card-title" style="margin-top:12px">작가 메모 (이 화 전용)</div>
+        <div class="info-field"><textarea id="inf-note" rows="3" placeholder="수정 사항, 아이디어, 다음 화 연결..." oninput="markDirty()"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 에디터 — 메모 -->
+  <div class="panel" id="view-memo">
+    <div class="memo-wrap">
+      <textarea class="memo-textarea" id="ep-memo" placeholder="자유 메모... 장면 아이디어, 대사 초안, 떠오르는 것들" oninput="markDirty()"></textarea>
+    </div>
+  </div>
+
+  <!-- 세계관 -->
+  <div class="panel" id="view-world">
+    <div class="world-wrap">
+      <div class="world-section">
+        <h3>📖 세계관 · 배경 설정</h3>
+        <textarea class="world-textarea" id="world-setting" style="min-height:200px" placeholder="시대 배경, AI 종교화 단계, 사회 구조..." oninput="saveWorld()"></textarea>
+      </div>
+      <div class="world-section">
+        <h3>👤 주요 인물</h3>
+        <textarea class="world-textarea" id="world-chars" style="min-height:200px" placeholder="이음, 이준, 하린, 마스터(정훈), 각 인물의 역할과 관계..." oninput="saveWorld()"></textarea>
+      </div>
+      <div class="world-section">
+        <h3>🗺 전체 플롯 계획 (스포일러)</h3>
+        <textarea class="world-textarea" id="world-plot" style="min-height:200px" placeholder="결말, 주요 반전, 각 화 배치 계획..." oninput="saveWorld()"></textarea>
+      </div>
+      <div class="world-section">
+        <h3>🔑 핵심 키워드 · 상징</h3>
+        <textarea class="world-textarea" id="world-keys" style="min-height:120px" placeholder="침묵, 기생음, 프로비던스, 로고스, 마스터..." oninput="saveWorld()"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 내보내기 -->
+  <div class="panel" id="view-export">
+    <div class="export-wrap">
+      <h2 style="margin-bottom:16px;font-size:16px">내보내기 · 가져오기</h2>
+
+      <div class="export-card">
+        <h3>💾 JSON 백업 (전체 데이터)</h3>
+        <p>모든 회차, 세계관, 메모를 JSON 파일로 저장합니다. 나중에 다시 가져올 수 있어요.</p>
+        <button class="export-btn exp-json" onclick="exportJSON()">JSON으로 내보내기</button>
+      </div>
+
+      <div class="export-card">
+        <h3>📄 텍스트 내보내기</h3>
+        <p>현재 열려 있는 회차의 원고를 .txt 파일로 저장합니다.</p>
+        <button class="export-btn exp-txt" onclick="exportTXT()">현재 회차 TXT로 내보내기</button>
+      </div>
+
+      <div class="export-card">
+        <h3>📥 JSON 가져오기</h3>
+        <p>이전에 내보낸 JSON 백업 파일을 불러옵니다. 기존 데이터에 병합됩니다.</p>
+        <button class="export-btn exp-import" onclick="document.getElementById('import-input').click()">JSON 파일 가져오기</button>
+        <input type="file" id="import-input" class="import-input" accept=".json" onchange="importJSON(this)">
+      </div>
+
+      <div class="export-card">
+        <h3>📂 MD 파일 여러 개 한번에 가져오기</h3>
+        <p>1화~8화 등 .md 파일을 한꺼번에 선택하면 자동으로 회차번호·제목·본문을 읽어서 추가해요.<br>형식: <code style="background:var(--bg4);padding:1px 5px;border-radius:4px;font-size:11px">## N화 : 제목</code> 또는 <code style="background:var(--bg4);padding:1px 5px;border-radius:4px;font-size:11px">## N화</code></p>
+        <button class="export-btn" style="background:#1a2535;color:var(--accent2);margin-bottom:8px" onclick="document.getElementById('md-import-input').click()">MD 파일 가져오기 (복수 선택 가능)</button>
+        <input type="file" id="md-import-input" class="import-input" accept=".md,.txt" multiple onchange="importMD(this)">
+        <div id="md-import-result" style="font-size:11px;color:var(--text3);margin-top:6px;line-height:1.7"></div>
+      </div>
+
+      <div class="export-card">
+        <h3>☁️ GitHub Pages 사용 안내</h3>
+        <p>이 파일 하나만 GitHub 저장소에 올리면 어디서든 URL로 접근 가능해요.<br><br>
+        ⚠️ <strong>중요:</strong> 데이터는 브라우저 localStorage에 저장돼요.<br>
+        → <strong>같은 기기·같은 브라우저</strong>에서 열면 내용이 그대로 있어요.<br>
+        → <strong>다른 기기</strong>(폰 → 아이패드 등)로 옮길 때는 위의 <strong>JSON 백업 → 가져오기</strong>로 이전하세요.<br>
+        → MD 파일 가져오기도 동일하게 쓸 수 있어요.</p>
+      </div>
+
+      <div class="storage-info" id="storage-info"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- 새 회차 모달 -->
+<div class="modal-bg" id="new-modal">
+  <div class="modal">
+    <h3>새 회차 추가</h3>
+    <div class="modal-field">
+      <label>회차 번호</label>
+      <input type="number" id="new-ep-num" min="1" placeholder="예: 10">
+    </div>
+    <div class="modal-field">
+      <label>제목 (선택)</label>
+      <input id="new-ep-title" placeholder="예: 닭이 울기 전">
+    </div>
+    <div class="modal-field">
+      <label>상태</label>
+      <select id="new-ep-status">
+        <option value="계획">📋 계획</option>
+        <option value="초고">✏️ 초고 작성 중</option>
+        <option value="완성">✅ 완성</option>
+      </select>
+    </div>
+    <div class="modal-btns">
+      <button class="mb-cancel" onclick="closeModal()">취소</button>
+      <button class="mb-ok" onclick="createEpisode()">추가</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ──────────────────────────────────────────────
+// 데이터 모델
+// ──────────────────────────────────────────────
+const STORAGE_KEY = 'silentgod_v1';
+const WORLD_KEY   = 'silentgod_world_v1';
+
+const CHARS = ['이음','이준','하린','정훈(마스터)','강우','지아','프로비던스'];
+const STATUS_CYCLE = ['계획','초고','완성'];
+const STATUS_LABELS = {계획:'📋 계획', 초고:'✏️ 초고', 완성:'✅ 완성'};
+
+let data = { episodes: [] };
+let worldData = { setting:'', chars:'', plot:'', keys:'' };
+let currentEpId = null;
+let currentView = 'list';
+let currentTab = 'write';
+let dirty = false;
+
+function load() {
+  try { data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {episodes:[]}; } catch(e){ data={episodes:[]}; }
+  try { worldData = JSON.parse(localStorage.getItem(WORLD_KEY)) || {setting:'',chars:'',plot:'',keys:''}; } catch(e){ worldData={setting:'',chars:'',plot:'',keys:''}; }
+}
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  updateStorageInfo();
+}
+function saveWorld() {
+  worldData.setting = document.getElementById('world-setting').value;
+  worldData.chars   = document.getElementById('world-chars').value;
+  worldData.plot    = document.getElementById('world-plot').value;
+  worldData.keys    = document.getElementById('world-keys').value;
+  localStorage.setItem(WORLD_KEY, JSON.stringify(worldData));
+  showToast('세계관 저장됨');
+}
+
+function getEp(id) { return data.episodes.find(e=>e.id===id); }
+function sortedEps() { return [...data.episodes].sort((a,b)=>a.num-b.num); }
+
+function updateStorageInfo() {
+  const bytes = new Blob([localStorage.getItem(STORAGE_KEY)||'']).size
+              + new Blob([localStorage.getItem(WORLD_KEY)||'']).size;
+  const kb = (bytes/1024).toFixed(1);
+  const el = document.getElementById('storage-info');
+  if(el) el.textContent = `저장된 데이터: ${kb} KB (브라우저 localStorage)`;
+}
+
+// ──────────────────────────────────────────────
+// 네비게이션
+// ──────────────────────────────────────────────
+function renderNav() {
+  const nav = document.getElementById('ep-nav');
+  nav.innerHTML = sortedEps().map(ep=>`
+    <div class="nav-item ${ep.id===currentEpId?'active':''}" onclick="openEp('${ep.id}')">
+      <span class="dot"></span>
+      <span>${ep.num}화${ep.title?' · '+ep.title.slice(0,8):''}</span>
+    </div>`).join('');
+}
+
+function renderList() {
+  const list = document.getElementById('ep-list');
+  const eps  = sortedEps();
+  document.getElementById('empty-msg').style.display = eps.length?'none':'block';
+  list.innerHTML = eps.map(ep=>{
+    const preview = (ep.body||'').replace(/\n/g,' ').slice(0,60) || '(원고 없음)';
+    const sc = ep.status==='완성'?'status-done':ep.status==='초고'?'status-draft':'status-plan';
+    return `<div class="ep-row ${ep.id===currentEpId?'current':''}" onclick="openEp('${ep.id}')">
+      <div class="ep-row-num">${ep.num}화</div>
+      <div class="ep-row-info">
+        <div class="ep-row-title">${ep.title||'(제목 없음)'}</div>
+        <div class="ep-row-preview">${preview}</div>
+      </div>
+      <div class="ep-row-right">
+        <span class="status-pill ${sc}">${STATUS_LABELS[ep.status]||ep.status}</span>
+        <span class="ep-date">${ep.updatedAt||''}</span>
+      </div>
+      <button class="ep-del" onclick="event.stopPropagation();deleteEp('${ep.id}')">삭제</button>
+    </div>`;
+  }).join('');
+}
+
+// ──────────────────────────────────────────────
+// 뷰 전환
+// ──────────────────────────────────────────────
+function showView(v) {
+  if(dirty) saveAll(true);
+  currentView = v;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tabbar').style.display = 'none';
+  document.getElementById('save-btn').style.display = 'none';
+  document.querySelectorAll('[data-view]').forEach(el=>el.classList.remove('active'));
+  document.querySelector(`[data-view="${v}"]`)?.classList.add('active');
+
+  if(v==='list'){
+    document.getElementById('view-list').classList.add('active');
+    document.getElementById('topbar-title').textContent='전체 회차';
+    document.getElementById('topbar-meta').textContent='';
+    renderList();
+  } else if(v==='world'){
+    document.getElementById('view-world').classList.add('active');
+    document.getElementById('topbar-title').textContent='세계관 · 설정';
+    document.getElementById('world-setting').value = worldData.setting;
+    document.getElementById('world-chars').value   = worldData.chars;
+    document.getElementById('world-plot').value    = worldData.plot;
+    document.getElementById('world-keys').value    = worldData.keys;
+  } else if(v==='export'){
+    document.getElementById('view-export').classList.add('active');
+    document.getElementById('topbar-title').textContent='내보내기 · 가져오기';
+    updateStorageInfo();
+  }
+}
+
+function openEp(id) {
+  if(dirty) saveAll(true);
+  currentEpId = id;
+  currentView = 'ep';
+  const ep = getEp(id);
+  if(!ep) return;
+
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tabbar').style.display='flex';
+  document.getElementById('save-btn').style.display='block';
+  setTab(currentTab, null, true);
+
+  document.getElementById('topbar-title').textContent = `${ep.num}화 ${ep.title||''}`;
+  document.getElementById('topbar-meta').textContent  = ep.updatedAt||'';
+
+  // 원고 탭
+  document.getElementById('ep-title').value = ep.title||'';
+  document.getElementById('ep-body').value  = ep.body||'';
+  document.getElementById('ep-badge-num').textContent = `${ep.num}화`;
+  document.getElementById('ep-badge-status').textContent = STATUS_LABELS[ep.status]||ep.status;
+  document.getElementById('ep-badge-status').className = 'ep-badge badge-status'+(ep.status!=='완성'?' draft':'');
+  updateWordCount();
+
+  // 정보 탭
+  document.getElementById('inf-sub').value    = ep.sub||'';
+  document.getElementById('inf-date').value   = ep.date||'';
+  document.getElementById('inf-status').value = ep.status||'계획';
+  document.getElementById('inf-goal').value   = ep.goal||'';
+  document.getElementById('inf-point').value  = ep.point||'';
+  document.getElementById('inf-note').value   = ep.note||'';
+  renderCharTags(ep.chars||[]);
+
+  // 메모 탭
+  document.getElementById('ep-memo').value = ep.memo||'';
+
+  renderNav();
+  dirty = false;
+  closeSidebarMobile();
+}
+
+function setTab(tab, el, force) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else document.querySelectorAll('.tab')[['write','info','memo'].indexOf(tab)]?.classList.add('active');
+
+  ['write','info','memo'].forEach(t=>{
+    const p = document.getElementById('view-'+t);
+    if(p) p.classList.toggle('active', t===tab);
+  });
+}
+
+// ──────────────────────────────────────────────
+// 에디터 저장
+// ──────────────────────────────────────────────
+function markDirty(){ dirty=true; }
+
+function saveAll(silent) {
+  if(!currentEpId) return;
+  const ep = getEp(currentEpId);
+  if(!ep) return;
+  ep.title  = document.getElementById('ep-title').value.trim();
+  ep.body   = document.getElementById('ep-body').value;
+  ep.sub    = document.getElementById('inf-sub').value;
+  ep.date   = document.getElementById('inf-date').value;
+  ep.status = document.getElementById('inf-status').value;
+  ep.goal   = document.getElementById('inf-goal').value;
+  ep.point  = document.getElementById('inf-point').value;
+  ep.note   = document.getElementById('inf-note').value;
+  ep.memo   = document.getElementById('ep-memo').value;
+  ep.chars  = Array.from(document.querySelectorAll('.char-tag.on')).map(t=>t.dataset.c);
+  ep.updatedAt = new Date().toLocaleDateString('ko-KR');
+  save();
+  dirty = false;
+  const btn = document.getElementById('save-btn');
+  btn.textContent='✓ 저장됨'; btn.className='save-btn saved';
+  setTimeout(()=>{ btn.textContent='저장'; btn.className='save-btn'; },1500);
+  if(!silent) showToast('저장됐어요');
+  renderNav();
+}
+
+function updateWordCount() {
+  const v = document.getElementById('ep-body').value;
+  const chars = v.replace(/\s/g,'').length;
+  const lines = v.split('\n').length;
+  document.getElementById('word-count').textContent = `${chars.toLocaleString()}자 · ${lines}줄`;
+}
+
+function cycleStatus() {
+  const ep = getEp(currentEpId); if(!ep) return;
+  const i = STATUS_CYCLE.indexOf(ep.status);
+  ep.status = STATUS_CYCLE[(i+1)%STATUS_CYCLE.length];
+  document.getElementById('ep-badge-status').textContent = STATUS_LABELS[ep.status];
+  document.getElementById('ep-badge-status').className = 'ep-badge badge-status'+(ep.status!=='완성'?' draft':'');
+  document.getElementById('inf-status').value = ep.status;
+  markDirty();
+}
+
+function syncStatus() {
+  const ep = getEp(currentEpId); if(!ep) return;
+  ep.status = document.getElementById('inf-status').value;
+  document.getElementById('ep-badge-status').textContent = STATUS_LABELS[ep.status];
+  document.getElementById('ep-badge-status').className = 'ep-badge badge-status'+(ep.status!=='완성'?' draft':'');
+  markDirty();
+}
+
+// ──────────────────────────────────────────────
+// 등장인물 태그
+// ──────────────────────────────────────────────
+function renderCharTags(selected) {
+  const wrap = document.getElementById('char-tags');
+  wrap.innerHTML = CHARS.map(c=>`
+    <span class="char-tag ${selected.includes(c)?'on':''}" data-c="${c}" onclick="toggleChar(this,'${c}')">${c}</span>
+  `).join('');
+}
+function toggleChar(el, c) { el.classList.toggle('on'); markDirty(); }
+
+// ──────────────────────────────────────────────
+// 회차 CRUD
+// ──────────────────────────────────────────────
+function openNewModal() {
+  const max = data.episodes.length ? Math.max(...data.episodes.map(e=>e.num)) : 0;
+  document.getElementById('new-ep-num').value   = max+1;
+  document.getElementById('new-ep-title').value = '';
+  document.getElementById('new-ep-status').value= '계획';
+  document.getElementById('new-modal').classList.add('show');
+}
+function closeModal() { document.getElementById('new-modal').classList.remove('show'); }
+function createEpisode() {
+  const num = parseInt(document.getElementById('new-ep-num').value)||1;
+  if(data.episodes.find(e=>e.num===num)){ showToast(`${num}화가 이미 있어요`); return; }
+  const ep = {
+    id: Date.now().toString(),
+    num,
+    title: document.getElementById('new-ep-title').value.trim(),
+    status: document.getElementById('new-ep-status').value,
+    body:'', sub:'', date:new Date().toISOString().slice(0,10),
+    goal:'', point:'', note:'', memo:'', chars:[],
+    createdAt: new Date().toLocaleDateString('ko-KR'),
+    updatedAt: new Date().toLocaleDateString('ko-KR')
+  };
+  data.episodes.push(ep);
+  save(); closeModal();
+  showToast(`${num}화 추가됐어요`);
+  openEp(ep.id);
+}
+function deleteEp(id) {
+  const ep = getEp(id); if(!ep) return;
+  if(!confirm(`${ep.num}화 "${ep.title||'(제목 없음)'}"을 삭제할까요?`)) return;
+  data.episodes = data.episodes.filter(e=>e.id!==id);
+  if(currentEpId===id){ currentEpId=null; showView('list'); }
+  save(); renderNav(); renderList();
+  showToast('삭제됐어요');
+}
+
+// ──────────────────────────────────────────────
+// 내보내기 / 가져오기
+// ──────────────────────────────────────────────
+function exportJSON() {
+  const all = { data, worldData, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(all,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `침묵의신_백업_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast('JSON 파일로 저장됐어요');
+}
+function exportTXT() {
+  const ep = currentEpId ? getEp(currentEpId) : null;
+  if(!ep){ showToast('먼저 회차를 열어주세요'); return; }
+  const txt = `# 침묵의 신 — ${ep.num}화\n제목: ${ep.title||''}\n작성일: ${ep.updatedAt||''}\n상태: ${ep.status}\n\n${'─'.repeat(40)}\n\n${ep.body||''}`;
+  const blob = new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `침묵의신_${ep.num}화.txt`;
+  a.click();
+}
+// ── MD 파일 가져오기 ──────────────────────────
+function importMD(input) {
+  const files = Array.from(input.files);
+  if(!files.length) return;
+  const resultEl = document.getElementById('md-import-result');
+  resultEl.textContent = `${files.length}개 파일 읽는 중...`;
+
+  let done = 0, added = 0, skipped = 0;
+  const results = [];
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      const ep = parseMD(text, file.name);
+      if(ep) {
+        if(data.episodes.find(x => x.num === ep.num)) {
+          // 이미 있는 회차면 덮어쓸지 확인
+          if(confirm(`${ep.num}화가 이미 있어요. 덮어쓸까요?\n(제목: ${ep.title||'없음'})`)) {
+            const idx = data.episodes.findIndex(x => x.num === ep.num);
+            data.episodes[idx] = { ...data.episodes[idx], ...ep };
+            results.push(`✅ ${ep.num}화 "${ep.title}" — 덮어씀`);
+            added++;
+          } else {
+            results.push(`⏭ ${ep.num}화 — 건너뜀`);
+            skipped++;
+          }
+        } else {
+          data.episodes.push(ep);
+          results.push(`✅ ${ep.num}화 "${ep.title}" — 추가됨`);
+          added++;
+        }
+      } else {
+        results.push(`⚠️ ${file.name} — 회차 번호를 찾지 못했어요`);
+        skipped++;
+      }
+      done++;
+      if(done === files.length) {
+        save();
+        renderNav();
+        renderList();
+        resultEl.innerHTML = results.join('<br>') + `<br><br><strong>${added}개 추가, ${skipped}개 건너뜀</strong>`;
+        showToast(`MD 가져오기 완료 — ${added}개 추가됨`);
+      }
+    };
+    reader.readAsText(file);
+  });
+  input.value = '';
+}
+
+function parseMD(text, filename) {
+  // 회차 번호 추출: "## 9화 : 제목" / "## 9화" / "# 9화" / 파일명에서
+  let num = null, title = '';
+
+  // 본문에서 패턴 탐색
+  const patterns = [
+    /^#{1,3}\s*(\d+)화\s*[:\-·]?\s*(.*)$/m,   // ## 9화 : 제목
+    /^#{1,3}\s*제?(\d+)\s*화\s*[:\-·]?\s*(.*)$/m,
+  ];
+  for(const pat of patterns) {
+    const m = text.match(pat);
+    if(m) { num = parseInt(m[1]); title = m[2].trim(); break; }
+  }
+
+  // 파일명에서 번호 추출 (fallback)
+  if(!num) {
+    const mf = filename.match(/(\d+)화/);
+    if(mf) num = parseInt(mf[1]);
+  }
+  if(!num) return null;
+
+  // 소제목: "### 제목" 형태 (첫 번째)
+  const subM = text.match(/^###\s+(.+)$/m);
+  const sub = subM ? subM[1].trim() : '';
+
+  // 본문: 헤더(##) 아래 실제 내용만 추출
+  // 첫 번째 ## 헤더 이후부터 가져오되, # 제목(작품명) 라인은 제거
+  let body = text
+    .replace(/^#\s+.+$/m, '')           // "# 침묵의 신" 제거
+    .replace(/^##[^#].+$/mg, '')        // "## N화 : 제목" 라인 제거
+    .replace(/^---+$/mg, '\n---\n')     // 구분선 정리
+    .trim();
+
+  // 등장인물 추출 (### 헤더들)
+  const charMatches = [...text.matchAll(/^###\s+(.+)$/mg)];
+  const chars = charMatches.map(m => m[1].trim()).filter(c => CHARS.includes(c));
+
+  return {
+    id: Date.now().toString() + Math.random().toString(36).slice(2,6),
+    num, title: title || `${num}화`, sub, body,
+    status: '완성',
+    chars,
+    date: new Date().toISOString().slice(0,10),
+    goal: '', point: '', note: '', memo: '',
+    createdAt: new Date().toLocaleDateString('ko-KR'),
+    updatedAt: new Date().toLocaleDateString('ko-KR')
+  };
+}
+
+function importJSON(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      if(parsed.data?.episodes) {
+        parsed.data.episodes.forEach(ep => {
+          if(!data.episodes.find(x=>x.id===ep.id)) data.episodes.push(ep);
+        });
+      }
+      if(parsed.worldData) Object.assign(worldData, parsed.worldData);
+      save();
+      localStorage.setItem(WORLD_KEY, JSON.stringify(worldData));
+      renderNav(); renderList();
+      showToast(`가져오기 완료 (${parsed.data?.episodes?.length||0}개 회차)`);
+    } catch { showToast('파일 형식이 올바르지 않아요'); }
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+// ──────────────────────────────────────────────
+// UI 유틸
+// ──────────────────────────────────────────────
+let sidebarOpen = window.innerWidth > 640;
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+  document.getElementById('overlay').classList.toggle('show', sidebarOpen && window.innerWidth<=640);
+}
+function closeSidebarMobile() {
+  if(window.innerWidth<=640){ sidebarOpen=false; document.getElementById('sidebar').classList.add('collapsed'); document.getElementById('overlay').classList.remove('show'); }
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+// 키보드 단축키
+document.addEventListener('keydown', e => {
+  if((e.metaKey||e.ctrlKey) && e.key==='s'){ e.preventDefault(); saveAll(); }
+});
+
+// 페이지 나가기 전 저장
+window.addEventListener('beforeunload', e => { if(dirty){ saveAll(true); } });
+
+// ──────────────────────────────────────────────
+// 초기화
+// ──────────────────────────────────────────────
+load();
+// 9화 샘플 데이터 (처음 실행 시만)
+if(!data.episodes.length) {
+  const sample = {
+    id:'sample9', num:9, title:'닭이 울기 전',
+    status:'완성',
+    body:`가족사진 속, 정훈의 자리는 항상— 가장 구석이었다.\n\n의사인 아버지의 머리는, 고스란히 형에게 갔다. 전교 1등. 전교 회장. 형은 언제나, 가족의 중심이었다.\n\n존재를 지우는 데는, 아무런 노력도 필요하지 않았다. 처음부터, 있는 듯 없는 자리였으니까.`,
+    sub:'정훈 · 하린 시점', date:'2026-06-17',
+    goal:'5000자', point:'정훈의 과거 서사 + 하린의 내면 갈등', note:'이한의 로그 장면 감정선 강화 필요',
+    memo:'다음 화 연결: 이준이 하린 접촉\n마스터와 아버지 사이의 균열 심화',
+    chars:['정훈(마스터)','하린'],
+    createdAt:'2026-06-17', updatedAt:'2026-06-17'
+  };
+  data.episodes.push(sample);
+  save();
+}
+renderNav(); renderList();
+if(window.innerWidth<=640){ document.getElementById('sidebar').classList.add('collapsed'); }
+updateStorageInfo();
+</script>
+</body>
+</html>
