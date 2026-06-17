@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>씨유에탑 영단어 추출기</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --purple:#534AB7;--purple-light:#f3f2fd;--purple-dark:#3C3489;
+    --text:#1a1a2e;--text-sub:#666;--border:#ddd;
+    --bg:#fff;--bg-sub:#f8f8fb;--green:#3B6D11;--red:#A32D2D;
+  }
+  body{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#f0eff9;min-height:100vh;padding:16px}
+  .app{max-width:720px;margin:0 auto;background:#fff;border-radius:14px;box-shadow:0 4px 24px rgba(83,74,183,0.10);overflow:hidden}
+
+  /* 헤더 - 콤팩트 */
+  .header{background:var(--purple);padding:12px 22px;display:flex;align-items:center;justify-content:space-between}
+  .header-logo{font-size:18px;font-weight:700;color:#fff;letter-spacing:-0.5px}
+  .header-sub{font-size:11px;color:rgba(255,255,255,0.70)}
+
+  .body{padding:16px 22px}
+  section{margin-bottom:14px}
+  .section-label{font-size:11px;font-weight:600;color:var(--text-sub);margin-bottom:6px;letter-spacing:0.3px}
+
+  /* API Box */
+  .api-box{background:var(--bg-sub);border:1px solid #e0dff5;border-radius:8px;padding:11px 14px}
+  .api-row{display:flex;gap:7px;align-items:center}
+  .api-row input{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:monospace;background:#fff;color:var(--text)}
+  .api-row input:focus{outline:none;border-color:var(--purple)}
+  .btn-sm{padding:7px 12px;border-radius:7px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text-sub);white-space:nowrap;transition:all 0.15s}
+  .btn-sm:hover{background:var(--bg-sub)}
+  .btn-sm.purple{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .btn-sm.purple:hover{background:var(--purple-dark)}
+  .api-hint{font-size:10px;color:var(--text-sub);margin-top:6px;line-height:1.5}
+  .api-hint a{color:var(--purple);text-decoration:none}
+  .api-status{font-size:10px;margin-top:5px;display:none;align-items:center;gap:4px}
+  .dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+  .dot.ok{background:#3B6D11}.dot.err{background:#A32D2D}
+
+  /* Grid 2col */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:480px){.grid2{grid-template-columns:1fr}}
+  .field label{font-size:11px;color:var(--text-sub);margin-bottom:4px;display:block}
+  .field input{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-size:12px;background:#fff;color:var(--text)}
+  .field input:focus{outline:none;border-color:var(--purple)}
+
+  /* Level bar */
+  .level-bar{display:flex;gap:7px;flex-wrap:wrap}
+  .level-btn{padding:6px 16px;border-radius:16px;border:1.5px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:var(--text-sub);transition:all 0.15s}
+  .level-btn.active{background:var(--purple);border-color:var(--purple);color:#fff}
+  .level-btn:hover:not(.active){background:var(--bg-sub)}
+
+  /* Textarea */
+  textarea{width:100%;height:130px;padding:10px;border:1px solid var(--border);border-radius:7px;font-size:12px;font-family:inherit;resize:vertical;background:#fff;color:var(--text);line-height:1.6}
+  textarea:focus{outline:none;border-color:var(--purple)}
+
+  /* Actions */
+  .actions{display:flex;gap:9px;flex-wrap:wrap}
+  .btn-primary{padding:9px 22px;background:var(--purple);color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.15s}
+  .btn-primary:hover{background:var(--purple-dark)}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-outline{padding:9px 18px;background:#fff;color:var(--text);border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;transition:all 0.15s}
+  .btn-outline:hover:not(:disabled){background:var(--bg-sub)}
+  .btn-outline:disabled{opacity:0.4;cursor:not-allowed}
+
+  /* Status */
+  .status{font-size:12px;color:var(--text-sub);margin-top:8px;min-height:18px}
+  .spinner{display:inline-block;width:11px;height:11px;border:2px solid #ccc;border-top-color:var(--purple);border-radius:50%;animation:spin 0.7s linear infinite;margin-right:5px;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* Preview */
+  .preview-wrap{display:none;margin-top:18px;border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .preview-header{background:var(--purple-light);padding:8px 14px;font-size:11px;font-weight:600;color:var(--purple);display:flex;align-items:center;justify-content:space-between}
+
+  /* ===================== PRINT SHEET STYLES ===================== */
+  #print-area{font-family:'Malgun Gothic','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#fff;padding:18px 22px}
+
+  /* 헤더 - 한 줄로 콤팩트 */
+  .sheet-header{display:flex;justify-content:space-between;align-items:center;border-bottom:2.5px solid var(--purple);padding-bottom:7px;margin-bottom:10px}
+  .sheet-header-left{display:flex;align-items:baseline;gap:10px}
+  .sheet-brand{font-size:19px;font-weight:700;color:var(--purple);letter-spacing:-0.5px}
+  .sheet-title{font-size:13px;font-weight:600;color:var(--text)}
+  .sheet-header-right{display:flex;align-items:center;gap:8px}
+  .sheet-badge{background:var(--purple);color:#fff;font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px}
+  .sheet-count{font-size:10px;color:#aaa}
+
+  /* Table */
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  colgroup col:nth-child(1){width:22px}
+  colgroup col:nth-child(2){width:15%}
+  colgroup col:nth-child(3){width:17%}
+  colgroup col:nth-child(4){width:18%}
+  colgroup col:nth-child(5){width:25%}
+  colgroup col:nth-child(6){width:25%}
+  th{padding:5px 6px;font-size:10px;color:var(--purple);text-align:left;background:#f3f2fd;border-bottom:1px solid #dcdaf5}
+  th:first-child{text-align:center}
+  td{padding:4px 6px;border-bottom:1px solid #f0f0f0;vertical-align:middle;word-break:break-word;line-height:1.35}
+  td:first-child{text-align:center;font-size:10px;color:#bbb}
+  /* 단어 */
+  td:nth-child(2){font-weight:700;font-size:12px;color:var(--text)}
+  /* 발음기호 - 작게 */
+  td:nth-child(3){font-size:9.5px;color:var(--purple);font-weight:400}
+  /* 한글 의미 - 2pt 작고 얇게 */
+  td:nth-child(4){font-size:10px;font-weight:300;color:#333;letter-spacing:-0.3px;white-space:nowrap}
+  /* 동의어 */
+  td:nth-child(5){font-size:9.5px;color:var(--green);font-weight:400}
+  /* 반의어 */
+  td:nth-child(6){font-size:9.5px;color:var(--red);font-weight:400}
+
+  /* 암기 체크 */
+  .memo-box{margin-top:10px;padding:8px 10px;background:#f9f8ff;border-left:2.5px solid var(--purple);border-radius:3px}
+  .memo-title{font-size:9.5px;font-weight:700;color:var(--purple);margin-bottom:5px}
+  .memo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
+  .memo-item{font-size:9.5px;color:#555;padding:1px 0;border-bottom:1px dotted #ccc}
+  .sheet-footer{margin-top:8px;text-align:center;font-size:9px;color:#ccc;border-top:1px solid #eee;padding-top:6px}
+
+  /* ===================== PRINT MEDIA ===================== */
+  @media print{
+    body{background:#fff;padding:0}
+    .app{box-shadow:none;border-radius:0}
+    .body,.header,section,.preview-header,.status{display:none!important}
+    .preview-wrap{display:block!important;border:none;margin:0}
+    #print-area{padding:8mm 10mm}
+    table{page-break-inside:avoid}
+    @page{size:A4;margin:8mm 10mm}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- 앱 헤더 -->
+  <div class="header">
+    <div class="header-logo">씨유에탑</div>
+    <div class="header-sub">영단어 추출 & 학습지 생성기</div>
+  </div>
+
+  <div class="body">
+
+    <!-- API Key -->
+    <section>
+      <div class="section-label">🔑 ANTHROPIC API 키</div>
+      <div class="api-box">
+        <div class="api-row">
+          <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." autocomplete="off">
+          <button class="btn-sm" onclick="toggleVis()">보기</button>
+          <button class="btn-sm purple" onclick="saveKey()">저장</button>
+        </div>
+        <div class="api-status" id="api-status"></div>
+        <p class="api-hint">키는 브라우저 세션에만 저장되며 외부로 전송되지 않아요. &nbsp;<a href="https://console.anthropic.com/settings/keys" target="_blank">API 키 발급 →</a></p>
+      </div>
+    </section>
+
+    <!-- Brand & Title -->
+    <section>
+      <div class="section-label">학습지 정보</div>
+      <div class="grid2">
+        <div class="field">
+          <label>브랜드명</label>
+          <input id="brand" value="씨유에탑" placeholder="씨유에탑">
+        </div>
+        <div class="field">
+          <label>지문 제목</label>
+          <input id="doc-title" placeholder="예: 모고20번 어휘">
+        </div>
+      </div>
+    </section>
+
+    <!-- Level -->
+    <section>
+      <div class="section-label">학습 수준</div>
+      <div class="level-bar">
+        <button class="level-btn" onclick="setLevel(this,'중3')">중3</button>
+        <button class="level-btn active" onclick="setLevel(this,'고1')">고1</button>
+        <button class="level-btn" onclick="setLevel(this,'고2')">고2</button>
+        <button class="level-btn" onclick="setLevel(this,'수능')">수능</button>
+      </div>
+    </section>
+
+    <!-- Passage -->
+    <section>
+      <div class="section-label">영어 지문</div>
+      <textarea id="passage" placeholder="분석할 영어 지문을 여기에 붙여넣으세요..."></textarea>
+    </section>
+
+    <!-- Actions -->
+    <section>
+      <div class="actions">
+        <button class="btn-primary" id="extract-btn" onclick="extractWords()">단어 추출하기</button>
+        <button class="btn-outline" id="print-btn" onclick="printSheet()" disabled>🖨 인쇄 / PDF 저장</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-wrap" id="preview-wrap">
+    <div class="preview-header">
+      <span>📄 미리보기</span>
+      <span style="font-weight:400;color:#999;font-size:10px">인쇄 시 이 영역만 출력됩니다</span>
+    </div>
+    <div id="print-area"></div>
+  </div>
+
+</div>
+
+<script>
+let level = '고1';
+let words = [];
+let brand = '씨유에탑';
+let docTitle = '';
+
+const levelGuide = {
+  '중3':'중학교 3학년 수준 (CEFR A2~B1). 중학 필수 어휘 이상이지만 고등 수준 미만인 단어 위주로 15~20개',
+  '고1':'고등학교 1학년 수준 (CEFR B1). 고1 교과서 및 전국연합 수준 핵심 단어 15~20개',
+  '고2':'고등학교 2학년 수준 (CEFR B1~B2). 고2 모의고사 수준 단어 15~20개',
+  '수능':'수능 출제 수준 (CEFR B2~C1). 수능 고빈도 고급 어휘 15~20개'
+};
+
+function setLevel(btn, lv) {
+  document.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  level = lv;
+}
+
+function getKey() { return sessionStorage.getItem('cueTop_key') || ''; }
+
+function toggleVis() {
+  const inp = document.getElementById('api-key-input');
+  const same = inp.type === 'password';
+  inp.type = same ? 'text' : 'password';
+  event.target.textContent = same ? '숨기기' : '보기';
+}
+
+function saveKey() {
+  const val = document.getElementById('api-key-input').value.trim();
+  const st = document.getElementById('api-status');
+  st.style.display = 'flex';
+  if (!val) { st.innerHTML = '<span class="dot err"></span> 키를 입력해주세요'; return; }
+  if (!val.startsWith('sk-ant-')) { st.innerHTML = '<span class="dot err"></span> 올바른 키 형식이 아니에요 (sk-ant- 로 시작)'; return; }
+  sessionStorage.setItem('cueTop_key', val);
+  st.innerHTML = '<span class="dot ok"></span> 저장됨 (세션 동안 유지)';
+}
+
+function setStatus(html) { document.getElementById('status').innerHTML = html; }
+
+/* 동의어/반의어를 최대 2개로 자르는 함수 */
+function trim2(str) {
+  if (!str || str === '—') return '—';
+  const parts = str.split(',').map(s => s.trim()).filter(Boolean);
+  return parts.slice(0, 2).join(', ');
+}
+
+async function extractWords() {
+  const key = getKey();
+  if (!key) { setStatus('⚠️ API 키를 먼저 입력하고 저장해주세요.'); document.getElementById('api-key-input').focus(); return; }
+  const passage = document.getElementById('passage').value.trim();
+  brand = document.getElementById('brand').value.trim() || '씨유에탑';
+  docTitle = document.getElementById('doc-title').value.trim() || '영단어 학습지';
+  if (!passage) { setStatus('지문을 입력해주세요.'); return; }
+
+  const btn = document.getElementById('extract-btn');
+  btn.disabled = true;
+  document.getElementById('print-btn').disabled = true;
+  document.getElementById('preview-wrap').style.display = 'none';
+  setStatus('<span class="spinner"></span>단어 분석 중... (10~20초 소요)');
+
+  const prompt = `You are an English vocabulary expert for Korean high school students. Analyze this passage and extract vocabulary appropriate for ${level} level (${levelGuide[level]}).
+
+PASSAGE:
+${passage}
+
+Extract 15-20 vocabulary words. For each word provide:
+- word: base/dictionary form
+- ipa: IPA pronunciation (e.g. /ˈwɜːrd/)
+- meaning: Korean meaning, very concise (1-3 Korean words only)
+- synonyms: EXACTLY 1-2 high-school or CSAT level English synonyms only. If none appropriate, use "—"
+- antonyms: EXACTLY 1-2 high-school or CSAT level English antonyms only. If none appropriate, use "—"
+
+Important rules:
+- Only pick words that actually appear in the passage
+- For synonyms and antonyms: only include words a Korean high school student (고등학교/수능 level) should know. Skip rare or obscure words. If no good match, use "—"
+- Keep synonyms and antonyms to max 2 each
+- Provide accurate IPA
+
+Respond ONLY with valid JSON array, no markdown, no backticks:
+[{"word":"...","ipa":"...","meaning":"...","synonyms":"...","antonyms":"..."}]`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+    const data = await res.json();
+    const text = data.content.map(i => i.text || '').join('');
+    words = JSON.parse(text.replace(/```json|```/g,'').trim());
+    /* 혹시 3개 이상 왔을 경우 JS에서도 2개로 자르기 */
+    words = words.map(w => ({ ...w, synonyms: trim2(w.synonyms), antonyms: trim2(w.antonyms) }));
+    renderSheet();
+    setStatus(`✓ ${words.length}개 단어 추출 완료`);
+    document.getElementById('print-btn').disabled = false;
+  } catch(e) {
+    setStatus(`오류: ${e.message}`);
+  }
+  btn.disabled = false;
+}
+
+function renderSheet() {
+  const rows = words.map((w, i) => `
+    <tr>
+      <td>${i + 1}</td>
+      <td>${w.word}</td>
+      <td>${w.ipa}</td>
+      <td>${w.meaning}</td>
+      <td>${w.synonyms}</td>
+      <td>${w.antonyms}</td>
+    </tr>`).join('');
+
+  const memoItems = words.map(w =>
+    `<div class="memo-item">${w.word} □□□</div>`).join('');
+
+  document.getElementById('print-area').innerHTML = `
+    <div class="sheet-header">
+      <div class="sheet-header-left">
+        <div class="sheet-brand">${brand}</div>
+        <div class="sheet-title">${docTitle}</div>
+      </div>
+      <div class="sheet-header-right">
+        <span class="sheet-badge">${level} 수준</span>
+        <span class="sheet-count">총 ${words.length}개 단어</span>
+      </div>
+    </div>
+    <table>
+      <colgroup><col><col><col><col><col><col></colgroup>
+      <thead>
+        <tr>
+          <th>#</th><th>단어</th><th>발음기호</th><th>의미</th><th>동의어</th><th>반의어</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div class="memo-box">
+      <div class="memo-title">✎ 암기 체크 (3회 반복)</div>
+      <div class="memo-grid">${memoItems}</div>
+    </div>
+    <div class="sheet-footer">${brand} | ${docTitle} | ${level} 수준 어휘 학습지</div>
+  `;
+
+  const wrap = document.getElementById('preview-wrap');
+  wrap.style.display = 'block';
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function printSheet() {
+  window.print();
+}
+
+/* init */
+(function(){
+  const saved = getKey();
+  if (saved) {
+    document.getElementById('api-key-input').value = saved;
+    const st = document.getElementById('api-status');
+    st.style.display = 'flex';
+    st.innerHTML = '<span class="dot ok"></span> 저장된 키 불러옴';
+  }
+})();
+</script>
+</body>
+</html>
