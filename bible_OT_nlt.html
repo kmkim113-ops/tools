@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bible NLT — Old Testament">
+<meta name="theme-color" content="#2d4a7a">
+<title>Bible NLT — Old Testament</title>
+<style>
+:root{
+  --navy:#1a2f5a;--blue:#2d4a7a;--blue-mid:#3d6499;--blue-light:#7aafd4;--blue-pale:#e8f0fb;--blue-bg:#f0f4fb;
+  --gold:#b5873a;--gold-light:#f5ead3;--red:#c0392b;
+  --text:#1a1a1a;--text-mid:#4a4a4a;--text-light:#888;--white:#fff;
+  --shadow:0 2px 16px rgba(26,47,90,0.10);--radius:16px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--blue-bg);font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:var(--text)}
+
+/* Header */
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);color:white;padding:16px 20px 14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.18)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{display:flex;flex-direction:column}
+.brand-title{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:white}
+.brand-title span{color:var(--blue-light)}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px}
+.header-date{font-size:12px;color:rgba(255,255,255,0.7);text-align:right}
+.progress-wrap{background:rgba(255,255,255,0.12);border-radius:8px;padding:9px 14px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:6px}
+.progress-bar-bg{background:rgba(255,255,255,0.2);border-radius:99px;height:7px;overflow:hidden}
+.progress-bar-fill{background:linear-gradient(90deg,var(--blue-light),#b7d4f0);border-radius:99px;height:100%;transition:width 0.6s ease}
+
+/* Tabs */
+.tabs{display:flex;background:white;border-bottom:2px solid var(--blue-pale)}
+.tab{flex:1;padding:11px 0;font-size:12px;font-weight:600;text-align:center;border:none;background:none;cursor:pointer;color:var(--text-light);transition:all 0.2s}
+.tab.active{color:var(--blue);border-bottom:2px solid var(--blue);margin-bottom:-2px}
+.tab-icon{display:block;font-size:17px;margin-bottom:2px}
+
+/* Content */
+.content{padding:14px;max-width:480px;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block}
+
+/* Today Card */
+.today-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
+.today-badge{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;padding:9px 16px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.day-num{font-weight:700;font-size:14px}
+.book-category{font-size:11px;opacity:0.85;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:99px}
+.today-body{padding:14px}
+.today-range{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-0.3px;margin-bottom:3px}
+.today-theme{font-size:13px;color:var(--blue-mid);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.today-summary{font-size:13px;color:var(--text-mid);line-height:1.7;border-left:3px solid var(--blue-pale);padding-left:10px;margin-bottom:12px}
+
+/* Key Verse Box */
+.verse-box{background:var(--gold-light);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px}
+.verse-title{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.verse-text{font-size:13px;color:#5a3e1b;line-height:1.7;font-style:italic}
+.verse-ref{font-size:11px;color:var(--gold);margin-top:5px;font-weight:600}
+
+/* Notes Section (완료 아래) */
+.notes-section{background:white;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.notes-header{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.notes-list{margin-bottom:10px}
+.note-item{background:var(--blue-pale);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;font-size:13px;color:var(--text-mid);line-height:1.6;position:relative}
+.note-item-text{margin-right:28px}
+.note-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-light);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:5px}
+.note-del:hover{background:#fee;color:var(--red)}
+.note-empty{font-size:12px;color:var(--text-light);text-align:center;padding:10px 0}
+.notes-input-wrap{display:flex;gap:6px}
+.notes-input{flex:1;padding:9px 11px;border:1.5px solid var(--blue-pale);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;resize:none;outline:none;background:#fafcff;color:var(--text);line-height:1.6;min-height:60px}
+.notes-input:focus{border-color:var(--blue-mid)}
+.notes-save{padding:9px 14px;background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;align-self:flex-end}
+.notes-save:active{opacity:0.8}
+
+/* Complete Button */
+.btn-complete{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue-mid),var(--blue));color:white;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.1s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(45,74,122,0.35);margin-bottom:14px}
+.btn-complete:active{transform:scale(0.98)}
+.btn-complete.done{background:linear-gradient(135deg,#adb5bd,#868e96);box-shadow:none}
+
+/* Next Card */
+.next-card{background:white;border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow);border-left:4px solid var(--blue-light)}
+.next-label{font-size:11px;color:var(--text-light);margin-bottom:3px}
+.next-range{font-size:14px;font-weight:700;color:var(--navy)}
+.next-theme{font-size:12px;color:var(--text-mid);margin-top:2px}
+
+/* List */
+.list-section{margin-bottom:18px}
+.list-section-title{font-size:13px;font-weight:700;color:var(--blue);padding:7px 0;border-bottom:1px solid var(--blue-pale);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.day-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:white;border-radius:var(--radius-sm);margin-bottom:5px;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:background 0.15s}
+.day-item:active{background:var(--blue-pale)}
+.day-item.completed{opacity:0.5}
+.day-num-badge{min-width:30px;height:30px;border-radius:50%;background:var(--blue-pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.day-item.current .day-num-badge{background:var(--blue);color:white}
+.day-item.completed .day-num-badge{background:var(--blue-light);color:white}
+.day-info{flex:1;min-width:0}
+.day-range{font-size:13px;font-weight:600;color:var(--text)}
+.day-theme-sm{font-size:11px;color:var(--text-light);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.has-note{font-size:10px;color:var(--gold);margin-top:1px}
+.check-mark{font-size:17px;color:var(--blue-mid)}
+
+/* Record */
+.record-summary{background:white;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.stat-num{font-size:22px;font-weight:800;color:var(--blue)}
+.stat-label{font-size:11px;color:var(--text-light);margin-top:2px}
+.calendar-grid{background:white;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.cal-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.cal-dots{display:flex;flex-wrap:wrap;gap:4px}
+.cal-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;background:var(--blue-pale);color:var(--text-light)}
+.cal-dot.done{background:var(--blue);color:white}
+.cal-dot.today-dot{background:var(--gold);color:white}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:20px 20px 0 0;padding:18px 18px 40px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:#ddd;border-radius:99px;margin:0 auto 14px}
+.modal-day-badge{background:var(--blue-pale);color:var(--blue);display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:7px}
+.modal-range{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:3px}
+.modal-theme{font-size:13px;color:var(--blue-mid);font-weight:600;margin-bottom:12px}
+.modal-summary{font-size:13px;color:var(--text-mid);line-height:1.8;margin-bottom:14px}
+.modal-verse{background:var(--gold-light);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px}
+.modal-notes{background:var(--blue-pale);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px}
+.modal-notes-title{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px}
+.modal-note-item{font-size:12px;color:var(--text-mid);line-height:1.6;padding:4px 0;border-bottom:1px solid rgba(45,74,122,0.1)}
+.modal-note-item:last-child{border-bottom:none}
+.modal-close{width:100%;padding:12px;background:var(--blue-pale);color:var(--blue);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+
+/* Confetti */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:300;display:flex;align-items:center;justify-content:center}
+.confetti-msg{background:var(--navy);color:white;padding:18px 28px;border-radius:var(--radius);text-align:center;font-size:17px;font-weight:800;box-shadow:0 8px 32px rgba(0,0,0,0.25);display:none}
+.confetti-msg.show{display:block;animation:popIn 0.4s ease}
+@keyframes popIn{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confettiWrap">
+  <div class="confetti-msg" id="confettiMsg"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
+    <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">Close</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-title">Old Testament <span>NLT</span></div>
+      <div class="brand-sub">101-Day Reading Plan · NLT</div>
+    </div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>📖 Reading Progress</span>
+      <span id="progressText">0 / 365 days</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('today',this)"><span class="tab-icon">📖</span>Today</button>
+  <button class="tab" onclick="switchTab('list',this)"><span class="tab-icon">📋</span>All Days</button>
+  <button class="tab" onclick="switchTab('record',this)"><span class="tab-icon">📊</span>Progress</button>
+</div>
+
+<div class="content">
+  <div class="screen active" id="screen-today"><div id="todayContent"></div></div>
+  <div class="screen" id="screen-list"><div id="listContent"></div></div>
+  <div class="screen" id="screen-record">
+    <div class="record-summary">
+      <div><div class="stat-num" id="statDone">0</div><div class="stat-label">Done</div></div>
+      <div><div class="stat-num" id="statRemain">365</div><div class="stat-label">Left</div></div>
+      <div><div class="stat-num" id="statPercent">0%</div><div class="stat-label">Complete</div></div>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-title">📅 365-Day Progress</div>
+      <div class="cal-dots" id="calDots"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 365일 NLT 성경 읽기 진도표 ──
+const DAYS = [
+  {range:"Genesis 1–3",theme:"Creation & the Fall",summary:"God creates the heavens, earth, and humanity in His image. Adam and Eve disobey God and are exiled from Eden.",verse:"In the beginning God created the heavens and the earth.",ref:"Genesis 1:1"},
+  {range:"Genesis 4–7",theme:"Cain, Abel & Noah",summary:"Cain murders Abel; humanity spirals into wickedness. God chooses Noah and commands the building of the ark.",verse:"Noah was a righteous man, the only blameless person living on earth at the time.",ref:"Genesis 6:9"},
+  {range:"Genesis 8–11",theme:"Flood & Tower of Babel",summary:"The floodwaters recede; God makes a covenant with Noah. Humanity builds the Tower of Babel and is scattered.",verse:"I have placed my rainbow in the clouds. It is the sign of my covenant with you.",ref:"Genesis 9:13"},
+  {range:"Genesis 12–15",theme:"Abram's Call & Covenant",summary:"God calls Abram to leave his homeland. God makes a covenant with Abram, promising land and descendants.",verse:"Leave your native country and go to the land I will show you.",ref:"Genesis 12:1"},
+  {range:"Genesis 16–18",theme:"Hagar, Ishmael & Three Visitors",summary:"Hagar bears Ishmael. God reaffirms the covenant and announces Isaac's coming birth.",verse:"Is anything too hard for the LORD?",ref:"Genesis 18:14"},
+  {range:"Genesis 19–21",theme:"Sodom & Birth of Isaac",summary:"Sodom and Gomorrah are destroyed. Sarah miraculously gives birth to Isaac.",verse:"God has brought me laughter. All who hear about this will laugh with me.",ref:"Genesis 21:6"},
+  {range:"Genesis 22–24",theme:"Testing of Abraham",summary:"God tests Abraham with Isaac on Moriah. Abraham's servant finds Rebekah as Isaac's wife.",verse:"Now I know that you truly fear God.",ref:"Genesis 22:12"},
+  {range:"Genesis 25–27",theme:"Jacob & Esau",summary:"Esau sells his birthright; Jacob deceives Isaac and receives the blessing meant for Esau.",verse:"First you must sell me your rights as the firstborn son.",ref:"Genesis 25:31"},
+  {range:"Genesis 28–30",theme:"Jacob at Bethel & Laban",summary:"Jacob dreams of a stairway to heaven. He works for Laban and marries Leah and Rachel.",verse:"I am with you, and I will protect you wherever you go.",ref:"Genesis 28:15"},
+  {range:"Genesis 31–33",theme:"Jacob Returns Home",summary:"Jacob departs secretly from Laban. He wrestles with God and reconciles with Esau.",verse:"I will not let you go unless you bless me.",ref:"Genesis 32:26"},
+  {range:"Genesis 34–36",theme:"Dinah & Esau's Line",summary:"Dinah's tragedy and its aftermath. Esau's descendants and the line of Edom.",verse:"Return to Bethel and settle there.",ref:"Genesis 35:1"},
+  {range:"Genesis 37–39",theme:"Joseph Sold into Egypt",summary:"Joseph's brothers sell him to traders. Potiphar's wife falsely accuses Joseph.",verse:"The LORD was with Joseph, so he succeeded in everything he did.",ref:"Genesis 39:2"},
+  {range:"Genesis 40–42",theme:"Joseph in Prison & Pharaoh's Dream",summary:"Joseph interprets dreams in prison. Pharaoh's dreams explained; Joseph becomes second-in-command.",verse:"It is beyond my power to do this. But God can tell you what it means.",ref:"Genesis 41:16"},
+  {range:"Genesis 43–45",theme:"Brothers Reunite with Joseph",summary:"Benjamin is brought to Egypt. Joseph reveals himself to his brothers.",verse:"God has sent me ahead of you to keep you and your families alive.",ref:"Genesis 45:7"},
+  {range:"Genesis 46–47",theme:"Jacob's Family in Egypt",summary:"Jacob and family settle in Goshen. Joseph manages the famine wisely.",verse:"I am God, the God of your father. Do not be afraid to go down to Egypt.",ref:"Genesis 46:3"},
+  {range:"Genesis 48–50",theme:"Jacob's Blessings & Joseph's Death",summary:"Jacob blesses Joseph's sons. Joseph forgives his brothers; both Jacob and Joseph die in Egypt.",verse:"You intended to harm me, but God intended it all for good.",ref:"Genesis 50:20"},
+  {range:"Exodus 1–3",theme:"Birth of Moses & the Burning Bush",summary:"Israelites are enslaved. Moses flees Egypt and encounters God in a burning bush.",verse:"I am who I am.",ref:"Exodus 3:14"},
+  {range:"Exodus 4–6",theme:"Moses Returns to Egypt",summary:"God equips Moses with signs. Moses and Aaron appear before Pharaoh.",verse:"I will redeem you with a powerful arm.",ref:"Exodus 6:6"},
+  {range:"Exodus 7–9",theme:"Plagues 1–7",summary:"God sends plagues of blood, frogs, gnats, flies, livestock disease, boils, and hail.",verse:"By this you will know that I am the LORD.",ref:"Exodus 7:17"},
+  {range:"Exodus 10–12",theme:"Final Plagues & Passover",summary:"Plagues of locusts and darkness. The firstborn die; Israel celebrates the first Passover and departs.",verse:"This is a day to remember. Each year you must celebrate it.",ref:"Exodus 12:14"},
+  {range:"Exodus 13–15",theme:"The Red Sea Crossing",summary:"God leads Israel by pillar of cloud and fire. The Red Sea parts; Israel sings to the LORD.",verse:"The LORD is my strength and my song; he has given me victory.",ref:"Exodus 15:2"},
+  {range:"Exodus 16–18",theme:"Manna, Water & Jethro",summary:"God provides manna and water in the wilderness. Jethro advises Moses on delegation.",verse:"I will rain down bread from heaven for you.",ref:"Exodus 16:4"},
+  {range:"Exodus 19–21",theme:"Mount Sinai & Ten Commandments",summary:"God descends on Sinai in fire and thunder. He gives the Ten Commandments and covenant laws.",verse:"I am the LORD your God, who rescued you from the land of Egypt.",ref:"Exodus 20:2"},
+  {range:"Exodus 22–24",theme:"Laws & Covenant Ratification",summary:"Civil and religious laws. Moses reads the Book of the Covenant; the people pledge obedience.",verse:"We will do everything the LORD has commanded. We will obey.",ref:"Exodus 24:7"},
+  {range:"Exodus 25–27",theme:"Tabernacle Plans",summary:"God gives detailed instructions for the ark, the table, the lampstand, and the tabernacle.",verse:"Have the people of Israel build me a holy sanctuary so I can live among them.",ref:"Exodus 25:8"},
+  {range:"Exodus 28–30",theme:"Priestly Garments & Ordination",summary:"Instructions for the priests' sacred garments and the ordination ceremony.",verse:"Aaron will carry the names of the tribes of Israel as a constant reminder.",ref:"Exodus 28:12"},
+  {range:"Exodus 31–33",theme:"Golden Calf & Intercession",summary:"God gives the Sabbath command. Israel makes a golden calf; Moses intercedes for the people.",verse:"My presence will go with you, and I will give you rest.",ref:"Exodus 33:14"},
+  {range:"Exodus 34–40",theme:"Renewed Covenant & Tabernacle Completed",summary:"God renews the covenant with Moses. The tabernacle is assembled; God's glory fills it.",verse:"The LORD — slow to anger and filled with unfailing love and faithfulness.",ref:"Exodus 34:6"},
+  {range:"Leviticus 1–7",theme:"Offerings & Sacrifices",summary:"Instructions for burnt, grain, peace, sin, and guilt offerings — each drawing the worshiper near to God.",verse:"You must be holy because I, the LORD your God, am holy.",ref:"Leviticus 19:2"},
+  {range:"Leviticus 8–12",theme:"Priestly Ordination & Clean Laws",summary:"Moses ordains Aaron and his sons. Nadab and Abihu die. Dietary and purity laws begin.",verse:"I must be treated as holy by those who come near me.",ref:"Leviticus 10:3"},
+  {range:"Leviticus 13–16",theme:"Skin Disease & Day of Atonement",summary:"Regulations for skin diseases and bodily impurity. The annual Day of Atonement described.",verse:"The life of the body is in its blood.",ref:"Leviticus 17:11"},
+  {range:"Leviticus 17–21",theme:"The Holiness Code",summary:"Practical holiness laws: love your neighbor, care for the poor, and respect for the elderly.",verse:"Love your neighbor as yourself.",ref:"Leviticus 19:18"},
+  {range:"Leviticus 22–27",theme:"Feasts, Jubilee & Vows",summary:"The seven sacred festivals. The Sabbath year and Year of Jubilee. Vow regulations.",verse:"The land must never be sold on a permanent basis, for the land belongs to me.",ref:"Leviticus 25:23"},
+  {range:"Numbers 1–4",theme:"The Census & Levites' Duties",summary:"God commands a census of Israel's fighting men. The tribes are organized. The Levites are set apart.",verse:"May the LORD bless you and protect you.",ref:"Numbers 6:24"},
+  {range:"Numbers 5–10",theme:"Purity Laws & Cloud of Guidance",summary:"Purity laws, the Nazirite vow, and Aaron's blessing. The Passover observed. The cloud leads Israel.",verse:"Whenever the cloud lifted, the Israelites would set out on their journey.",ref:"Numbers 9:17"},
+  {range:"Numbers 11–16",theme:"Complaining, Spies & Korah's Revolt",summary:"Israel complains; God sends quail. Twelve spies explore Canaan. Korah's rebellion is crushed.",verse:"If the LORD is pleased with us, he will bring us safely into that land.",ref:"Numbers 14:8"},
+  {range:"Numbers 17–21",theme:"Aaron's Staff & the Bronze Snake",summary:"Aaron's staff buds and blossoms. Moses strikes the rock in anger. A bronze snake heals the Israelites.",verse:"All who looked at the bronze snake lived!",ref:"Numbers 21:9"},
+  {range:"Numbers 22–27",theme:"Balaam's Blessings & Second Census",summary:"Balak hires Balaam who blesses Israel instead. The second census is taken. Joshua is named successor.",verse:"God is not a man, so he does not lie.",ref:"Numbers 23:19"},
+  {range:"Numbers 28–36",theme:"Offerings, Vows & Land",summary:"Festival offerings, vow regulations, the wilderness journey summarized, and tribal land requests.",verse:"Appoint cities of refuge to which people can flee.",ref:"Numbers 35:11"},
+  {range:"Deuteronomy 1–6",theme:"Moses Recounts & The Shema",summary:"Moses reviews Israel's journey. The Shema: Hear, O Israel — love the LORD your God.",verse:"The LORD is our God, the LORD alone. Love the LORD your God with all your heart.",ref:"Deuteronomy 6:4-5"},
+  {range:"Deuteronomy 7–13",theme:"Warnings Against Idolatry",summary:"Warnings against idolatry and intermarriage. Instructions for true worship at the central sanctuary.",verse:"What does the LORD your God require of you? He requires only that you love him.",ref:"Deuteronomy 10:12"},
+  {range:"Deuteronomy 14–20",theme:"Feasts, Kings & True Prophets",summary:"Dietary laws, tithes, annual feasts. Rules for kings, Levitical priests, and true prophets.",verse:"A true prophet speaks in the LORD's name, and his words come true.",ref:"Deuteronomy 18:22"},
+  {range:"Deuteronomy 21–28",theme:"Law, Covenant & Blessings",summary:"Family and civil laws. The firstfruits offering. Blessings for obedience and curses for disobedience.",verse:"Today you have declared that the LORD is your God.",ref:"Deuteronomy 26:17"},
+  {range:"Deuteronomy 29–34",theme:"Moses' Song, Death & Farewell",summary:"The covenant is renewed. Moses commissions Joshua, teaches a song, and dies on Mount Nebo.",verse:"Be strong and courageous! Do not be afraid or discouraged.",ref:"Deuteronomy 31:6"},
+  {range:"Joshua 1–7",theme:"Entering Canaan & Jericho Falls",summary:"God commissions Joshua. Rahab hides the spies. The Jordan is crossed. Jericho's walls collapse.",verse:"Be strong and courageous, for you are the one who will lead these people.",ref:"Joshua 1:6"},
+  {range:"Joshua 8–14",theme:"Campaigns & Allotments Begin",summary:"Ai is defeated. The sun stands still. Southern and northern campaigns. Caleb requests Hebron.",verse:"There has never been a day like this one before or since.",ref:"Joshua 10:14"},
+  {range:"Joshua 15–24",theme:"Tribal Territories & Joshua's Farewell",summary:"All tribes receive their land allotments. Joshua's final addresses and covenant renewal at Shechem.",verse:"As for me and my family, we will serve the LORD.",ref:"Joshua 24:15"},
+  {range:"Judges 1–8",theme:"Incomplete Conquest, Deborah & Gideon",summary:"Israel fails to drive out Canaanites. Deborah wins. Gideon defeats Midian with 300 men.",verse:"The Israelites did evil in the LORD's sight.",ref:"Judges 2:11"},
+  {range:"Judges 9–21 & Ruth",theme:"Chaos, Samson & Ruth's Faithfulness",summary:"Abimelech, Jephthah, Samson's rise and fall. Civil war in Israel. Ruth pledges loyalty to Naomi; Boaz redeems her.",verse:"Wherever you go, I will go; wherever you live, I will live.",ref:"Ruth 1:16"},
+  {range:"1 Samuel 1–8",theme:"Samuel's Call & Israel Demands a King",summary:"Hannah's prayer and Samuel's birth and call by God. Israel rejects God and asks for a king.",verse:"Speak, your servant is listening.",ref:"1 Samuel 3:10"},
+  {range:"1 Samuel 9–15",theme:"Saul Anointed & His Failure",summary:"Saul is chosen and anointed by Samuel. He disobeys God twice and is rejected as king.",verse:"The LORD doesn't see things the way you see them. The LORD looks at the heart.",ref:"1 Samuel 16:7"},
+  {range:"1 Samuel 16–20",theme:"David Anointed & Befriends Jonathan",summary:"David is secretly anointed. David defeats Goliath. Saul grows jealous; David and Jonathan form a covenant.",verse:"Everyone assembled here will know that the LORD rescues his people.",ref:"1 Samuel 17:47"},
+  {range:"1 Samuel 21–31",theme:"David Flees & Saul Dies",summary:"David flees to Philistines. He spares Saul's life twice. Saul consults a witch and dies on Mount Gilboa.",verse:"How the mighty heroes have fallen!",ref:"2 Samuel 1:19"},
+  {range:"2 Samuel 1–7",theme:"David Becomes King & God's Covenant",summary:"David mourns Saul and Jonathan. He unites the kingdom and captures Jerusalem. God promises an eternal dynasty.",verse:"Your house and your kingdom will continue before me for all time.",ref:"2 Samuel 7:16"},
+  {range:"2 Samuel 8–14",theme:"Military Victories & David's Sin",summary:"David defeats surrounding nations. He shows kindness to Mephibosheth. The Bathsheba and Uriah tragedy.",verse:"Have mercy on me, O God, because of your unfailing love.",ref:"Psalm 51:1"},
+  {range:"2 Samuel 15–24",theme:"Absalom's Rebellion & David's Final Days",summary:"Absalom rebels and is defeated. David returns. His song of praise and a forbidden census.",verse:"The LORD is my rock, my fortress, and my savior.",ref:"2 Samuel 22:2"},
+  {range:"1 Kings 1–8",theme:"Solomon's Wisdom & Temple Dedication",summary:"Solomon asks for wisdom. The magnificent temple is built and dedicated with Solomon's great prayer.",verse:"Give me an understanding heart so that I can govern your people well.",ref:"1 Kings 3:9"},
+  {range:"1 Kings 9–16",theme:"Solomon's Decline & Kingdom Divided",summary:"Solomon's idolatry leads to God's judgment. Rehoboam's folly splits the kingdom. Jeroboam leads Israel into sin.",verse:"The LORD has kept the promise he made to my father David.",ref:"1 Kings 8:20"},
+  {range:"1 Kings 17–22",theme:"Elijah & Ahab's Death",summary:"Elijah announces drought, defeats 450 prophets of Baal on Carmel. Ahab seizes Naboth's vineyard and dies in battle.",verse:"The LORD — he is God! Yes, the LORD is God!",ref:"1 Kings 18:39"},
+  {range:"2 Kings 1–8",theme:"Elijah Taken Up & Elisha's Ministry",summary:"Elijah ascends to heaven in a chariot of fire. Elisha receives a double portion and heals Naaman.",verse:"Please let me inherit a double share of your spirit.",ref:"2 Kings 2:9"},
+  {range:"2 Kings 9–17",theme:"Jehu's Revolution & Israel Falls to Assyria",summary:"Jehu executes Ahab's dynasty and Jezebel. Samaria falls to Assyria; Israel is exiled.",verse:"Hezekiah trusted in the LORD, the God of Israel. There was no one like him.",ref:"2 Kings 18:5"},
+  {range:"2 Kings 18–25",theme:"Hezekiah, Josiah & Judah's Exile",summary:"Hezekiah's prayer defeats Sennacherib. Josiah leads revival. Jerusalem finally falls to Babylon.",verse:"Before him there was no king like him who turned to the LORD.",ref:"2 Kings 23:25"},
+  {range:"1 Chronicles 1–17",theme:"Genealogies & David Becomes King",summary:"Adam to the twelve tribes. David is crowned. The ark arrives in Jerusalem with celebration.",verse:"Give thanks to the LORD and proclaim his greatness. Let the whole world know what he has done.",ref:"1 Chronicles 16:8"},
+  {range:"1 Chronicles 18–29",theme:"David Prepares the Temple",summary:"Military victories. David gathers materials for the temple. Solomon is anointed as the next king.",verse:"Be strong and courageous, and do the work. The LORD God is with you.",ref:"1 Chronicles 28:20"},
+  {range:"2 Chronicles 1–14",theme:"Solomon's Temple & Kingdom Split",summary:"Solomon's wisdom. The temple is built and God's glory fills it. The kingdom divides.",verse:"If my people who are called by my name will humble themselves, I will hear from heaven.",ref:"2 Chronicles 7:14"},
+  {range:"2 Chronicles 15–28",theme:"Reform Kings & Failures",summary:"Asa's and Jehoshaphat's godly reigns. God wins the battle for Jehoshaphat. Uzziah's pride leads to leprosy.",verse:"The battle is not yours, but God's.",ref:"2 Chronicles 20:15"},
+  {range:"2 Chronicles 29–36",theme:"Hezekiah, Josiah & Exile",summary:"Hezekiah's revival and great Passover. Josiah's reform. Jerusalem falls; Cyrus later issues his decree.",verse:"The LORD, the God of their ancestors, repeatedly sent his prophets to warn them.",ref:"2 Chronicles 36:15"},
+  {range:"Ezra, Nehemiah & Esther",theme:"Return, Rebuild & Rescue",summary:"Return from exile. Temple and wall rebuilt. Esther saves the Jewish people from Haman's plot.",verse:"Who knows if perhaps you were made queen for just such a time as this?",ref:"Esther 4:14"},
+  {range:"Job 1–21",theme:"Job's Suffering & Friends Accuse",summary:"Job loses everything yet praises God. His three friends insist he must have sinned to suffer so.",verse:"The LORD gave me what I had, and the LORD has taken it away. Praise the name of the LORD!",ref:"Job 1:21"},
+  {range:"Job 22–42",theme:"God Speaks & Restores Job",summary:"Young Elihu speaks. God speaks from the storm with awe-inspiring questions. Job repents; God restores him.",verse:"Where were you when I laid the foundations of the earth?",ref:"Job 38:4"},
+  {range:"Psalms 1–41",theme:"Book 1: The Blessed Life",summary:"Psalms of trust, lament, and praise. God as shepherd, judge, and refuge in times of trouble.",verse:"The LORD is my shepherd; I have all that I need.",ref:"Psalm 23:1"},
+  {range:"Psalms 42–72",theme:"Book 2: Longing for God",summary:"Psalms of deep longing, betrayal, and trust. The sons of Korah and David's cries in distress.",verse:"As the deer longs for streams of water, so I long for you, O God.",ref:"Psalm 42:1"},
+  {range:"Psalms 73–89",theme:"Book 3: Asaph's Psalms",summary:"Asaph wrestles with the prosperity of the wicked. God's faithfulness to Israel is celebrated.",verse:"But as for me, how good it is to be near God!",ref:"Psalm 73:28"},
+  {range:"Psalms 90–106",theme:"Book 4: God's Eternal Reign",summary:"Psalms of God's kingship, the Songs of Ascent, and great thanksgiving for His enduring love.",verse:"Give thanks to the LORD, for he is good! His faithful love endures forever.",ref:"Psalm 107:1"},
+  {range:"Psalms 107–150",theme:"Book 5: Final Praise & Hallel",summary:"Great thanksgiving. The Hallel psalms. Songs of Ascent. The grand Hallelujah chorus.",verse:"Let everything that breathes sing praises to the LORD! Praise the LORD!",ref:"Psalm 150:6"},
+  {range:"Psalm 119",theme:"The Wonder of God's Word",summary:"The longest psalm — an acrostic poem celebrating every dimension of God's law, word, and statutes.",verse:"Your word is a lamp to guide my feet and a light for my path.",ref:"Psalm 119:105"},
+  {range:"Proverbs 1–9",theme:"The Call of Wisdom",summary:"A father urges his son to seek wisdom above all else. Lady Wisdom calls out in the streets.",verse:"Trust in the LORD with all your heart; do not depend on your own understanding.",ref:"Proverbs 3:5"},
+  {range:"Proverbs 10–22",theme:"Wise Living in Daily Life",summary:"Proverbs on speech, the heart, pride, honesty, and righteousness in everyday relationships.",verse:"Plans go wrong for lack of advice; many advisers bring success.",ref:"Proverbs 15:22"},
+  {range:"Proverbs 23–31",theme:"Final Wisdom & the Noble Wife",summary:"Agur and King Lemuel's wisdom. The noble wife who fears the LORD.",verse:"Charm is deceptive, and beauty does not last; but a woman who fears the LORD will be greatly praised.",ref:"Proverbs 31:30"},
+  {range:"Ecclesiastes 1–12",theme:"All is Vanity — Fear God",summary:"The Preacher observes that all earthly pursuits are meaningless without God at the center.",verse:"Fear God and obey his commands, for this is everyone's duty.",ref:"Ecclesiastes 12:13"},
+  {range:"Song of Solomon 1–8",theme:"Love & Devotion",summary:"A poetic celebration of love between a man and woman, reflecting God's passionate love for His people.",verse:"I am my beloved's and my beloved is mine.",ref:"Song of Solomon 6:3"},
+  {range:"Isaiah 1–12",theme:"Isaiah's Vision, Call & Immanuel",summary:"Isaiah's vision of Judah's failure and God's holiness. His call. The Immanuel prophecy of a coming Savior.",verse:"Here I am. Send me.",ref:"Isaiah 6:8"},
+  {range:"Isaiah 13–27",theme:"Judgment on Nations & God's Apocalypse",summary:"Judgment oracles against Babylon, Egypt, and other nations. Global judgment is followed by God's victory.",verse:"You will keep in perfect peace all who trust in you, all whose thoughts are fixed on you!",ref:"Isaiah 26:3"},
+  {range:"Isaiah 28–39",theme:"Woe Oracles & Hezekiah's Story",summary:"Woes for trusting Egypt over God. Hezekiah's illness healed. God's coming comfort is promised.",verse:"Those who trust in the LORD will find new strength. They will soar high on wings like eagles.",ref:"Isaiah 40:31"},
+  {range:"Isaiah 40–48",theme:"Comfort My People",summary:"Comfort, comfort my people! God's majesty over all idols. Cyrus is named as God's instrument.",verse:"Comfort, comfort my people, says your God.",ref:"Isaiah 40:1"},
+  {range:"Isaiah 49–55",theme:"The Suffering Servant",summary:"The Servant's calling and suffering. He was pierced for our rebellion and crushed for our sins.",verse:"He was pierced for our rebellion, crushed for our sins. He was beaten so we could be whole.",ref:"Isaiah 53:5"},
+  {range:"Isaiah 56–66",theme:"New Creation Promised",summary:"True fasting and Sabbath-keeping. The year of the LORD's favor. The new heavens and new earth.",verse:"The Spirit of the Sovereign LORD is upon me, for the LORD has anointed me to bring good news to the poor.",ref:"Isaiah 61:1"},
+  {range:"Jeremiah 1–15",theme:"Jeremiah's Call & Personal Laments",summary:"God calls young Jeremiah as a prophet. Israel is charged with forsaking God for idols. Jeremiah laments.",verse:"Before I formed you in the womb I knew you.",ref:"Jeremiah 1:5"},
+  {range:"Jeremiah 16–29",theme:"False Prophets & God's Future Plans",summary:"The potter and the clay. False prophets condemned. Seventy years of exile predicted. God's surprising plans.",verse:"For I know the plans I have for you, says the LORD, plans to prosper you and not to harm you.",ref:"Jeremiah 29:11"},
+  {range:"Jeremiah 30–45",theme:"The Book of Consolation & Jerusalem Falls",summary:"God promises restoration and announces the New Covenant. Jeremiah is imprisoned. Jerusalem falls.",verse:"I will put my instructions deep within them, and I will write them on their hearts.",ref:"Jeremiah 31:33"},
+  {range:"Jeremiah 46–52 & Lamentations",theme:"Oracles Against Nations & Mourning",summary:"Judgments on Egypt and Babylon. Poetic laments over Jerusalem's destruction — yet hope remains.",verse:"The faithful love of the LORD never ends! His mercies never cease. Great is his faithfulness.",ref:"Lamentations 3:22-23"},
+  {range:"Ezekiel 1–12",theme:"Ezekiel's Stunning Vision & Call",summary:"Ezekiel sees a breathtaking vision of God's glory and is called as a watchman. God's glory departs the temple.",verse:"I am sending you to the Israelites.",ref:"Ezekiel 2:3"},
+  {range:"Ezekiel 13–24",theme:"False Prophets & Jerusalem's Doom",summary:"Condemnation of false prophets. Each person is accountable for their own sins. Jerusalem's coming fall.",verse:"Do you think that I like to see wicked people die? I want them to turn from their wicked ways and live.",ref:"Ezekiel 18:23"},
+  {range:"Ezekiel 25–37",theme:"Judgment on Nations & Restoration",summary:"Oracles against surrounding nations. The valley of dry bones. Promise of the Spirit and restoration.",verse:"O dry bones, hear the word of the LORD!",ref:"Ezekiel 37:4"},
+  {range:"Ezekiel 38–48",theme:"Gog, New Temple & New Land",summary:"The Gog and Magog prophecy. God's glory returns to the new temple. New land distribution among the tribes.",verse:"And the name of that city will be The LORD Is There.",ref:"Ezekiel 48:35"},
+  {range:"Daniel 1–6",theme:"Faithfulness in Babylon",summary:"Daniel refuses the king's food. Three friends in the fiery furnace. Writing on the wall. Daniel in the lions' den.",verse:"Our God is able to deliver us — but even if he does not, we will never serve your gods.",ref:"Daniel 3:17-18"},
+  {range:"Daniel 7–12",theme:"Visions of the End",summary:"Four beasts vision, Ram and Goat, the Seventy Weeks prophecy, the great tribulation and resurrection.",verse:"Those who are wise will shine as bright as the sky, and those who lead many to righteousness will shine like the stars forever.",ref:"Daniel 12:3"},
+  {range:"Hosea, Joel & Amos",theme:"God's Love, the Spirit & Justice",summary:"Hosea's marriage pictures God's love for unfaithful Israel. The Spirit will be poured out. Let justice roll down!",verse:"I want you to show love, not offer sacrifices. I want you to know me more than I want burnt offerings.",ref:"Hosea 6:6"},
+  {range:"Obadiah, Jonah & Micah",theme:"Pride, Running Away & True Religion",summary:"Edom's pride judged. Jonah flees God but preaches to Nineveh. Micah reveals what God truly requires.",verse:"Do what is right, love mercy, and walk humbly with your God.",ref:"Micah 6:8"},
+  {range:"Nahum, Habakkuk & Zephaniah",theme:"God's Justice & the Righteous Live by Faith",summary:"Nineveh's doom. Habakkuk wrestles with God's use of evil nations. The Day of the LORD is coming.",verse:"The righteous person will live by his faithfulness.",ref:"Habakkuk 2:4"},
+  {range:"Haggai, Zechariah & Malachi",theme:"Rebuild, Rejoice & Return to Me",summary:"Haggai urges rebuilding the temple. The humble king on a donkey. Return to me, says the LORD.",verse:"Not by might, nor by power, but by my Spirit, says the LORD of Heaven's Armies.",ref:"Zechariah 4:6"}
+];
+const STORAGE_KEY = 'bible_ot_nlt_v1';
+const NOTES_KEY   = 'bible_ot_notes_v1';
+let state = { completed:[], currentDay:0 };
+let notes = {};
+
+function loadState(){
+  try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=JSON.parse(s); }catch(e){}
+  try{ const n=localStorage.getItem(NOTES_KEY);   if(n) notes=JSON.parse(n); }catch(e){}
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+function saveNotes(){ localStorage.setItem(NOTES_KEY,JSON.stringify(notes)); }
+
+function getCategory(i){
+  if(i<16) return 'Genesis';
+  if(i<28) return 'Exodus';
+  if(i<33) return 'Leviticus';
+  if(i<39) return 'Numbers';
+  if(i<44) return 'Deuteronomy';
+  if(i<47) return 'Joshua';
+  if(i<49) return 'Judges & Ruth';
+  if(i<56) return '1–2 Samuel';
+  if(i<62) return '1–2 Kings';
+  if(i<67) return 'Chronicles';
+  if(i<68) return 'Ezra–Esther';
+  if(i<70) return 'Job';
+  if(i<76) return 'Psalms';
+  if(i<79) return 'Proverbs';
+  if(i<81) return 'Wisdom Books';
+  if(i<87) return 'Isaiah';
+  if(i<91) return 'Jeremiah';
+  if(i<95) return 'Ezekiel';
+  if(i<97) return 'Daniel';
+  return 'Minor Prophets';
+}
+
+loadState();
+updateHeader(); renderToday(); renderList(); renderRecord();
+document.getElementById('headerDate').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+function updateHeader(){
+  const done=state.completed.length, total=101;
+  const pct=Math.round(done/total*100);
+  document.getElementById('progressText').textContent=done+' / 101 days';
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='list') renderList();
+  if(id==='record') renderRecord();
+}
+
+function renderToday(){
+  const idx=state.currentDay;
+  if(idx>=101){
+    document.getElementById('todayContent').innerHTML='<div style="text-align:center;padding:40px 16px"><div style="font-size:48px;margin-bottom:16px">🎉</div><div style="font-size:22px;font-weight:800;color:#1a2f5a;margin-bottom:8px">Reading Complete!</div><div style="font-size:14px;color:var(--text-mid)">Congratulations! May God\'s Word keep transforming you.</div></div>';
+    return;
+  }
+  const d=DAYS[idx];
+  const isDone=state.completed.includes(idx);
+  const dn=notes[idx]||[];
+  const nh=dn.length?dn.map((n,i)=>'<div class="note-item"><div class="note-item-text">'+n+'</div><button class="note-del" onclick="deleteNote('+idx+','+i+',\'today\')">×</button></div>').join(''):'<div class="note-empty">No notes yet. Write your key expression below.</div>';
+  document.getElementById('todayContent').innerHTML=
+    '<div class="today-card"><div class="today-badge"><span class="day-num">📅 Day '+(idx+1)+'</span><span class="book-category">'+getCategory(idx)+'</span></div>'
+    +'<div class="today-body"><div class="today-range">'+d.range+'</div><div class="today-theme">✦ '+d.theme+'</div>'
+    +'<div class="today-summary">'+d.summary+'</div>'
+    +'<div class="verse-box"><div class="verse-title">📜 Key Verse (NLT)</div><div class="verse-text">\"'+d.verse+'\"</div><div class="verse-ref">— '+d.ref+'</div></div>'
+    +'<button class="btn-complete '+(isDone?'done':'')+'" onclick="toggleComplete('+idx+')">'+(isDone?'✅ Completed (tap to undo)':'📖 Mark as Complete')+'</button></div></div>'
+    +'<div class="notes-section"><div class="notes-header">✏️ Key Expressions & Notes</div>'
+    +'<div class="notes-list" id="notes-list-today">'+nh+'</div>'
+    +'<div class="notes-input-wrap"><textarea class="notes-input" id="note-input-today" placeholder="Write a key expression, verse, or thought…" rows="3"></textarea>'
+    +'<button class="notes-save" onclick="saveNote('+idx+',\'today\')">Save</button></div></div>'
+    +(idx+1<101?'<div class="next-card"><div class="next-label">📌 Next Reading</div><div class="next-range">'+DAYS[idx+1].range+'</div><div class="next-theme">'+DAYS[idx+1].theme+'</div></div>':'');
+}
+
+function toggleComplete(idx){
+  if(state.completed.includes(idx)){
+    state.completed=state.completed.filter(x=>x!==idx);
+    if(state.currentDay>idx) state.currentDay=idx;
+  } else {
+    state.completed.push(idx);
+    if(idx===state.currentDay) state.currentDay=idx+1;
+    showCelebration(idx+1);
+  }
+  saveState(); updateHeader(); renderToday();
+}
+
+function showCelebration(day){
+  const msg=document.getElementById('confettiMsg');
+  msg.textContent='Day '+day+' Complete! 🎉';
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),2000);
+}
+
+function saveNote(idx,context){
+  const input=document.getElementById('note-input-'+context);
+  const txt=input.value.trim(); if(!txt) return;
+  if(!notes[idx]) notes[idx]=[];
+  notes[idx].push(txt); saveNotes(); input.value='';
+  if(context==='today') renderToday(); else renderModal(idx);
+}
+
+function deleteNote(idx,ni,context){
+  notes[idx].splice(ni,1); saveNotes();
+  if(context==='today') renderToday(); else renderModal(idx);
+}
+
+function renderList(){
+  const sec={};
+  DAYS.forEach((d,i)=>{ const c=getCategory(i); if(!sec[c]) sec[c]=[]; sec[c].push({d,i}); });
+  let html='';
+  Object.entries(sec).forEach(([cat,items])=>{
+    html+='<div class="list-section"><div class="list-section-title">📖 '+cat+'</div>';
+    items.forEach(({d,i})=>{
+      const done=state.completed.includes(i), isCur=i===state.currentDay;
+      const hasN=(notes[i]||[]).length>0;
+      html+='<div class="day-item '+(done?'completed':'')+' '+(isCur?'current':'')+'" onclick="openModal('+i+')">'
+        +'<div class="day-num-badge">'+(i+1)+'</div>'
+        +'<div class="day-info"><div class="day-range">'+d.range+'</div><div class="day-theme-sm">'+d.theme+'</div>'
+        +(hasN?'<div class="has-note">✏️ '+notes[i].length+' note'+(notes[i].length>1?'s':'')+'</div>':'')
+        +'</div>'+(done?'<span class="check-mark">✅</span>':'')+'</div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('listContent').innerHTML=html;
+}
+
+function renderRecord(){
+  const done=state.completed.length, total=101;
+  document.getElementById('statDone').textContent=done;
+  document.getElementById('statRemain').textContent=total-done;
+  document.getElementById('statPercent').textContent=Math.round(done/total*100)+'%';
+  document.getElementById('calDots').innerHTML=DAYS.map((_,i)=>
+    '<div class="cal-dot '+(state.completed.includes(i)?'done':'')+(i===state.currentDay&&!state.completed.includes(i)?' today-dot':'')+'" title="Day '+(i+1)+'">'+(i+1)+'</div>'
+  ).join('');
+}
+
+function openModal(idx){ document.getElementById('modalOverlay').classList.add('open'); renderModal(idx); }
+
+function renderModal(idx){
+  const d=DAYS[idx], isDone=state.completed.includes(idx), dn=notes[idx]||[];
+  const nh=dn.length?dn.map((n,i)=>'<div class="modal-note-item">'+n+' <button style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:13px;float:right" onclick="deleteNote('+idx+','+i+',\'modal\')">×</button></div>').join(''):'<div style="font-size:12px;color:var(--text-light);padding:4px 0">No notes yet.</div>';
+  document.getElementById('modalContent').innerHTML=
+    '<div class="modal-day-badge">Day '+(idx+1)+'</div>'
+    +'<div class="modal-range">'+d.range+'</div><div class="modal-theme">'+d.theme+'</div>'
+    +'<div class="modal-summary">'+d.summary+'</div>'
+    +'<div class="modal-verse"><div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:5px">📜 Key Verse (NLT)</div><div style="font-size:13px;color:#5a3e1b;line-height:1.7;font-style:italic">\"'+d.verse+'\"</div><div style="font-size:11px;color:var(--gold);margin-top:5px;font-weight:600">— '+d.ref+'</div></div>'
+    +'<div class="modal-notes"><div class="modal-notes-title">✏️ My Notes</div>'+nh
+    +'<div style="display:flex;gap:6px;margin-top:8px"><textarea id="note-input-modal" style="flex:1;padding:8px;border:1.5px solid var(--blue-pale);border-radius:8px;font-size:12px;resize:none;min-height:52px;font-family:inherit;outline:none" placeholder="Add a note…"></textarea>'
+    +'<button onclick="saveNote('+idx+',\'modal\')" style="padding:8px 12px;background:#2d4a7a;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;align-self:flex-end">Save</button></div></div>'
+    +'<button class="btn-complete '+(isDone?'done':'')+'" style="margin-bottom:8px" onclick="toggleComplete('+idx+');document.getElementById(\'modalOverlay\').classList.remove(\'open\')">'+(isDone?'✅ Mark as Incomplete':'📖 Mark as Complete')+'</button>';
+}
+
+function closeModal(e){ if(e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); }
+</script>
+</body>
+</html>
