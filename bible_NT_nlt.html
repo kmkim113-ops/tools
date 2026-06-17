@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bible NLT — New Testament">
+<meta name="theme-color" content="#2d4a7a">
+<title>Bible NLT — New Testament</title>
+<style>
+:root{
+  --navy:#1f3a2a;--blue:#2d6a4f;--blue-mid:#40916c;--blue-light:#74c69d;--blue-pale:#d8f3dc;--blue-bg:#f0faf4;
+  --gold:#b5873a;--gold-light:#f5ead3;--red:#c0392b;
+  --text:#1a1a1a;--text-mid:#4a4a4a;--text-light:#888;--white:#fff;
+  --shadow:0 2px 16px rgba(26,47,90,0.10);--radius:16px;--radius-sm:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--blue-bg);font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:var(--text)}
+
+/* Header */
+.header{background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%);color:white;padding:16px 20px 14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,0.18)}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.brand{display:flex;flex-direction:column}
+.brand-title{font-size:20px;font-weight:800;letter-spacing:-0.5px;color:white}
+.brand-title span{color:var(--blue-light)}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.6);margin-top:1px}
+.header-date{font-size:12px;color:rgba(255,255,255,0.7);text-align:right}
+.progress-wrap{background:rgba(255,255,255,0.12);border-radius:8px;padding:9px 14px}
+.progress-label{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,0.8);margin-bottom:6px}
+.progress-bar-bg{background:rgba(255,255,255,0.2);border-radius:99px;height:7px;overflow:hidden}
+.progress-bar-fill{background:linear-gradient(90deg,var(--blue-light),#b7d4f0);border-radius:99px;height:100%;transition:width 0.6s ease}
+
+/* Tabs */
+.tabs{display:flex;background:white;border-bottom:2px solid var(--blue-pale)}
+.tab{flex:1;padding:11px 0;font-size:12px;font-weight:600;text-align:center;border:none;background:none;cursor:pointer;color:var(--text-light);transition:all 0.2s}
+.tab.active{color:var(--blue);border-bottom:2px solid var(--blue);margin-bottom:-2px}
+.tab-icon{display:block;font-size:17px;margin-bottom:2px}
+
+/* Content */
+.content{padding:14px;max-width:480px;margin:0 auto}
+.screen{display:none}
+.screen.active{display:block}
+
+/* Today Card */
+.today-card{background:white;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:12px}
+.today-badge{background:linear-gradient(135deg,var(--blue),var(--blue-mid));color:white;padding:9px 16px;font-size:12px;display:flex;justify-content:space-between;align-items:center}
+.day-num{font-weight:700;font-size:14px}
+.book-category{font-size:11px;opacity:0.85;background:rgba(255,255,255,0.2);padding:2px 8px;border-radius:99px}
+.today-body{padding:14px}
+.today-range{font-size:20px;font-weight:800;color:var(--navy);letter-spacing:-0.3px;margin-bottom:3px}
+.today-theme{font-size:13px;color:var(--blue-mid);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.today-summary{font-size:13px;color:var(--text-mid);line-height:1.7;border-left:3px solid var(--blue-pale);padding-left:10px;margin-bottom:12px}
+
+/* Key Verse Box */
+.verse-box{background:var(--gold-light);border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:12px}
+.verse-title{font-size:11px;font-weight:700;color:var(--gold);margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.verse-text{font-size:13px;color:#5a3e1b;line-height:1.7;font-style:italic}
+.verse-ref{font-size:11px;color:var(--gold);margin-top:5px;font-weight:600}
+
+/* Notes Section (완료 아래) */
+.notes-section{background:white;border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;margin-bottom:12px}
+.notes-header{font-size:13px;font-weight:700;color:var(--blue);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.notes-list{margin-bottom:10px}
+.note-item{background:var(--blue-pale);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:6px;font-size:13px;color:var(--text-mid);line-height:1.6;position:relative}
+.note-item-text{margin-right:28px}
+.note-del{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--text-light);font-size:16px;cursor:pointer;padding:2px 6px;border-radius:5px}
+.note-del:hover{background:#fee;color:var(--red)}
+.note-empty{font-size:12px;color:var(--text-light);text-align:center;padding:10px 0}
+.notes-input-wrap{display:flex;gap:6px}
+.notes-input{flex:1;padding:9px 11px;border:1.5px solid var(--blue-pale);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;resize:none;outline:none;background:#fafcff;color:var(--text);line-height:1.6;min-height:60px}
+.notes-input:focus{border-color:var(--blue-mid)}
+.notes-save{padding:9px 14px;background:var(--blue);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;align-self:flex-end}
+.notes-save:active{opacity:0.8}
+
+/* Complete Button */
+.btn-complete{width:100%;padding:14px;background:linear-gradient(135deg,var(--blue-mid),var(--blue));color:white;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform 0.1s,box-shadow 0.2s;box-shadow:0 4px 12px rgba(45,74,122,0.35);margin-bottom:14px}
+.btn-complete:active{transform:scale(0.98)}
+.btn-complete.done{background:linear-gradient(135deg,#adb5bd,#868e96);box-shadow:none}
+
+/* Next Card */
+.next-card{background:white;border-radius:var(--radius);padding:12px 16px;box-shadow:var(--shadow);border-left:4px solid var(--blue-light)}
+.next-label{font-size:11px;color:var(--text-light);margin-bottom:3px}
+.next-range{font-size:14px;font-weight:700;color:var(--navy)}
+.next-theme{font-size:12px;color:var(--text-mid);margin-top:2px}
+
+/* List */
+.list-section{margin-bottom:18px}
+.list-section-title{font-size:13px;font-weight:700;color:var(--blue);padding:7px 0;border-bottom:1px solid var(--blue-pale);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.day-item{display:flex;align-items:center;gap:10px;padding:9px 11px;background:white;border-radius:var(--radius-sm);margin-bottom:5px;box-shadow:0 1px 4px rgba(0,0,0,0.06);cursor:pointer;transition:background 0.15s}
+.day-item:active{background:var(--blue-pale)}
+.day-item.completed{opacity:0.5}
+.day-num-badge{min-width:30px;height:30px;border-radius:50%;background:var(--blue-pale);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.day-item.current .day-num-badge{background:var(--blue);color:white}
+.day-item.completed .day-num-badge{background:var(--blue-light);color:white}
+.day-info{flex:1;min-width:0}
+.day-range{font-size:13px;font-weight:600;color:var(--text)}
+.day-theme-sm{font-size:11px;color:var(--text-light);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.has-note{font-size:10px;color:var(--gold);margin-top:1px}
+.check-mark{font-size:17px;color:var(--blue-mid)}
+
+/* Record */
+.record-summary{background:white;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center}
+.stat-num{font-size:22px;font-weight:800;color:var(--blue)}
+.stat-label{font-size:11px;color:var(--text-light);margin-top:2px}
+.calendar-grid{background:white;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow)}
+.cal-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:10px}
+.cal-dots{display:flex;flex-wrap:wrap;gap:4px}
+.cal-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;background:var(--blue-pale);color:var(--text-light)}
+.cal-dot.done{background:var(--blue);color:white}
+.cal-dot.today-dot{background:var(--gold);color:white}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-end;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:white;border-radius:20px 20px 0 0;padding:18px 18px 40px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;animation:slideUp 0.3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:40px;height:4px;background:#ddd;border-radius:99px;margin:0 auto 14px}
+.modal-day-badge{background:var(--blue-pale);color:var(--blue);display:inline-block;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:700;margin-bottom:7px}
+.modal-range{font-size:19px;font-weight:800;color:var(--navy);margin-bottom:3px}
+.modal-theme{font-size:13px;color:var(--blue-mid);font-weight:600;margin-bottom:12px}
+.modal-summary{font-size:13px;color:var(--text-mid);line-height:1.8;margin-bottom:14px}
+.modal-verse{background:var(--gold-light);border-radius:var(--radius-sm);padding:12px;margin-bottom:12px}
+.modal-notes{background:var(--blue-pale);border-radius:var(--radius-sm);padding:12px;margin-bottom:14px}
+.modal-notes-title{font-size:11px;font-weight:700;color:var(--blue);margin-bottom:6px}
+.modal-note-item{font-size:12px;color:var(--text-mid);line-height:1.6;padding:4px 0;border-bottom:1px solid rgba(45,74,122,0.1)}
+.modal-note-item:last-child{border-bottom:none}
+.modal-close{width:100%;padding:12px;background:var(--blue-pale);color:var(--blue);border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:700;cursor:pointer;margin-top:4px}
+
+/* Confetti */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:300;display:flex;align-items:center;justify-content:center}
+.confetti-msg{background:var(--navy);color:white;padding:18px 28px;border-radius:var(--radius);text-align:center;font-size:17px;font-weight:800;box-shadow:0 8px 32px rgba(0,0,0,0.25);display:none}
+.confetti-msg.show{display:block;animation:popIn 0.4s ease}
+@keyframes popIn{from{transform:scale(0.7);opacity:0}to{transform:scale(1);opacity:1}}
+</style>
+</head>
+<body>
+
+<div class="confetti-wrap" id="confettiWrap">
+  <div class="confetti-msg" id="confettiMsg"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
+    <button class="modal-close" onclick="document.getElementById('modalOverlay').classList.remove('open')">Close</button>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-top">
+    <div class="brand">
+      <div class="brand-title">New Testament <span>NLT</span></div>
+      <div class="brand-sub">31-Day Reading Plan · NLT</div>
+    </div>
+    <div class="header-date" id="headerDate"></div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>📖 Reading Progress</span>
+      <span id="progressText">0 / 365 days</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+    </div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('today',this)"><span class="tab-icon">📖</span>Today</button>
+  <button class="tab" onclick="switchTab('list',this)"><span class="tab-icon">📋</span>All Days</button>
+  <button class="tab" onclick="switchTab('record',this)"><span class="tab-icon">📊</span>Progress</button>
+</div>
+
+<div class="content">
+  <div class="screen active" id="screen-today"><div id="todayContent"></div></div>
+  <div class="screen" id="screen-list"><div id="listContent"></div></div>
+  <div class="screen" id="screen-record">
+    <div class="record-summary">
+      <div><div class="stat-num" id="statDone">0</div><div class="stat-label">Done</div></div>
+      <div><div class="stat-num" id="statRemain">365</div><div class="stat-label">Left</div></div>
+      <div><div class="stat-num" id="statPercent">0%</div><div class="stat-label">Complete</div></div>
+    </div>
+    <div class="calendar-grid">
+      <div class="cal-title">📅 365-Day Progress</div>
+      <div class="cal-dots" id="calDots"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── 365일 NLT 성경 읽기 진도표 ──
+const DAYS = [
+  {range:"Matthew 1–7",theme:"Birth, Baptism & the Sermon on the Mount",summary:"Genealogy of Jesus. The Magi visit. Baptism and temptation in the wilderness. The Beatitudes and Lord's Prayer.",verse:"Seek the Kingdom of God above all else, and live righteously, and he will give you everything you need.",ref:"Matthew 6:33"},
+  {range:"Matthew 8–14",theme:"Miracles, Mission & Parables",summary:"Jesus heals many. Disciples commissioned. John the Baptist beheaded. Parables of the Kingdom.",verse:"Come to me, all of you who are weary and carry heavy burdens, and I will give you rest.",ref:"Matthew 11:28"},
+  {range:"Matthew 15–20",theme:"Peter's Confession & Transfiguration",summary:"Peter confesses Jesus as Christ. The Transfiguration. Teaching on forgiveness, children, wealth, and service.",verse:"You are the Messiah, the Son of the living God.",ref:"Matthew 16:16"},
+  {range:"Matthew 21–25",theme:"Jerusalem & the Olivet Discourse",summary:"Triumphal Entry. Temple cleansing. Woes to Pharisees. Teaching on the end times and final judgment.",verse:"Heaven and earth will disappear, but my words will never disappear.",ref:"Matthew 24:35"},
+  {range:"Matthew 26–28",theme:"The Passion & Resurrection",summary:"The Last Supper, Gethsemane, trial before Pilate, crucifixion, and the resurrection of Jesus.",verse:"Go and make disciples of all the nations, baptizing them in the name of the Father and the Son and the Holy Spirit.",ref:"Matthew 28:19"},
+  {range:"Mark 1–8",theme:"Jesus the Servant — Rapid Ministry",summary:"The beginning of Jesus' rapid, action-packed ministry: healings, exorcisms, calling of disciples, and feeding 5,000.",verse:"The Kingdom of God is near! Repent of your sins and believe the Good News!",ref:"Mark 1:15"},
+  {range:"Mark 9–16",theme:"Transfiguration, Cross & Empty Tomb",summary:"The Transfiguration. Teaching on greatness. The Triumphal Entry. Passion, death, and resurrection.",verse:"He isn't here! He is risen from the dead!",ref:"Mark 16:6"},
+  {range:"Luke 1–6",theme:"Birth Narratives & Jesus' Early Ministry",summary:"Gabriel's announcements. John and Jesus born. Jesus baptized. The Sermon on the Plain.",verse:"For nothing will be impossible with God.",ref:"Luke 1:37"},
+  {range:"Luke 7–13",theme:"Compassion, Mission & Kingdom Parables",summary:"Widow of Nain. The sending of the 72. The Good Samaritan. Parables of the lost.",verse:"The harvest is great, but the workers are few. So pray to the Lord who is in charge of the harvest.",ref:"Luke 10:2"},
+  {range:"Luke 14–19",theme:"Cost of Discipleship & Zacchaeus",summary:"The prodigal son. The persistent widow. The Pharisee and tax collector. Zacchaeus up a tree.",verse:"For the Son of Man came to seek and save those who are lost.",ref:"Luke 19:10"},
+  {range:"Luke 20–24",theme:"Jerusalem, Passion & Resurrection",summary:"Triumphal Entry. The Last Supper. Betrayal. Crucifixion. The road to Emmaus. The ascension.",verse:"Why do you look for the living among the dead? He is not here; he has risen!",ref:"Luke 24:5-6"},
+  {range:"John 1–7",theme:"The Word Became Flesh & I AM Begins",summary:"The prologue. Calling of disciples. Wedding at Cana. Nicodemus. Samaritan woman. Bread of Life.",verse:"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.",ref:"John 3:16"},
+  {range:"John 8–14",theme:"Light, Lazarus & the Upper Room",summary:"Light of the World. Good Shepherd. Lazarus raised. Foot washing. The new commandment. I AM the Way.",verse:"I am the way, the truth, and the life. No one can come to the Father except through me.",ref:"John 14:6"},
+  {range:"John 15–21",theme:"The Vine, High Priestly Prayer & Resurrection",summary:"True vine. The Comforter promised. Jesus' prayer for unity. Crucifixion and resurrection appearances.",verse:"I have told you all this so that you may have peace in me. Here on earth you will have many trials and sorrows. But take heart, because I have overcome the world.",ref:"John 16:33"},
+  {range:"Acts 1–8",theme:"Pentecost, the Early Church & Persecution",summary:"The ascension. Pentecost. Peter's sermon. The first church community. Stephen stoned. Philip in Samaria.",verse:"But you will receive power when the Holy Spirit comes upon you. And you will be my witnesses.",ref:"Acts 1:8"},
+  {range:"Acts 9–16",theme:"Paul's Conversion & First Missionary Journey",summary:"Saul's dramatic conversion. Peter's vision of the sheet. Cornelius saved. First missionary journey. Jerusalem Council.",verse:"We must go through many hardships to enter the kingdom of God.",ref:"Acts 14:22"},
+  {range:"Acts 17–28",theme:"Second Mission, Third Mission & Paul to Rome",summary:"Athens. Corinth. Ephesus. Paul's farewell. Arrest in Jerusalem. Trials before Felix, Festus, and Agrippa. Shipwreck. Rome.",verse:"In him we live and move and exist.",ref:"Acts 17:28"},
+  {range:"Romans 1–8",theme:"The Gospel & Life in the Spirit",summary:"All have sinned. Justification by faith alone. Peace with God. Death to sin. Life in the Spirit.",verse:"And we know that God causes everything to work together for the good of those who love God.",ref:"Romans 8:28"},
+  {range:"Romans 9–16",theme:"Israel, Ethics & Christian Community",summary:"God's sovereign purposes for Israel. Offer your body as a living sacrifice. Love your neighbor.",verse:"Don't copy the behavior and customs of this world, but let God transform you into a new person.",ref:"Romans 12:2"},
+  {range:"1 Corinthians 1–11",theme:"Church Problems, Wisdom & Worship",summary:"Division, worldly wisdom vs. God's wisdom, sexual immorality, lawsuits, marriage, idols, the Lord's Supper.",verse:"For the message of the cross is foolishness to those who are perishing, but to us who are being saved it is the power of God.",ref:"1 Corinthians 1:18"},
+  {range:"1 Corinthians 12–16",theme:"Spiritual Gifts, Love & Resurrection",summary:"The body of Christ, the great love chapter, resurrection of the dead, and the hope of new creation.",verse:"Love is patient and kind. Love is not jealous or boastful or proud or rude.",ref:"1 Corinthians 13:4-5"},
+  {range:"2 Corinthians 1–13",theme:"Comfort in Suffering & Strength in Weakness",summary:"God comforts the afflicted. New covenant ministry. Generous giving. Paul's thorn in the flesh.",verse:"My grace is all you need. My power works best in weakness.",ref:"2 Corinthians 12:9"},
+  {range:"Galatians & Ephesians",theme:"Freedom in Christ & The Church as His Body",summary:"Freedom in Christ — faith not law. Fruit of the Spirit. Spiritual blessings. Unity. The armor of God.",verse:"For we are God's masterpiece. He has created us anew in Christ Jesus, so we can do the good things he planned for us long ago.",ref:"Ephesians 2:10"},
+  {range:"Philippians, Colossians & Thessalonians",theme:"Joy, Christ's Supremacy & End Times",summary:"Rejoice always. The supremacy of Christ over all. The Day of the Lord. Be thankful in all circumstances.",verse:"I can do everything through Christ, who gives me strength.",ref:"Philippians 4:13"},
+  {range:"1 & 2 Timothy, Titus & Philemon",theme:"Letters to Leaders & a Friend",summary:"Instructions for church leadership and sound doctrine. Endure hardship. Welcome Onesimus as a brother.",verse:"All Scripture is inspired by God and is useful to teach us what is true and to make us realize what is wrong in our lives.",ref:"2 Timothy 3:16"},
+  {range:"Hebrews 1–10",theme:"Jesus is Superior — The Better Covenant",summary:"Jesus is superior to angels, Moses, and the Levitical priesthood. He is our great High Priest under the new covenant.",verse:"The Son radiates God's own glory and expresses the very character of God, and he sustains everything by the mighty power of his command.",ref:"Hebrews 1:3"},
+  {range:"Hebrews 11–13",theme:"The Hall of Faith & Running the Race",summary:"The great cloud of witnesses. Run with endurance. Pursue peace and holiness. Living the Christian life.",verse:"Faith is the confidence that what we hope for will actually happen; it gives us assurance about things we cannot see.",ref:"Hebrews 11:1"},
+  {range:"James & 1–2 Peter",theme:"Faith in Action & Suffering with Hope",summary:"Practical faith. Taming the tongue. Trials are pure joy. Living as God's people in a hostile world. Guard against false teachers.",verse:"Humble yourselves before God. Resist the devil, and he will flee from you.",ref:"James 4:7"},
+  {range:"1–3 John & Jude",theme:"Walk in the Light & Contend for the Faith",summary:"Walk in the light. God is love. Love one another. Test the spirits. Contend for the faith once delivered.",verse:"We love each other because he loved us first.",ref:"1 John 4:19"},
+  {range:"Revelation 1–11",theme:"Letters to Seven Churches & Seven Trumpets",summary:"John's vision of the glorified Christ. Letters to seven churches. The Lamb opens the seals. Seven trumpets sound.",verse:"I am the Alpha and the Omega — the beginning and the end. I am the one who is, who always was, and who is still to come.",ref:"Revelation 1:8"},
+  {range:"Revelation 12–22",theme:"God's Victory & the New Creation",summary:"The dragon and the beast. Babylon falls. The millennium. The new heaven and new earth. Come, Lord Jesus!",verse:"He will wipe every tear from their eyes, and there will be no more death or sorrow or crying or pain. All these things are gone forever.",ref:"Revelation 21:4"}
+];
+const STORAGE_KEY = 'bible_nt_nlt_v1';
+const NOTES_KEY   = 'bible_nt_notes_v1';
+let state = { completed:[], currentDay:0 };
+let notes = {};
+
+function loadState(){
+  try{ const s=localStorage.getItem(STORAGE_KEY); if(s) state=JSON.parse(s); }catch(e){}
+  try{ const n=localStorage.getItem(NOTES_KEY);   if(n) notes=JSON.parse(n); }catch(e){}
+}
+function saveState(){ localStorage.setItem(STORAGE_KEY,JSON.stringify(state)); }
+function saveNotes(){ localStorage.setItem(NOTES_KEY,JSON.stringify(notes)); }
+
+function getCategory(i){
+  if(i<5) return 'Matthew';
+  if(i<7) return 'Mark';
+  if(i<11) return 'Luke';
+  if(i<14) return 'John';
+  if(i<17) return 'Acts';
+  if(i<19) return 'Romans';
+  if(i<22) return 'Corinthians';
+  if(i<25) return "Paul's Letters";
+  if(i<27) return 'Hebrews';
+  if(i<29) return 'General Letters';
+  return 'Revelation';
+}
+
+loadState();
+updateHeader(); renderToday(); renderList(); renderRecord();
+document.getElementById('headerDate').textContent=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+
+function updateHeader(){
+  const done=state.completed.length, total=31;
+  const pct=Math.round(done/total*100);
+  document.getElementById('progressText').textContent=done+' / 31 days';
+  document.getElementById('progressBar').style.width=pct+'%';
+}
+
+function switchTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('screen-'+id).classList.add('active');
+  if(id==='list') renderList();
+  if(id==='record') renderRecord();
+}
+
+function renderToday(){
+  const idx=state.currentDay;
+  if(idx>=31){
+    document.getElementById('todayContent').innerHTML='<div style="text-align:center;padding:40px 16px"><div style="font-size:48px;margin-bottom:16px">🎉</div><div style="font-size:22px;font-weight:800;color:#1f3a2a;margin-bottom:8px">Reading Complete!</div><div style="font-size:14px;color:var(--text-mid)">Congratulations! May God\'s Word keep transforming you.</div></div>';
+    return;
+  }
+  const d=DAYS[idx];
+  const isDone=state.completed.includes(idx);
+  const dn=notes[idx]||[];
+  const nh=dn.length?dn.map((n,i)=>'<div class="note-item"><div class="note-item-text">'+n+'</div><button class="note-del" onclick="deleteNote('+idx+','+i+',\'today\')">×</button></div>').join(''):'<div class="note-empty">No notes yet. Write your key expression below.</div>';
+  document.getElementById('todayContent').innerHTML=
+    '<div class="today-card"><div class="today-badge"><span class="day-num">📅 Day '+(idx+1)+'</span><span class="book-category">'+getCategory(idx)+'</span></div>'
+    +'<div class="today-body"><div class="today-range">'+d.range+'</div><div class="today-theme">✦ '+d.theme+'</div>'
+    +'<div class="today-summary">'+d.summary+'</div>'
+    +'<div class="verse-box"><div class="verse-title">📜 Key Verse (NLT)</div><div class="verse-text">\"'+d.verse+'\"</div><div class="verse-ref">— '+d.ref+'</div></div>'
+    +'<button class="btn-complete '+(isDone?'done':'')+'" onclick="toggleComplete('+idx+')">'+(isDone?'✅ Completed (tap to undo)':'📖 Mark as Complete')+'</button></div></div>'
+    +'<div class="notes-section"><div class="notes-header">✏️ Key Expressions & Notes</div>'
+    +'<div class="notes-list" id="notes-list-today">'+nh+'</div>'
+    +'<div class="notes-input-wrap"><textarea class="notes-input" id="note-input-today" placeholder="Write a key expression, verse, or thought…" rows="3"></textarea>'
+    +'<button class="notes-save" onclick="saveNote('+idx+',\'today\')">Save</button></div></div>'
+    +(idx+1<31?'<div class="next-card"><div class="next-label">📌 Next Reading</div><div class="next-range">'+DAYS[idx+1].range+'</div><div class="next-theme">'+DAYS[idx+1].theme+'</div></div>':'');
+}
+
+function toggleComplete(idx){
+  if(state.completed.includes(idx)){
+    state.completed=state.completed.filter(x=>x!==idx);
+    if(state.currentDay>idx) state.currentDay=idx;
+  } else {
+    state.completed.push(idx);
+    if(idx===state.currentDay) state.currentDay=idx+1;
+    showCelebration(idx+1);
+  }
+  saveState(); updateHeader(); renderToday();
+}
+
+function showCelebration(day){
+  const msg=document.getElementById('confettiMsg');
+  msg.textContent='Day '+day+' Complete! 🎉';
+  msg.classList.add('show');
+  setTimeout(()=>msg.classList.remove('show'),2000);
+}
+
+function saveNote(idx,context){
+  const input=document.getElementById('note-input-'+context);
+  const txt=input.value.trim(); if(!txt) return;
+  if(!notes[idx]) notes[idx]=[];
+  notes[idx].push(txt); saveNotes(); input.value='';
+  if(context==='today') renderToday(); else renderModal(idx);
+}
+
+function deleteNote(idx,ni,context){
+  notes[idx].splice(ni,1); saveNotes();
+  if(context==='today') renderToday(); else renderModal(idx);
+}
+
+function renderList(){
+  const sec={};
+  DAYS.forEach((d,i)=>{ const c=getCategory(i); if(!sec[c]) sec[c]=[]; sec[c].push({d,i}); });
+  let html='';
+  Object.entries(sec).forEach(([cat,items])=>{
+    html+='<div class="list-section"><div class="list-section-title">📖 '+cat+'</div>';
+    items.forEach(({d,i})=>{
+      const done=state.completed.includes(i), isCur=i===state.currentDay;
+      const hasN=(notes[i]||[]).length>0;
+      html+='<div class="day-item '+(done?'completed':'')+' '+(isCur?'current':'')+'" onclick="openModal('+i+')">'
+        +'<div class="day-num-badge">'+(i+1)+'</div>'
+        +'<div class="day-info"><div class="day-range">'+d.range+'</div><div class="day-theme-sm">'+d.theme+'</div>'
+        +(hasN?'<div class="has-note">✏️ '+notes[i].length+' note'+(notes[i].length>1?'s':'')+'</div>':'')
+        +'</div>'+(done?'<span class="check-mark">✅</span>':'')+'</div>';
+    });
+    html+='</div>';
+  });
+  document.getElementById('listContent').innerHTML=html;
+}
+
+function renderRecord(){
+  const done=state.completed.length, total=31;
+  document.getElementById('statDone').textContent=done;
+  document.getElementById('statRemain').textContent=total-done;
+  document.getElementById('statPercent').textContent=Math.round(done/total*100)+'%';
+  document.getElementById('calDots').innerHTML=DAYS.map((_,i)=>
+    '<div class="cal-dot '+(state.completed.includes(i)?'done':'')+(i===state.currentDay&&!state.completed.includes(i)?' today-dot':'')+'" title="Day '+(i+1)+'">'+(i+1)+'</div>'
+  ).join('');
+}
+
+function openModal(idx){ document.getElementById('modalOverlay').classList.add('open'); renderModal(idx); }
+
+function renderModal(idx){
+  const d=DAYS[idx], isDone=state.completed.includes(idx), dn=notes[idx]||[];
+  const nh=dn.length?dn.map((n,i)=>'<div class="modal-note-item">'+n+' <button style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:13px;float:right" onclick="deleteNote('+idx+','+i+',\'modal\')">×</button></div>').join(''):'<div style="font-size:12px;color:var(--text-light);padding:4px 0">No notes yet.</div>';
+  document.getElementById('modalContent').innerHTML=
+    '<div class="modal-day-badge">Day '+(idx+1)+'</div>'
+    +'<div class="modal-range">'+d.range+'</div><div class="modal-theme">'+d.theme+'</div>'
+    +'<div class="modal-summary">'+d.summary+'</div>'
+    +'<div class="modal-verse"><div style="font-size:11px;font-weight:700;color:var(--gold);margin-bottom:5px">📜 Key Verse (NLT)</div><div style="font-size:13px;color:#5a3e1b;line-height:1.7;font-style:italic">\"'+d.verse+'\"</div><div style="font-size:11px;color:var(--gold);margin-top:5px;font-weight:600">— '+d.ref+'</div></div>'
+    +'<div class="modal-notes"><div class="modal-notes-title">✏️ My Notes</div>'+nh
+    +'<div style="display:flex;gap:6px;margin-top:8px"><textarea id="note-input-modal" style="flex:1;padding:8px;border:1.5px solid var(--blue-pale);border-radius:8px;font-size:12px;resize:none;min-height:52px;font-family:inherit;outline:none" placeholder="Add a note…"></textarea>'
+    +'<button onclick="saveNote('+idx+',\'modal\')" style="padding:8px 12px;background:#2d6a4f;color:white;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;align-self:flex-end">Save</button></div></div>'
+    +'<button class="btn-complete '+(isDone?'done':'')+'" style="margin-bottom:8px" onclick="toggleComplete('+idx+');document.getElementById(\'modalOverlay\').classList.remove(\'open\')">'+(isDone?'✅ Mark as Incomplete':'📖 Mark as Complete')+'</button>';
+}
+
+function closeModal(e){ if(e.target===document.getElementById('modalOverlay')) document.getElementById('modalOverlay').classList.remove('open'); }
+</script>
+</body>
+</html>
