@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>로또 번호 생성기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=Roboto+Mono:wght@500;700&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#0f0f14;--surface:#16161e;--surface2:#1e1e2a;
+  --border:rgba(255,255,255,0.08);
+  --accent:#7c6af7;--accent2:#a78bf9;
+  --text:#e8e8f0;--muted:#7a7a96;
+  --r1:#f5c842;--r1t:#5a4200;
+  --r2:#5bbfef;--r2t:#053454;
+  --r3:#f06060;--r3t:#5e0000;
+  --r4:#a0a0a0;--r4t:#1e1e1e;
+  --r5:#7dcf5a;--r5t:#1a3f00;
+}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100dvh;overflow-x:hidden}
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:10}
+.hdr-icon{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.hdr h1{font-size:15px;font-weight:700}
+.hdr p{font-size:11px;color:var(--muted)}
+.tabs{display:flex;border-bottom:1px solid var(--border);background:var(--surface)}
+.tab{flex:1;padding:12px 0;text-align:center;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'Noto Sans KR',sans-serif;transition:color .15s;position:relative}
+.tab.active{color:var(--accent2)}
+.tab.active::after{content:'';position:absolute;bottom:0;left:16px;right:16px;height:2px;background:var(--accent);border-radius:2px 2px 0 0}
+.page{display:none;padding:16px}
+.page.active{display:block}
+.slabel{font-size:10px;font-weight:500;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+.freq-grid{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-bottom:20px}
+@media(min-width:480px){.freq-grid{grid-template-columns:repeat(auto-fill,minmax(48px,1fr))}}
+.fc{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:5px 2px 4px;text-align:center}
+.fc.hot{border-color:rgba(124,106,247,.45);background:rgba(124,106,247,.09)}
+.fc.warm{border-color:rgba(124,106,247,.2)}
+.fc-num{font-family:'Roboto Mono',monospace;font-size:13px;font-weight:700;display:block;margin-bottom:2px}
+.fc-bar-w{height:2px;background:rgba(255,255,255,.07);border-radius:1px;margin:2px 2px}
+.fc-bar{height:100%;border-radius:1px}
+.fc-cnt{font-size:9px;color:var(--muted);font-family:'Roboto Mono',monospace}
+.top-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px}
+.tp{background:rgba(124,106,247,.12);border:1px solid rgba(124,106,247,.3);border-radius:20px;padding:3px 10px;font-size:11px;color:var(--accent2);display:flex;align-items:center;gap:4px}
+.tp-n{font-family:'Roboto Mono',monospace;font-weight:700}
+.tp-c{color:var(--muted);font-size:10px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.cg-label{font-size:11px;color:var(--muted);font-weight:500;margin-bottom:8px}
+.btn-row{display:flex;gap:6px;flex-wrap:wrap}
+.cbtn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:14px;font-family:'Noto Sans KR',sans-serif;padding:9px 18px;border-radius:8px;cursor:pointer;transition:all .15s;min-height:40px}
+.cbtn.active{background:rgba(124,106,247,.18);border-color:var(--accent);color:var(--accent2)}
+.sbtn{background:var(--surface2);border:1px solid var(--border);color:var(--muted);font-size:12px;font-family:'Noto Sans KR',sans-serif;padding:8px 13px;border-radius:20px;cursor:pointer;transition:all .15s;min-height:36px}
+.sbtn.active{background:rgba(124,106,247,.18);border-color:var(--accent);color:var(--accent2)}
+.gen-btn{width:100%;background:var(--accent);color:#fff;border:none;font-size:17px;font-weight:700;font-family:'Noto Sans KR',sans-serif;padding:17px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .15s,transform .1s;margin-bottom:14px;min-height:56px}
+.gen-btn:active{transform:scale(.97);opacity:.9}
+.gen-btn svg{width:18px;height:18px;flex-shrink:0}
+.clear-btn-sm{background:transparent;border:1px solid var(--border);color:var(--muted);font-size:11px;font-family:'Noto Sans KR',sans-serif;padding:4px 12px;border-radius:8px;cursor:pointer}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+@media(min-width:400px){.stats{grid-template-columns:repeat(4,1fr)}}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.sc-l{font-size:10px;color:var(--muted);margin-bottom:2px}
+.sc-v{font-family:'Roboto Mono',monospace;font-size:18px;font-weight:700;color:var(--accent2)}
+.results{display:flex;flex-direction:column;gap:9px}
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;animation:fi .22s ease forwards;opacity:0}
+@keyframes fi{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.rc-idx{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--muted);min-width:22px}
+.balls{display:flex;gap:4px}
+.ball{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0;position:relative}
+@media(min-width:400px){.ball{width:38px;height:38px;font-size:13px;gap:6px}}
+.ball.hp::after{content:'';position:absolute;inset:-2px;border-radius:50%;border:2px solid rgba(124,106,247,.8)}
+.r1{background:var(--r1);color:var(--r1t)}
+.r2{background:var(--r2);color:var(--r2t)}
+.r3{background:var(--r3);color:var(--r3t)}
+.r4{background:var(--r4);color:var(--r4t)}
+.r5{background:var(--r5);color:var(--r5t)}
+.rc-meta{margin-left:auto;text-align:right;flex-shrink:0}
+.rc-sum{font-family:'Roboto Mono',monospace;font-size:12px;font-weight:700;color:var(--accent2)}
+.hbadge{font-size:10px;background:rgba(124,106,247,.14);color:var(--accent2);padding:2px 7px;border-radius:20px;border:1px solid rgba(124,106,247,.3);margin-top:3px;display:inline-block}
+.empty{text-align:center;padding:40px 16px;color:var(--muted);font-size:14px;border:1px dashed var(--border);border-radius:12px}
+.ei{font-size:34px;display:block;margin-bottom:10px}
+.disc{margin-top:32px;padding-bottom:40px;font-size:11px;color:var(--muted);text-align:center;line-height:1.8}
+.hist-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.hist-r{font-family:'Roboto Mono',monospace;font-size:11px;color:var(--muted);min-width:42px}
+.hist-balls{display:flex;gap:4px;flex-wrap:wrap}
+.hball{width:29px;height:29px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700}
+.strat-desc{margin-top:8px;font-size:11px;color:var(--muted);line-height:1.6}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-icon">🎱</div>
+  <div>
+    <h1>로또 번호 생성기</h1>
+    <p>최근 20회 빈도 분석 (1210~1229회)</p>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab('gen',this)">번호 생성</button>
+  <button class="tab" onclick="showTab('freq',this)">빈도 분석</button>
+  <button class="tab" onclick="showTab('hist',this)">당첨 이력</button>
+</div>
+
+<div class="page active" id="tab-gen">
+  <div class="card">
+    <div class="cg-label">세트 수</div>
+    <div class="btn-row" id="cntBtns">
+      <button class="cbtn" onclick="setN(1,this)">1</button>
+      <button class="cbtn active" onclick="setN(5,this)">5</button>
+      <button class="cbtn" onclick="setN(10,this)">10</button>
+      <button class="cbtn" onclick="setN(20,this)">20</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="cg-label">생성 전략</div>
+    <div class="btn-row" id="stratBtns">
+      <button class="sbtn active" onclick="setSt('balanced',this)">균형형</button>
+      <button class="sbtn" onclick="setSt('hot',this)">집중형</button>
+      <button class="sbtn" onclick="setSt('mild',this)">분산형</button>
+      <button class="sbtn" onclick="setSt('pure',this)">순수 랜덤</button>
+    </div>
+    <div class="strat-desc" id="stratDesc">빈출 3개 + 랜덤 3개 조합</div>
+  </div>
+  <button class="gen-btn" onclick="generate()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+    번호 생성
+  </button>
+  <div class="stats" id="statsBar" style="display:none">
+    <div class="sc"><div class="sc-l">생성 세트</div><div class="sc-v" id="sSets">0</div></div>
+    <div class="sc"><div class="sc-l">평균 합계</div><div class="sc-v" id="sAvg">0</div></div>
+    <div class="sc"><div class="sc-l">최소</div><div class="sc-v" id="sMin">0</div></div>
+    <div class="sc"><div class="sc-l">최대</div><div class="sc-v" id="sMax">0</div></div>
+  </div>
+  <div class="slabel">생성된 번호 <button class="clear-btn-sm" onclick="clearAll()">초기화</button></div>
+  <div class="results" id="results">
+    <div class="empty"><span class="ei">🎰</span>위 버튼을 눌러 번호를 생성해보세요</div>
+  </div>
+  <div class="disc">⚠️ 재미 목적의 생성기입니다. 당첨을 보장하지 않으며<br>로또는 순수 확률 게임 (1/8,145,060) 입니다.</div>
+</div>
+
+<div class="page" id="tab-freq">
+  <div class="slabel">TOP 10 빈출번호</div>
+  <div class="top-pills" id="topPills"></div>
+  <div class="slabel">전체 번호 출현 빈도 <span style="font-size:9px;letter-spacing:0;text-transform:none;color:var(--muted)">(보라테두리 = 빈출)</span></div>
+  <div class="freq-grid" id="freqGrid"></div>
+  <div class="disc">빈출 기준: 20회 중 3회 이상 등장한 번호<br>보라 테두리 번호가 번호 생성 시 우선 활용됩니다.</div>
+</div>
+
+<div class="page" id="tab-hist">
+  <div class="slabel">최근 20회 당첨번호</div>
+  <div id="histList"></div>
+</div>
+
+<script>
+const HISTORY=[
+  {r:1229,nums:[12,13,29,34,37,42]},
+  {r:1228,nums:[24,29,30,31,35,44]},
+  {r:1227,nums:[1,14,16,34,41,44]},
+  {r:1226,nums:[4,6,13,17,26,28]},
+  {r:1225,nums:[8,9,19,25,41,42]},
+  {r:1224,nums:[9,18,21,27,44,45]},
+  {r:1223,nums:[16,18,20,32,33,39]},
+  {r:1222,nums:[4,11,17,22,32,41]},
+  {r:1221,nums:[6,13,18,28,30,36]},
+  {r:1220,nums:[2,22,25,28,34,43]},
+  {r:1219,nums:[1,2,15,28,39,45]},
+  {r:1218,nums:[3,28,31,32,42,45]},
+  {r:1217,nums:[8,10,15,20,29,31]},
+  {r:1216,nums:[3,10,14,15,23,24]},
+  {r:1215,nums:[5,12,13,23,29,36]},
+  {r:1214,nums:[7,19,22,24,40,45]},
+  {r:1213,nums:[2,11,15,20,33,43]},
+  {r:1212,nums:[6,16,26,35,38,40]},
+  {r:1211,nums:[23,26,27,35,38,40]},
+  {r:1210,nums:[1,7,9,17,27,38]},
+];
+const freq=new Array(46).fill(0);
+HISTORY.forEach(h=>h.nums.forEach(n=>freq[n]++));
+const sorted=Array.from({length:45},(_,i)=>i+1).map(n=>({n,c:freq[n]})).sort((a,b)=>b.c-a.c);
+const maxFreq=sorted[0].c;
+const hotNums=sorted.filter(x=>x.c>=3).map(x=>x.n);
+const coldNums=Array.from({length:45},(_,i)=>i+1).filter(n=>!hotNums.includes(n));
+const STRAT={balanced:'빈출 3개 + 랜덤 3개 조합',hot:'빈출 4개 + 랜덤 2개 — 핫번호 집중',mild:'빈출 2개 + 랜덤 4개 — 다양성 중시',pure:'1~45 완전 랜덤 (통계 무시)'};
+const COLORS={r1:'#f5c842',r2:'#5bbfef',r3:'#f06060',r4:'#a0a0a0',r5:'#7dcf5a'};
+let selN=5,strategy='balanced',allR=[];
+
+function bc(n){return n<=10?'r1':n<=20?'r2':n<=30?'r3':n<=40?'r4':'r5'}
+function showTab(id,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');document.getElementById('tab-'+id).classList.add('active');
+}
+function setN(n,el){selN=n;document.querySelectorAll('#cntBtns .cbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active')}
+function setSt(s,el){strategy=s;document.querySelectorAll('#stratBtns .sbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('stratDesc').textContent=STRAT[s]}
+function pick(pool,n){const p=[...pool],r=[];while(r.length<n&&p.length>0){const i=Math.floor(Math.random()*p.length);r.push(p.splice(i,1)[0]);}return r}
+function genOne(){
+  let nums;
+  if(strategy==='balanced') nums=[...pick(hotNums,3),...pick(coldNums,3)];
+  else if(strategy==='hot') nums=[...pick(hotNums,4),...pick(coldNums,2)];
+  else if(strategy==='mild') nums=[...pick(hotNums,2),...pick(coldNums,4)];
+  else nums=pick(Array.from({length:45},(_,i)=>i+1),6);
+  return nums.sort((a,b)=>a-b);
+}
+function generate(){allR=[...allR,...Array.from({length:selN},genOne)];renderResults()}
+function clearAll(){allR=[];renderResults()}
+function renderResults(){
+  const area=document.getElementById('results'),sb=document.getElementById('statsBar');
+  if(!allR.length){area.innerHTML='<div class="empty"><span class="ei">🎰</span>위 버튼을 눌러 번호를 생성해보세요</div>';sb.style.display='none';return}
+  sb.style.display='grid';
+  const sums=allR.map(r=>r.reduce((a,b)=>a+b,0));
+  document.getElementById('sSets').textContent=allR.length;
+  document.getElementById('sAvg').textContent=Math.round(sums.reduce((a,b)=>a+b,0)/sums.length);
+  document.getElementById('sMin').textContent=Math.min(...sums);
+  document.getElementById('sMax').textContent=Math.max(...sums);
+  area.innerHTML=allR.map((nums,i)=>{
+    const sum=nums.reduce((a,b)=>a+b,0),hc=nums.filter(n=>hotNums.includes(n)).length,delay=(i%selN)*35;
+    const balls=nums.map(n=>`<div class="ball ${bc(n)}${hotNums.includes(n)?' hp':''}">${String(n).padStart(2,'0')}</div>`).join('');
+    return `<div class="rc" style="animation-delay:${delay}ms"><span class="rc-idx">${String(i+1).padStart(2,'0')}</span><div class="balls">${balls}</div><div class="rc-meta"><div class="rc-sum">${sum}</div><div class="hbadge">빈출 ${hc}개</div></div></div>`;
+  }).join('');
+}
+function renderFreq(){
+  const top10=new Set(sorted.slice(0,10).map(x=>x.n)),top20=new Set(sorted.slice(0,20).map(x=>x.n));
+  document.getElementById('freqGrid').innerHTML=sorted.map(({n,c})=>{
+    const pct=Math.round(c/maxFreq*100),cls=top10.has(n)?'hot':top20.has(n)?'warm':'',col=COLORS[bc(n)];
+    return `<div class="fc ${cls}"><span class="fc-num" style="color:${col}">${String(n).padStart(2,'0')}</span><div class="fc-bar-w"><div class="fc-bar" style="width:${pct}%;background:${col}77"></div></div><span class="fc-cnt">${c}회</span></div>`;
+  }).join('');
+  document.getElementById('topPills').innerHTML=sorted.slice(0,10).map(({n,c})=>`<div class="tp"><span class="tp-n">${String(n).padStart(2,'0')}</span><span class="tp-c">${c}회</span></div>`).join('');
+}
+function renderHist(){
+  document.getElementById('histList').innerHTML=HISTORY.map(({r,nums})=>{
+    const balls=nums.map(n=>`<div class="hball ${bc(n)}">${String(n).padStart(2,'0')}</div>`).join('');
+    return `<div class="hist-card"><span class="hist-r">${r}회</span><div class="hist-balls">${balls}</div></div>`;
+  }).join('');
+}
+renderFreq();renderHist();renderResults();
+</script>
+</body>
+</html>
