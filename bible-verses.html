@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>말씀 · Daily Word</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Noto+Serif+KR:wght@300;400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:    #0d1b2a;
+  --navy2:   #1e3a5f;
+  --gold:    #c9a84c;
+  --gold-lt: #e8d090;
+  --gold-dk: #8a6e2a;
+  --cream:   #f0ead8;
+  --blue-lt: #8aaac8;
+  --text-dim:#5a7a9a;
+  --white:   #ffffff;
+}
+
+html, body {
+  height: 100%;
+  background: var(--navy);
+  color: var(--cream);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ─── ambient background ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 50% at 30% 20%, rgba(30,58,95,0.8) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 60% at 75% 80%, rgba(201,168,76,0.07) 0%, transparent 65%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, #0d1b2a 40%, #080f18 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* subtle star-like texture */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgba(201,168,76,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 15%, rgba(138,170,200,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 60% 70%, rgba(201,168,76,0.2) 0%, transparent 100%),
+    radial-gradient(1px 1px at 40% 85%, rgba(138,170,200,0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 60%, rgba(201,168,76,0.15) 0%, transparent 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ─── layout ─── */
+.app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ─── API KEY DRAWER ─── */
+.api-drawer {
+  width: 100%;
+  background: rgba(13,27,42,0.95);
+  border-bottom: 1px solid rgba(201,168,76,0.15);
+  backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1);
+  max-height: 52px;
+}
+.api-drawer.open { max-height: 180px; }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 52px;
+  cursor: pointer;
+  user-select: none;
+}
+.drawer-header:hover .drawer-title { color: var(--gold-lt); }
+
+.drawer-title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.key-icon {
+  width: 14px; height: 14px;
+  opacity: 0.8;
+}
+
+.drawer-arrow {
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  transition: transform 0.35s;
+}
+.api-drawer.open .drawer-arrow { transform: rotate(180deg); }
+
+.drawer-body {
+  padding: 0 1.5rem 1.2rem;
+}
+.drawer-body label {
+  display: block;
+  font-size: 0.67rem;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 0.5rem;
+}
+.api-input-row {
+  display: flex;
+  gap: 0.6rem;
+}
+.api-input {
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 3px;
+  padding: 0.6rem 0.9rem;
+  font-family: 'Inter', monospace;
+  font-size: 0.78rem;
+  color: var(--cream);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.api-input:focus { border-color: rgba(201,168,76,0.6); }
+.api-input::placeholder { color: rgba(255,255,255,0.2); }
+
+.btn-save-key {
+  background: var(--gold);
+  color: var(--navy);
+  border: none;
+  border-radius: 3px;
+  padding: 0.6rem 1rem;
+  font-family: 'Cinzel', serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.btn-save-key:hover { background: var(--gold-lt); }
+
+.key-status {
+  margin-top: 0.5rem;
+  font-size: 0.67rem;
+  color: var(--text-dim);
+}
+.key-status.ok { color: #6dbf8a; }
+
+/* ─── hero header ─── */
+.hero {
+  padding: 4rem 2rem 1.5rem;
+  text-align: center;
+}
+.hero-eyebrow {
+  font-family: 'Cinzel', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.45em;
+  color: var(--gold);
+  margin-bottom: 1rem;
+  opacity: 0.75;
+}
+.hero-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--gold-lt) 0%, var(--gold) 40%, var(--blue-lt) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+.hero-sub {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+/* ─── main verse card ─── */
+.stage {
+  width: min(760px, 92vw);
+  margin: 2.5rem auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.card {
+  position: relative;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(201,168,76,0.18);
+  border-radius: 6px;
+  padding: 3rem 3.5rem;
+  backdrop-filter: blur(6px);
+  overflow: hidden;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: border-color 0.4s;
+}
+.card.active { border-color: rgba(201,168,76,0.4); }
+
+/* corner ornaments */
+.card::before, .card::after {
+  content: '';
+  position: absolute;
+  width: 20px; height: 20px;
+  border-color: var(--gold);
+  border-style: solid;
+  opacity: 0.35;
+}
+.card::before { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
+.card::after  { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+
+/* glow pulse while loading */
+.card.loading {
+  animation: cardPulse 1.8s ease-in-out infinite;
+}
+@keyframes cardPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(201,168,76,0); }
+  50%      { box-shadow: 0 0 40px 4px rgba(201,168,76,0.08); }
+}
+
+/* placeholder state */
+.placeholder {
+  text-align: center;
+  color: rgba(138,170,200,0.35);
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  letter-spacing: 0.1em;
+  user-select: none;
+  transition: opacity 0.4s;
+}
+.placeholder.hidden { opacity: 0; pointer-events: none; }
+
+/* verse layout */
+.verse-body {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.verse-body.visible { opacity: 1; }
+
+/* NLT English */
+.verse-en {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  font-weight: 400;
+  line-height: 1.85;
+  color: var(--cream);
+  letter-spacing: 0.01em;
+  margin-bottom: 1.6rem;
+  position: relative;
+  padding-left: 1.2rem;
+  border-left: 2px solid rgba(201,168,76,0.5);
+}
+
+/* Korean */
+.verse-ko {
+  font-family: 'Noto Serif KR', serif;
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+  font-weight: 300;
+  line-height: 1.95;
+  color: rgba(240,234,216,0.82);
+  letter-spacing: 0.02em;
+  margin-bottom: 1.8rem;
+}
+
+/* reference row */
+.verse-refs {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.ref-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  background: rgba(201,168,76,0.1);
+  border: 1px solid rgba(201,168,76,0.25);
+  border-radius: 2px;
+  padding: 0.3rem 0.8rem;
+}
+.ref-translation {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+
+/* typing cursor */
+.cursor {
+  display: inline-block;
+  width: 2px; height: 1em;
+  background: var(--gold);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: blink 0.9s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ─── dots loader ─── */
+.dots-loader {
+  display: none;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  position: absolute;
+  inset: 0;
+}
+.dots-loader.show { display: flex; }
+.dots-loader span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: dotBounce 1.3s ease-in-out infinite;
+}
+.dots-loader span:nth-child(2) { animation-delay: 0.2s; }
+.dots-loader span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotBounce {
+  0%,80%,100% { transform: translateY(0); opacity:0.3; }
+  40%          { transform: translateY(-10px); opacity:1; }
+}
+
+/* ─── controls ─── */
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.count-label {
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+.count-num {
+  font-family: 'Cinzel', serif;
+  font-size: 1.3rem;
+  color: var(--gold);
+  line-height: 1;
+}
+.btn-reset {
+  background: none;
+  border: none;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 0;
+  margin-top: 0.2rem;
+  display: none;
+}
+.btn-reset:hover { color: var(--gold); }
+.btn-reset.show { display: inline; }
+
+/* ─── CTA button ─── */
+.btn-next {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 1rem 2.2rem;
+  background: linear-gradient(135deg, var(--gold-dk) 0%, var(--gold) 60%, var(--gold-lt) 100%);
+  color: var(--navy);
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.25s, opacity 0.2s;
+  box-shadow: 0 4px 24px rgba(201,168,76,0.25);
+}
+.btn-next::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.btn-next:hover:not(:disabled)::before { opacity: 1; }
+.btn-next:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(201,168,76,0.4);
+}
+.btn-next:active:not(:disabled) { transform: translateY(0) scale(0.98); }
+.btn-next:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-icon {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  transition: transform 0.4s;
+}
+.btn-next:not(:disabled):hover .btn-icon { transform: rotate(72deg); }
+
+/* ─── footer ─── */
+.footer {
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: rgba(90,122,154,0.5);
+}
+
+/* ─── no-key warning ─── */
+.no-key-msg {
+  display: none;
+  text-align: center;
+  padding: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.no-key-msg.show { display: block; }
+.no-key-link {
+  color: var(--gold);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 520px) {
+  .card { padding: 2rem 1.5rem; }
+  .hero { padding: 2.5rem 1rem 1rem; }
+  .controls { flex-direction: column; align-items: stretch; }
+  .btn-next { justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- API Key Drawer -->
+  <div class="api-drawer" id="apiDrawer">
+    <div class="drawer-header" onclick="toggleDrawer()">
+      <div class="drawer-title">
+        <svg class="key-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="8" cy="15" r="4"/><path d="M12 15h8M16 11v8"/>
+        </svg>
+        ANTHROPIC API KEY
+      </div>
+      <span class="drawer-arrow">▼</span>
+    </div>
+    <div class="drawer-body">
+      <label>API 키를 입력하고 저장하세요 (세션 중에만 유지됩니다)</label>
+      <div class="api-input-row">
+        <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
+        <button class="btn-save-key" onclick="saveKey()">저장</button>
+      </div>
+      <div class="key-status" id="keyStatus">키가 저장되지 않았습니다</div>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero">
+    <p class="hero-eyebrow">Scripture · 말씀</p>
+    <h1 class="hero-title">Daily Word</h1>
+    <p class="hero-sub">New Living Translation &nbsp;·&nbsp; 개역개정</p>
+  </div>
+
+  <!-- Stage -->
+  <div class="stage">
+
+    <!-- Verse Card -->
+    <div class="card" id="card">
+      <div class="dots-loader" id="dotsLoader">
+        <span></span><span></span><span></span>
+      </div>
+
+      <div class="placeholder" id="placeholder">✦</div>
+
+      <div class="verse-body" id="verseBody">
+        <div class="verse-en" id="verseEn"></div>
+        <div class="verse-ko" id="verseKo"></div>
+        <div class="verse-refs">
+          <span class="ref-badge" id="verseRef">—</span>
+          <span class="ref-translation">NLT &nbsp;/&nbsp; 개역개정</span>
+        </div>
+      </div>
+
+      <div class="no-key-msg" id="noKeyMsg">
+        API 키가 필요합니다.<br>
+        <span class="no-key-link" onclick="openDrawer()">위의 서랍을 열어 키를 입력하세요 ↑</span>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="info-row">
+        <span class="count-label">읽은 말씀</span>
+        <span class="count-num" id="countNum">—</span>
+        <button class="btn-reset" id="btnReset" onclick="resetAll()">처음부터 다시 · Reset</button>
+      </div>
+
+      <button class="btn-next" id="btnNext" onclick="fetchVerse()">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 2a10 10 0 1 0 10 10" stroke-linecap="round"/>
+          <polyline points="22 2 22 8 16 8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        말씀 받기
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">© Daily Word &nbsp;·&nbsp; Powered by Claude AI &nbsp;·&nbsp; Scripture from NLT &amp; 개역개정</div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────
+let apiKey     = sessionStorage.getItem('dw_api_key') || '';
+let usedRefs   = JSON.parse(sessionStorage.getItem('dw_used') || '[]');
+let isLoading  = false;
+let typingTimeout = null;
+
+// ── Elements ───────────────────────────────────────────────
+const elDrawer   = document.getElementById('apiDrawer');
+const elKeyInput = document.getElementById('apiKeyInput');
+const elKeyStatus= document.getElementById('keyStatus');
+const elCard     = document.getElementById('card');
+const elDots     = document.getElementById('dotsLoader');
+const elPlaceholder = document.getElementById('placeholder');
+const elBody     = document.getElementById('verseBody');
+const elEn       = document.getElementById('verseEn');
+const elKo       = document.getElementById('verseKo');
+const elRef      = document.getElementById('verseRef');
+const elCount    = document.getElementById('countNum');
+const elReset    = document.getElementById('btnReset');
+const elBtn      = document.getElementById('btnNext');
+const elNoKey    = document.getElementById('noKeyMsg');
+
+// ── Init ───────────────────────────────────────────────────
+if (apiKey) {
+  elKeyInput.value = apiKey;
+  elKeyStatus.textContent = '✓ API 키 저장됨';
+  elKeyStatus.className = 'key-status ok';
+}
+updateCount();
+
+// ── Drawer ─────────────────────────────────────────────────
+function toggleDrawer() { elDrawer.classList.toggle('open'); }
+function openDrawer()   { elDrawer.classList.add('open'); }
+
+function saveKey() {
+  const val = elKeyInput.value.trim();
+  if (!val) return;
+  apiKey = val;
+  sessionStorage.setItem('dw_api_key', val);
+  elKeyStatus.textContent = '✓ API 키 저장됨';
+  elKeyStatus.className = 'key-status ok';
+  elDrawer.classList.remove('open');
+  elNoKey.classList.remove('show');
+}
+
+// ── Count ──────────────────────────────────────────────────
+function updateCount() {
+  elCount.textContent = usedRefs.length ? usedRefs.length : '—';
+  usedRefs.length ? elReset.classList.add('show') : elReset.classList.remove('show');
+}
+
+// ── Reset ──────────────────────────────────────────────────
+function resetAll() {
+  usedRefs = [];
+  sessionStorage.removeItem('dw_used');
+  elBody.classList.remove('visible');
+  elPlaceholder.classList.remove('hidden');
+  elCard.classList.remove('active');
+  elNoKey.classList.remove('show');
+  updateCount();
+}
+
+// ── Typing animation ───────────────────────────────────────
+function typeText(el, text, speed, onDone) {
+  el.innerHTML = '';
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  el.appendChild(cursor);
+
+  function step() {
+    if (i < text.length) {
+      el.insertBefore(document.createTextNode(text[i++]), cursor);
+      typingTimeout = setTimeout(step, speed);
+    } else {
+      cursor.remove();
+      if (onDone) onDone();
+    }
+  }
+  step();
+}
+
+// ── Fetch verse ────────────────────────────────────────────
+async function fetchVerse() {
+  if (isLoading) return;
+
+  if (!apiKey) {
+    elNoKey.classList.add('show');
+    openDrawer();
+    return;
+  }
+
+  isLoading = true;
+  elBtn.disabled = true;
+  clearTimeout(typingTimeout);
+
+  // show loader
+  elCard.classList.add('loading');
+  elDots.classList.add('show');
+  elBody.classList.remove('visible');
+  elPlaceholder.classList.add('hidden');
+  elNoKey.classList.remove('show');
+
+  const usedList = usedRefs.length
+    ? `Already used (never repeat): ${usedRefs.join(', ')}\n\n`
+    : '';
+
+  const prompt = `${usedList}Choose ONE beautiful, comforting, or inspiring Bible verse.
+Pick freely from both Old and New Testament — vary the books widely.
+Return ONLY this JSON, no other text:
+{"en":"NLT English verse text","ko":"Korean 개역개정 verse text","ref":"Book Chapter:Verse (e.g. John 3:16)"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 500,
+        system: 'You are a Bible scholar. Respond only with the requested JSON object. No markdown, no extra text.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw  = data.content?.find(b => b.type === 'text')?.text || '';
+    const match = raw.match(/\{[\s\S]*?\}/);
+    if (!match) throw new Error('Parse error');
+    const { en, ko, ref } = JSON.parse(match[0]);
+
+    // save to used
+    if (ref && !usedRefs.includes(ref)) {
+      usedRefs.push(ref);
+      sessionStorage.setItem('dw_used', JSON.stringify(usedRefs));
+    }
+    updateCount();
+
+    // hide loader, show card
+    elCard.classList.remove('loading');
+    elDots.classList.remove('show');
+    elCard.classList.add('active');
+    elRef.textContent = ref;
+    elEn.innerHTML = '';
+    elKo.innerHTML = '';
+    elBody.classList.add('visible');
+
+    // type English first, then Korean
+    typeText(elEn, en, 22, () => {
+      setTimeout(() => typeText(elKo, ko, 18, () => {
+        isLoading = false;
+        elBtn.disabled = false;
+      }), 300);
+    });
+
+  } catch (e) {
+    elCard.classList.remove('loading');
+    elDots.classList.remove('show');
+    elPlaceholder.classList.remove('hidden');
+    elPlaceholder.textContent = '⚠';
+    elPlaceholder.style.fontSize = '1.2rem';
+    elPlaceholder.style.color = 'rgba(201,168,76,0.5)';
+
+    // show error inline
+    elBody.classList.add('visible');
+    elEn.textContent = `오류: ${e.message}`;
+    elKo.textContent = 'API 키를 확인하거나 다시 시도해주세요.';
+    elRef.textContent = 'Error';
+
+    isLoading = false;
+    elBtn.disabled = false;
+  }
+}
+
+// enter key in API input
+elKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
+</script>
+</body>
+</html>
