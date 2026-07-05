@@ -479,7 +479,7 @@ body::after {
       <span class="drawer-arrow">▼</span>
     </div>
     <div class="drawer-body">
-      <label>API 키를 입력하고 저장하세요 (세션 중에만 유지됩니다)</label>
+      <label>API 키를 입력하고 저장하세요 (이 기기에 영구 저장됩니다)</label>
       <div class="api-input-row">
         <input type="password" class="api-input" id="apiKeyInput" placeholder="sk-ant-..." autocomplete="off">
         <button class="btn-save-key" onclick="saveKey()">저장</button>
@@ -545,8 +545,8 @@ body::after {
 
 <script>
 // ── State ──────────────────────────────────────────────────
-let apiKey     = sessionStorage.getItem('dw_api_key') || '';
-let usedRefs   = JSON.parse(sessionStorage.getItem('dw_used') || '[]');
+let apiKey     = localStorage.getItem('dw_api_key') || '';
+let usedRefs   = JSON.parse(localStorage.getItem('dw_used') || '[]');
 let isLoading  = false;
 let typingTimeout = null;
 
@@ -582,7 +582,7 @@ function saveKey() {
   const val = elKeyInput.value.trim();
   if (!val) return;
   apiKey = val;
-  sessionStorage.setItem('dw_api_key', val);
+  localStorage.setItem('dw_api_key', val);
   elKeyStatus.textContent = '✓ API 키 저장됨';
   elKeyStatus.className = 'key-status ok';
   elDrawer.classList.remove('open');
@@ -598,7 +598,7 @@ function updateCount() {
 // ── Reset ──────────────────────────────────────────────────
 function resetAll() {
   usedRefs = [];
-  sessionStorage.removeItem('dw_used');
+  localStorage.removeItem('dw_used');
   elBody.classList.remove('visible');
   elPlaceholder.classList.remove('hidden');
   elCard.classList.remove('active');
@@ -687,7 +687,7 @@ Return ONLY this JSON, no other text:
     // save to used
     if (ref && !usedRefs.includes(ref)) {
       usedRefs.push(ref);
-      sessionStorage.setItem('dw_used', JSON.stringify(usedRefs));
+      localStorage.setItem('dw_used', JSON.stringify(usedRefs));
     }
     updateCount();
 
