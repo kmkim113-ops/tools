@@ -462,10 +462,129 @@ body::after {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+/* ─── Generation overlay ─── */
+.gen-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8,15,24,0.96);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  backdrop-filter: blur(8px);
+  transition: opacity 0.5s;
+}
+.gen-overlay.hidden { opacity: 0; pointer-events: none; }
+
+.gen-title {
+  font-family: 'Cinzel', serif;
+  font-size: clamp(1.1rem, 3vw, 1.5rem);
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-align: center;
+}
+.gen-sub {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.7;
+}
+.gen-progress-wrap {
+  width: min(420px, 85vw);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.gen-bar-bg {
+  width: 100%;
+  height: 4px;
+  background: rgba(201,168,76,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.gen-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-dk), var(--gold), var(--gold-lt));
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.4s ease;
+}
+.gen-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+.gen-count { color: var(--gold); font-family: 'Cinzel', serif; }
+.gen-verse-preview {
+  width: min(420px, 85vw);
+  font-family: 'Noto Serif KR', serif;
+  font-size: 0.78rem;
+  color: rgba(240,234,216,0.4);
+  text-align: center;
+  line-height: 1.7;
+  min-height: 3.5rem;
+  transition: opacity 0.3s;
+  font-style: italic;
+}
+.gen-cancel {
+  background: none;
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--text-dim);
+  font-family: 'Cinzel', serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  padding: 0.5rem 1.2rem;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  margin-top: 0.5rem;
+}
+.gen-cancel:hover { border-color: rgba(201,168,76,0.5); color: var(--gold); }
+
+/* storage bar */
+.storage-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.06em;
+}
+.storage-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.storage-dot.full { background: #6dbf8a; opacity: 1; }
+
 </style>
 </head>
 <body>
 <div class="app">
+
+  <!-- Generation overlay -->
+  <div class="gen-overlay hidden" id="genOverlay">
+    <div class="gen-title">말씀을 준비하고 있습니다</div>
+    <div class="gen-sub">Claude AI가 성경 전권에서 구절을 수집합니다.<br>한 번만 기다리면 이후엔 즉시 표시됩니다.</div>
+    <div class="gen-progress-wrap">
+      <div class="gen-bar-bg"><div class="gen-bar-fill" id="genBarFill"></div></div>
+      <div class="gen-stats">
+        <span><span class="gen-count" id="genCountNow">0</span> / <span id="genCountTotal">500</span> 구절</span>
+        <span id="genEta">잠시만요...</span>
+      </div>
+    </div>
+    <div class="gen-verse-preview" id="genPreview">첫 번째 구절을 가져오는 중...</div>
+    <button class="gen-cancel" onclick="cancelGeneration()">취소</button>
+  </div>
 
   <!-- API Key Drawer -->
   <div class="api-drawer" id="apiDrawer">
@@ -527,6 +646,7 @@ body::after {
         <span class="count-label">읽은 말씀</span>
         <span class="count-num" id="countNum">—</span>
         <button class="btn-reset" id="btnReset" onclick="resetAll()">처음부터 다시 · Reset</button>
+        <div class="storage-bar" id="storageBar" style="display:none"><span class="storage-dot" id="storageDot"></span><span id="storageLabel"></span></div>
       </div>
 
       <button class="btn-next" id="btnNext" onclick="fetchVerse()">
@@ -540,41 +660,86 @@ body::after {
 
   </div>
 
-  <div class="footer">© Daily Word &nbsp;·&nbsp; Powered by Claude AI &nbsp;·&nbsp; Scripture from NLT &amp; 개역개정</div>
+  <div class="footer">© Daily Word &nbsp;·&nbsp; Claude AI · NLT &amp; 개역개정 · 500구절 셔플</div>
 </div>
 
 <script>
-// ── State ──────────────────────────────────────────────────
-let apiKey     = localStorage.getItem('dw_api_key') || '';
-let usedRefs   = JSON.parse(localStorage.getItem('dw_used') || '[]');
-let isLoading  = false;
-let typingTimeout = null;
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+const TARGET     = 500;   // verses to generate
+const BATCH_SIZE = 10;    // per API call
+const CONCURRENCY = 4;    // parallel calls
+const BOOKS_OT = ['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth',
+  '1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah',
+  'Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah',
+  'Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah',
+  'Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'];
+const BOOKS_NT = ['Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians',
+  'Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians',
+  '1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter',
+  '1 John','2 John','3 John','Jude','Revelation'];
+const ALL_BOOKS = [...BOOKS_OT, ...BOOKS_NT];
 
-// ── Elements ───────────────────────────────────────────────
-const elDrawer   = document.getElementById('apiDrawer');
-const elKeyInput = document.getElementById('apiKeyInput');
-const elKeyStatus= document.getElementById('keyStatus');
-const elCard     = document.getElementById('card');
-const elDots     = document.getElementById('dotsLoader');
-const elPlaceholder = document.getElementById('placeholder');
-const elBody     = document.getElementById('verseBody');
-const elEn       = document.getElementById('verseEn');
-const elKo       = document.getElementById('verseKo');
-const elRef      = document.getElementById('verseRef');
-const elCount    = document.getElementById('countNum');
-const elReset    = document.getElementById('btnReset');
-const elBtn      = document.getElementById('btnNext');
-const elNoKey    = document.getElementById('noKeyMsg');
+// ═══════════════════════════════════════════════════════════
+// STORAGE KEYS
+// ═══════════════════════════════════════════════════════════
+const KEY_API    = 'dw_api_key';
+const KEY_VERSES = 'dw_verses';   // full generated library
+const KEY_QUEUE  = 'dw_queue';    // remaining shuffled indices
 
-// ── Init ───────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let apiKey      = localStorage.getItem(KEY_API) || '';
+let library     = JSON.parse(localStorage.getItem(KEY_VERSES) || '[]');
+let queue       = JSON.parse(localStorage.getItem(KEY_QUEUE)  || '[]');
+let isLoading   = false;
+let typingTO    = null;
+let genAbort    = false;
+
+// ═══════════════════════════════════════════════════════════
+// ELEMENTS
+// ═══════════════════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const elDrawer   = $('apiDrawer');
+const elKeyInput = $('apiKeyInput');
+const elKeyStatus= $('keyStatus');
+const elCard     = $('card');
+const elDots     = $('dotsLoader');
+const elPH       = $('placeholder');
+const elBody     = $('verseBody');
+const elEn       = $('verseEn');
+const elKo       = $('verseKo');
+const elRef      = $('verseRef');
+const elCount    = $('countNum');
+const elReset    = $('btnReset');
+const elBtn      = $('btnNext');
+const elNoKey    = $('noKeyMsg');
+const elOverlay  = $('genOverlay');
+const elBarFill  = $('genBarFill');
+const elGenNow   = $('genCountNow');
+const elGenTotal = $('genCountTotal');
+const elGenEta   = $('genEta');
+const elPreview  = $('genPreview');
+const elStorBar  = $('storageBar');
+const elStorDot  = $('storageDot');
+const elStorLbl  = $('storageLabel');
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
 if (apiKey) {
   elKeyInput.value = apiKey;
   elKeyStatus.textContent = '✓ API 키 저장됨';
   elKeyStatus.className = 'key-status ok';
 }
 updateCount();
+updateStorageBar();
 
-// ── Drawer ─────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// KEY DRAWER
+// ═══════════════════════════════════════════════════════════
 function toggleDrawer() { elDrawer.classList.toggle('open'); }
 function openDrawer()   { elDrawer.classList.add('open'); }
 
@@ -582,42 +747,217 @@ function saveKey() {
   const val = elKeyInput.value.trim();
   if (!val) return;
   apiKey = val;
-  localStorage.setItem('dw_api_key', val);
+  localStorage.setItem(KEY_API, val);
   elKeyStatus.textContent = '✓ API 키 저장됨';
   elKeyStatus.className = 'key-status ok';
   elDrawer.classList.remove('open');
   elNoKey.classList.remove('show');
 }
+elKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
 
-// ── Count ──────────────────────────────────────────────────
-function updateCount() {
-  elCount.textContent = usedRefs.length ? usedRefs.length : '—';
-  usedRefs.length ? elReset.classList.add('show') : elReset.classList.remove('show');
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-// ── Reset ──────────────────────────────────────────────────
+function saveLibrary() { localStorage.setItem(KEY_VERSES, JSON.stringify(library)); }
+function saveQueue()   { localStorage.setItem(KEY_QUEUE,  JSON.stringify(queue)); }
+
+function updateCount() {
+  const used = library.length - queue.length;
+  elCount.textContent = library.length > 0 ? `${used} / ${library.length}` : '—';
+  used > 0 ? elReset.classList.add('show') : elReset.classList.remove('show');
+}
+
+function updateStorageBar() {
+  if (library.length === 0) { elStorBar.style.display = 'none'; return; }
+  elStorBar.style.display = 'flex';
+  const pct = Math.round((library.length / TARGET) * 100);
+  if (library.length >= TARGET) {
+    elStorDot.className = 'storage-dot full';
+    elStorLbl.textContent = `${library.length}개 구절 저장됨 ✓`;
+  } else {
+    elStorDot.className = 'storage-dot';
+    elStorLbl.textContent = `${library.length}개 저장 (${pct}%)`;
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// SINGLE BATCH API CALL → returns array of verse objects
+// ═══════════════════════════════════════════════════════════
+async function fetchBatch(booksHint, existingRefs) {
+  // pick 2-3 random books to guide variety
+  const books = shuffle(booksHint).slice(0, 3).join(', ');
+  const avoidSample = existingRefs.slice(-30).join(', ') || 'none';
+
+  const prompt = `Generate exactly ${BATCH_SIZE} different Bible verses, preferring books: ${books}.
+Avoid these recently used references: ${avoidSample}
+Spread across different chapters and themes.
+Return ONLY a JSON array, no other text:
+[{"en":"NLT text","ko":"개역개정 text","ref":"Book Chapter:Verse"},...]`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 2000,
+      system: 'You are a Bible scholar. Output only the requested JSON array. No markdown, no extra text.',
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error?.message || `HTTP ${res.status}`);
+  }
+  const data = await res.json();
+  const raw = data.content?.find(b => b.type === 'text')?.text || '';
+  const match = raw.match(/\[[\s\S]*\]/);
+  if (!match) throw new Error('Parse error');
+  return JSON.parse(match[0]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// GENERATION ORCHESTRATOR
+// ═══════════════════════════════════════════════════════════
+async function generateLibrary() {
+  if (!apiKey) { elNoKey.classList.add('show'); openDrawer(); return; }
+
+  genAbort = false;
+  library = [];
+  queue = [];
+  saveLibrary();
+  saveQueue();
+
+  // show overlay
+  elOverlay.classList.remove('hidden');
+  elGenTotal.textContent = TARGET;
+  elGenNow.textContent = '0';
+  elBarFill.style.width = '0%';
+  elBtn.disabled = true;
+
+  const batches = Math.ceil(TARGET / BATCH_SIZE); // 50 batches
+  let done = 0;
+  const startTime = Date.now();
+  const seenRefs = new Set();
+
+  // rotate books so variety is spread across all 66 books
+  const bookPool = shuffle([...ALL_BOOKS, ...ALL_BOOKS]); // double up for variety
+
+  // Run in concurrent groups
+  let batchIdx = 0;
+  while (done < batches && !genAbort) {
+    const group = [];
+    for (let i = 0; i < CONCURRENCY && batchIdx < batches; i++, batchIdx++) {
+      const hint = bookPool.slice((batchIdx * 3) % bookPool.length,
+                                  (batchIdx * 3) % bookPool.length + 3);
+      group.push(fetchBatch(hint, [...seenRefs]).catch(e => {
+        console.warn('Batch error:', e.message);
+        return []; // skip failed batch
+      }));
+    }
+
+    const results = await Promise.all(group);
+    for (const verses of results) {
+      for (const v of verses) {
+        if (v.ref && v.en && v.ko && !seenRefs.has(v.ref)) {
+          seenRefs.add(v.ref);
+          library.push(v);
+          // preview last verse
+          elPreview.textContent = `"${v.ko.slice(0, 60)}${v.ko.length > 60 ? '…' : ''}" — ${v.ref}`;
+        }
+      }
+    }
+    done += group.length;
+
+    // save incrementally every 4 batches
+    if (done % 4 === 0) { saveLibrary(); }
+
+    // update UI
+    const pct = Math.min(100, Math.round((library.length / TARGET) * 100));
+    elBarFill.style.width = pct + '%';
+    elGenNow.textContent = library.length;
+
+    const elapsed = (Date.now() - startTime) / 1000;
+    const rate = library.length / elapsed;
+    const remaining = Math.max(0, TARGET - library.length);
+    const eta = rate > 0 ? Math.round(remaining / rate) : '—';
+    elGenEta.textContent = eta !== '—' ? `약 ${eta}초 남음` : '계산 중...';
+  }
+
+  // Final save + setup queue
+  saveLibrary();
+  queue = shuffle(library.map((_, i) => i));
+  saveQueue();
+  updateStorageBar();
+  updateCount();
+
+  // hide overlay
+  setTimeout(() => {
+    elOverlay.classList.add('hidden');
+    elBtn.disabled = false;
+    elPH.classList.remove('hidden');
+    elPH.textContent = '✦';
+  }, 800);
+}
+
+function cancelGeneration() {
+  genAbort = true;
+  if (library.length > 0) {
+    saveLibrary();
+    queue = shuffle(library.map((_, i) => i));
+    saveQueue();
+  }
+  elOverlay.classList.add('hidden');
+  elBtn.disabled = false;
+  updateCount();
+  updateStorageBar();
+}
+
+// ═══════════════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════════════
 function resetAll() {
-  usedRefs = [];
-  localStorage.removeItem('dw_used');
+  // reshuffle queue, keep library
+  if (library.length > 0) {
+    queue = shuffle(library.map((_, i) => i));
+    saveQueue();
+  }
   elBody.classList.remove('visible');
-  elPlaceholder.classList.remove('hidden');
+  elPH.classList.remove('hidden');
+  elPH.textContent = '✦';
+  elPH.style.fontSize = '';
+  elPH.style.color = '';
   elCard.classList.remove('active');
-  elNoKey.classList.remove('show');
   updateCount();
 }
 
-// ── Typing animation ───────────────────────────────────────
+// ═══════════════════════════════════════════════════════════
+// TYPING ANIMATION
+// ═══════════════════════════════════════════════════════════
 function typeText(el, text, speed, onDone) {
   el.innerHTML = '';
   let i = 0;
   const cursor = document.createElement('span');
   cursor.className = 'cursor';
   el.appendChild(cursor);
-
   function step() {
     if (i < text.length) {
       el.insertBefore(document.createTextNode(text[i++]), cursor);
-      typingTimeout = setTimeout(step, speed);
+      typingTO = setTimeout(step, speed);
     } else {
       cursor.remove();
       if (onDone) onDone();
@@ -626,109 +966,60 @@ function typeText(el, text, speed, onDone) {
   step();
 }
 
-// ── Fetch verse ────────────────────────────────────────────
-async function fetchVerse() {
+// ═══════════════════════════════════════════════════════════
+// SHOW VERSE
+// ═══════════════════════════════════════════════════════════
+function showVerse(verse) {
+  elCard.classList.remove('loading');
+  elDots.classList.remove('show');
+  elCard.classList.add('active');
+  elRef.textContent = verse.ref;
+  elEn.innerHTML = '';
+  elKo.innerHTML = '';
+  elBody.classList.add('visible');
+  typeText(elEn, verse.en, 18, () => {
+    setTimeout(() => typeText(elKo, verse.ko, 14, () => {
+      isLoading = false;
+      elBtn.disabled = false;
+    }), 250);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// MAIN — get next verse
+// ═══════════════════════════════════════════════════════════
+function fetchVerse() {
   if (isLoading) return;
 
-  if (!apiKey) {
-    elNoKey.classList.add('show');
-    openDrawer();
+  // No library yet → generate
+  if (library.length === 0) {
+    if (!apiKey) { elNoKey.classList.add('show'); openDrawer(); return; }
+    generateLibrary();
     return;
+  }
+
+  // Queue empty → reshuffle
+  if (queue.length === 0) {
+    queue = shuffle(library.map((_, i) => i));
+    saveQueue();
   }
 
   isLoading = true;
   elBtn.disabled = true;
-  clearTimeout(typingTimeout);
+  clearTimeout(typingTO);
 
-  // show loader
   elCard.classList.add('loading');
   elDots.classList.add('show');
   elBody.classList.remove('visible');
-  elPlaceholder.classList.add('hidden');
+  elPH.classList.add('hidden');
   elNoKey.classList.remove('show');
 
-  const usedList = usedRefs.length
-    ? `Already used (never repeat): ${usedRefs.join(', ')}\n\n`
-    : '';
+  const idx = queue.shift();
+  saveQueue();
+  updateCount();
 
-  const prompt = `${usedList}Choose ONE beautiful, comforting, or inspiring Bible verse.
-Pick freely from both Old and New Testament — vary the books widely.
-Return ONLY this JSON, no other text:
-{"en":"NLT English verse text","ko":"Korean 개역개정 verse text","ref":"Book Chapter:Verse (e.g. John 3:16)"}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 500,
-        system: 'You are a Bible scholar. Respond only with the requested JSON object. No markdown, no extra text.',
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.error?.message || `HTTP ${res.status}`);
-    }
-
-    const data = await res.json();
-    const raw  = data.content?.find(b => b.type === 'text')?.text || '';
-    const match = raw.match(/\{[\s\S]*?\}/);
-    if (!match) throw new Error('Parse error');
-    const { en, ko, ref } = JSON.parse(match[0]);
-
-    // save to used
-    if (ref && !usedRefs.includes(ref)) {
-      usedRefs.push(ref);
-      localStorage.setItem('dw_used', JSON.stringify(usedRefs));
-    }
-    updateCount();
-
-    // hide loader, show card
-    elCard.classList.remove('loading');
-    elDots.classList.remove('show');
-    elCard.classList.add('active');
-    elRef.textContent = ref;
-    elEn.innerHTML = '';
-    elKo.innerHTML = '';
-    elBody.classList.add('visible');
-
-    // type English first, then Korean
-    typeText(elEn, en, 22, () => {
-      setTimeout(() => typeText(elKo, ko, 18, () => {
-        isLoading = false;
-        elBtn.disabled = false;
-      }), 300);
-    });
-
-  } catch (e) {
-    elCard.classList.remove('loading');
-    elDots.classList.remove('show');
-    elPlaceholder.classList.remove('hidden');
-    elPlaceholder.textContent = '⚠';
-    elPlaceholder.style.fontSize = '1.2rem';
-    elPlaceholder.style.color = 'rgba(201,168,76,0.5)';
-
-    // show error inline
-    elBody.classList.add('visible');
-    elEn.textContent = `오류: ${e.message}`;
-    elKo.textContent = 'API 키를 확인하거나 다시 시도해주세요.';
-    elRef.textContent = 'Error';
-
-    isLoading = false;
-    elBtn.disabled = false;
-  }
+  setTimeout(() => showVerse(library[idx]), 500);
 }
-
-// enter key in API input
-elKeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') saveKey(); });
 </script>
 </body>
 </html>
